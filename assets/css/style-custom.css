@@ -10,7 +10,7 @@
 
 .top-profile-l {
     background: white;
-    border: 1px solid;
+    border: 1px solid darkgray;
     height: 80vh;
 
     opacity: 0.9 !important;
@@ -18,7 +18,7 @@
 
 .top-profile-r {
     background: white;
-    border: 1px solid;
+    border: 1px solid darkgray;
     height: 80vh;
 
     opacity: 0.9 !important;
@@ -57,8 +57,24 @@
 }
 
 
+.top-profile-l .me-contact-list li i {
+  color: #2f4c7c;
+}
+
+.top-profile-r .me-skills-list li i {
+    font-size: 10px;
+    position: absolute;
+    margin-top: 4px;
+    color: #2f4c7c;
+}
+.top-profile-r .me-skills-list li span {
+  margin-left: 15px;
+}
 
 
+.top-profile-r .skills-keyword {
+  color: #2f4c7c;
+}
 
 .marquee {
   background-color: red;
