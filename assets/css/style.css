@@ -1,10 +1,3 @@
-/**
-* Template Name: TheEvent - v4.9.0
-* Template URL: https://bootstrapmade.com/theevent-conference-event-bootstrap-template/
-* Author: BootstrapMade.com
-* License: https://bootstrapmade.com/license/
-*/
-
 /*--------------------------------------------------------------
 # General
 --------------------------------------------------------------*/
@@ -491,7 +484,8 @@ h6 {
 
 #hero:before {
   content: "";
-  background: rgba(6, 12, 34, 0.8);
+  /*background: rgba(6, 12, 34, 0.8);*/
+  /*background: rgb(187 198 241 / 70%);*/
   position: absolute;
   bottom: 0;
   top: 0;
@@ -523,12 +517,14 @@ h6 {
   color: #fff;
   font-family: "Raleway", sans-serif;
   font-size: 56px;
+  font-size: 45px;
   font-weight: 600;
   text-transform: uppercase;
 }
 
 #hero h1 span {
   color: #f82249;
+  color: #2f4c7c;
 }
 
 @media (max-width: 991px) {

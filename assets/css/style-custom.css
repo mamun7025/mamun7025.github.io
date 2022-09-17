@@ -1,0 +1,112 @@
+/*--------------------------------------------------------------
+# General
+--------------------------------------------------------------*/
+.top-profile-row {
+  margin-left: 100px;
+  margin-right: 100px;
+
+  margin-top: 60px;
+}
+
+.top-profile-l {
+    background: white;
+    border: 1px solid;
+    height: 80vh;
+
+    opacity: 0.9 !important;
+}
+
+.top-profile-r {
+    background: white;
+    border: 1px solid;
+    height: 80vh;
+
+    opacity: 0.9 !important;
+}
+
+.top-profile-bottom-buttons {
+  margin-left: 100px;
+  margin-right: 100px;
+
+
+  background: white;
+  opacity: 0.5 !important;
+
+  padding: 7px;
+  border-radius: 3px;
+}
+
+
+/*--------------------------------------------------------------
+# Back to top button
+--------------------------------------------------------------*/
+
+
+.me-contact-list li {
+  border: none;
+}
+
+.me-skills-list li {
+  border: none;
+}
+
+#hero p {
+     color: inherit; 
+    font-weight: 700;
+     font-size: inherit; 
+}
+
+
+
+
+
+.marquee {
+  background-color: red;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.marquee p {
+    display: inline-block;
+    padding-left: 100%;
+    animation: marquee 15s linear infinite;
+}
+@keyframes marquee {
+    0%   { transform: translate(0, 0); }
+    100% { transform: translate(-100%, 0); }
+}
+
+.marquee p:hover{
+  animation-play-state: paused;
+}
+
+
+
+
+/* Small devices (landscape phones, 576px and up)*/
+@media (min-width: 576px) {
+}
+
+/* Medium devices (tablets, 768px and up)*/
+@media (min-width: 768px) {
+}
+
+/* Large devices (desktops, 992px and up)*/
+@media (min-width: 992px) {
+}
+
+/* X-Large devices (large desktops, 1200px and up)*/
+@media (min-width: 1200px) {
+}
+
+/* XX-Large devices (larger desktops, 1400px and up)*/
+@media (min-width: 1400px) {
+}
+
+/*Apply styles starting from medium devices and up to extra large devices*/
+@media (min-width: 768px) and (max-width: 1599.98px) {
+  #me-main-profile-pic {
+    height: 300px;
+  }
+}
