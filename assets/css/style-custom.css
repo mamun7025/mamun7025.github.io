@@ -9,13 +9,31 @@
 }
 
 .top-profile-l {
-    background: white;
+    /*background: white;*/
     border: 1px solid darkgray;
     border: none !important;
     height: 80vh;
 
-    opacity: 0.9 !important;
+    /*opacity: 0.9 !important;*/
+    position: relative;
 }
+.top-profile-l:after {
+    content: "";
+    background: white;
+    position: absolute;
+    opacity: 0.9 !important;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+.top-profile-l > * {
+    z-index: 1;
+}
+.top-profile-l ul.me-contact-list {
+    --bs-list-group-bg: none;
+}
+
 
 .top-profile-r {
     /*background: white;*/
