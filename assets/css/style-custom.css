@@ -255,3 +255,23 @@
     height: 300px;
   }
 }
+
+
+
+
+
+@media (min-width: 300px) {
+  .btn {
+    min-width: 150px;
+  }
+}
+@media (min-width: 768px) {
+  .btn {
+    min-width: 120px;
+  }
+}
+@media (min-width: 300px) and (max-width: 768px) {
+  .crx {
+    padding-left: 0px;
+  }
+}
