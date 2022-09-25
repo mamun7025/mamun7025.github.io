@@ -35,6 +35,24 @@
     /*opacity: 0.9 !important;*/
     position: relative;
 }
+@media (min-width: 300px) {
+  .top-profile-l {
+      border: 1px solid darkgray;
+      border: none !important;
+      height: 100%;
+      position: relative;
+  }
+}
+@media (min-width: 768px) {
+  .top-profile-l {
+      border: 1px solid darkgray;
+      border: none !important;
+      height: 80vh;
+      position: relative;
+  }
+}
+
+
 .top-profile-l:after {
     content: "";
     background: white;
