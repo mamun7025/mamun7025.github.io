@@ -7,6 +7,24 @@
 
   margin-top: 60px;
 }
+/*----- apply with media queries ----*/
+@media (min-width: 300px) {
+  .top-profile-row {
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-top: 45px;
+  }
+}
+@media (min-width: 768px) {
+  .top-profile-row {
+    margin-left: 100px;
+    margin-right: 100px;
+
+    margin-top: 60px;
+  }
+}
+
+
 
 .top-profile-l {
     /*background: white;*/
@@ -76,6 +94,24 @@
   /*padding: 7px;*/
   border-radius: 3px;
 }
+@media (min-width: 300px) {
+  .top-profile-bottom-buttons {
+    margin-left: 15px;
+    margin-right: 15px;
+    position: relative;
+    border-radius: 3px;
+  }
+}
+@media (min-width: 768px) {
+  .top-profile-bottom-buttons {
+    margin-left: 100px;
+    margin-right: 100px;
+    position: relative;
+    border-radius: 3px;
+  }
+}
+
+
 .row.top-profile-bottom-buttons:after {
   content: '';
   position: absolute;
