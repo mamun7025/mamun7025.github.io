@@ -1,0 +1,173 @@
+/*--------------------------------------------------------------
+# Sections General
+--------------------------------------------------------------*/
+#articles {
+  padding: 60px 0;
+  overflow: hidden;
+}
+
+  #articles .section-title {
+    text-align: center;
+    padding: 30px 0;
+    position: relative;
+  }
+
+  #articles .section-title h2 {
+    font-size: 32px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    color: #191919;
+    position: relative;
+    z-index: 2;
+  }
+
+  #articles .section-title span {
+    position: absolute;
+    top: 30px;
+    color: #f4f4f4;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    font-weight: 700;
+    font-size: 52px;
+    text-transform: uppercase;
+    line-height: 0;
+  }
+
+  #articles .section-title p {
+    margin-bottom: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  @media (max-width: 575px) {
+    #articles .section-title h2 {
+      font-size: 28px;
+      margin-bottom: 15px;
+    }
+
+    #articles .section-title span {
+      font-size: 38px;
+    }
+  }
+
+
+
+/*--------------------------------------------------------------
+# Services
+--------------------------------------------------------------*/
+ #articles.services .icon-box {
+    text-align: center;
+    padding: 80px 20px;
+    transition: all ease-in-out 0.3s;
+    box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
+  }
+
+ #articles.services .icon-box .icon {
+    margin: 0 auto;
+    width: 64px;
+    height: 64px;
+    background: #cc1616;
+    transition: all 0.3s ease-out 0s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    transform-style: preserve-3d;
+  }
+
+ #articles.services .icon-box .icon i {
+    color: #fff;
+    font-size: 28px;
+  }
+
+ #articles.services .icon-box .icon::before {
+    position: absolute;
+    content: "";
+    left: -8px;
+    top: -8px;
+    height: 100%;
+    width: 100%;
+    background: #fce5e5;
+    transition: all 0.3s ease-out 0s;
+    transform: translateZ(-1px);
+  }
+
+ #articles.services .icon-box h4 {
+    font-weight: 700;
+    margin-bottom: 15px;
+    font-size: 24px;
+  }
+
+ #articles.services .icon-box h4 a {
+    color: #191919;
+  }
+
+ #articles.services .icon-box p {
+    line-height: 24px;
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+
+ #articles.services .icon-box:hover {
+    background: #cc1616;
+    border-color: #cc1616;
+    padding: 70px 20px 90px 20px;
+  }
+
+ #articles.services .icon-box:hover .icon {
+    background: #fff;
+  }
+
+ #articles.services .icon-box:hover .icon i {
+    color: #cc1616;
+  }
+
+ #articles.services .icon-box:hover .icon::before {
+    background: #e82d2d;
+  }
+
+ #articles.services .icon-box:hover h4 a,
+ #articles.services .icon-box:hover p {
+    color: #fff;
+  }
+
+  /*--------------------------------------------------------------
+  # Cta
+  --------------------------------------------------------------*/
+ #articles.cta {
+    background: linear-gradient(rgba(2, 2, 2, 0.5), rgba(0, 0, 0, 0.5)), url("../img/cta-bg.jpg") fixed center center;
+    background-size: cover;
+    padding: 120px 0;
+  }
+
+ #articles.cta h3 {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+ #articles.cta p {
+    color: #fff;
+  }
+
+ #articles.cta .cta-btn {
+    font-family: "Raleway", sans-serif;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 1px;
+    display: inline-block;
+    padding: 10px 28px;
+    transition: 0.5s;
+    margin-top: 10px;
+    border: 2px solid #fff;
+    color: #fff;
+  }
+
+ #articles.cta .cta-btn:hover {
+    background: #cc1616;
+    border: 2px solid #cc1616;
+  }

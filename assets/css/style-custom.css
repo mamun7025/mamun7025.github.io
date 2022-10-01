@@ -275,3 +275,53 @@
     padding-left: 0px;
   }
 }
+
+
+
+/*--------------------------*/
+.section-header {
+    padding-bottom: 15px;
+}
+.section-header::before {
+    content: "";
+    position: absolute;
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #f82249;
+    bottom: 0;
+    left: calc(50% - 30px);
+    z-index: 1;
+}
+.section-header::after {
+    content: "";
+    position: absolute;
+    display: block;
+    width: 200px;
+    height: 1px;
+    background: #ddd;
+    bottom: 1px;
+    left: calc(50% - 100px);
+}
+
+
+.section-title h2::before {
+    content: "";
+    position: absolute;
+    display: block;
+    width: 150px;
+    height: 1px;
+    background: #ddd;
+    bottom: 1px;
+    left: calc(50% - 75px);
+}
+.section-title h2::after {
+    content: "";
+    position: absolute;
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #f82249;
+    bottom: 0;
+    left: calc(50% - 29px);
+}

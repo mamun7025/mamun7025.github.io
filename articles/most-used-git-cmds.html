@@ -5,13 +5,107 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Most Used GIT Cmds</title>
 </head>
-<body>
+<body style="padding: 20px;">
 
-	<p>Hi this Line -1 in change [this modify from dev-mamun]  line doing local changed 10 ---10</p>
-	<p>Hi this Line -2 in ---11</p>
-	<p>Adding dev branch changes</p>
-	<p> Add new line <p>
-	<p> This line add from dev-mamun branch <p>
+
+<h1>Most used git commands</h1>
+
+<p style="white-space: pre-wrap;">
+git pull
+git push
+git status
+
+git add  app-cms/assets/js_companyName/ns-js/pages/rpt-sales-daily-weekly-monthly-yearly.js  app-cms/rpt-sales-daily-weekly-monthly-yearly.html
+git add app-cms/view-order-list.html
+git status
+git commit -m "FC-CMS : Work on date filter on reports"
+git push
+
+git pull
+git status
+
+
+git checkout -b bkp-sep-30
+git checkout wikiMaster
+git checkout dev-mamun
+git merge wikiMaster
+git diff wikiMaster..dev-mamun --name-only
+git checkout wikiMaster
+
+
+  git status
+  git commit -m "FC : Work on update mail template for testing purpose..."
+  git status
+  git fetch origin wikiMaster
+  git diff origin/wikiMaster -- app-backend/src/main/java/com/companyName/app/dao/OrdersDAO.java
+  clear
+  git diff origin/wikiMaster -- app-backend/src/main/java/com/companyName/app/dao/OrdersDAO.java
+  git diff wikiMaster..dev-mamun -- app-backend/src/main/java/com/companyName/app/dao/OrdersDAO.java
+  git status
+  git pull
+  git stash --  app/assets/js/core/fc-constants.js
+  git pull
+  git status
+  git push
+  git diff wikiMaster..dev-mamun -- app-backend/src/main/java/com/companyName/app/templates/EmailTemplate.java
+  git diff wikiMaster..dev-mamun -- app-backend/src/main/java/com/companyName/app/utils/ERPUtil.java
+  git status
+  git checkout dev-mamun
+  git merge wikiMaster
+  git checkout wikiMaster
+  git status
+  git log -p app-backend/src/main/java/com/companyName/app/utils/ERPUtil.java
+
+    history
+    history > history_for_print.txt
+
+
+
+
+
+=====================================================================
+------------------ Before Start Work in Morning ---------------------
+=====================================================================
+git checkout -b bkp-sep-22
+git status
+git checkout wikiMaster
+git status
+git pull
+git status
+git pull
+git checkout dev-mamun
+git diff wikiMaster..dev-mamun
+git diff wikiMaster..dev-mamun --name-only
+git diff wikiMaster..dev-mamun
+git merge wikiMaster
+git diff wikiMaster..dev-mamun
+
+
+
+
+
+=====================================================================
+-------------- Before Push Changes Code to Remote  ------------------
+=====================================================================
+git status
+git add appname-cms/assets/js_companyName/ns-js/core/JsClient.js appname-cms/assets/js_companyName/ns-js/pages/rpt-sales-daily-weekly-monthly-yearly.js appname-cms/index.html appname-cms/rpt-sales-daily-weekly-monthly-yearly.html
+git status
+git commit -m "FC-CMS : DWMY - Reports"
+git status
+
+
+
+git checkout wikiMaster
+git merge dev-mamun
+git status
+
+
+
+git pull
+            -----------> if any conflict merge before push
+git push
+
+</p>
 
 </body>
 </html>
