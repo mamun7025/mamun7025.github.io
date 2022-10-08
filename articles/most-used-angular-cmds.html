@@ -3,14 +3,167 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Most Used GIT Cmds</title>
+	<title>Most Used Angular Cmds</title>
 </head>
 <body>
 
-	<p>Hi this Line -1 Main branch changes</p>
-	<p>Hi this Line -1 Dev-Mamun branch changes</p>
-	<p>Hi this Line -2 in ---11</p>
-	<p> Add new line <p>
+<h1>Most used Angular commands</h1>	
+
+<p style="white-space: pre-wrap;">
+
+
+npm install
+ng serve
+ng serve --open
+ng serve ---port 9000
+
+
+
+production deploy
+-------------------------------------------------------
+ng build
+ng build --base-href .
+ng build --base-href http://www.yourwebsitehere.com/.
+ng build --prod --base-href="/hrms/" --deploy-url="/hrms/"
+ng build --prod --base-href=/myApp/
+ng build --prod --base-href=/hrms/
+
+
+
+ng g c employee-create
+
+
+plainsight/some-name/some-name.component.ts
+ng g component plainsight/some-name --flat
+
+
+ng g c component-name
+ng g c specific-folder/component-name
+
+
+ng generate module app-routing --flat --module=app
+			--flat puts the file in src/app instead of its own folder.
+			--module=app tells the CLI to register it in the imports array of the AppModule.
+
+
+ng generate service services/product
+
+------------ Applied -------------
+ng g c employee-create
+ng g c employee/employee-create
+ng g c employee/employee-list
+ng g cl Employee
+
+ng generate service data
+
+
+ng g cl emp-profile/models/Employee
+ng g s emp-profile/services/Employee
+ng g c emp-profile/components/employee-create
+
+ng g class models/tutorial --type=model
+
+
+
+ng serve --open
+ng serve ---port 9000
+
+
+
+-------- Install
+npm install jquery --save
+npm install datatables.net --save
+npm install datatables.net-dt --save
+npm install angular-datatables --save
+npm install @types/jquery --save-dev
+npm install @types/datatables.net --save-dev
+npm install bootstrap --save
+
+
+npm install font-awesome --save
+
+
+npm uninstall ngx-spinner
+
+
+
+====================================================================================================
+====================================================================================================
+
+plainsight/some-name/some-name.component.ts
+ng g component plainsight/some-name --flat
+
+
+ng g c component-name
+ng g c specific-folder/component-name
+
+
+ng new my-crud-app --routing
+
+
+ng generate module post --routing
+			run successfully command, it will create files as like bellow path:
+			src/app/post/post.module.ts
+			src/app/post/post-routing.module.ts
+
+ng generate component post/index
+ng generate component post/view
+ng generate component post/create
+ng generate component post/edit
+			run successfully command, it will create folder with files as like bellow path:
+			src/app/post/index/*
+			src/app/post/view/*
+			src/app/post/create/*
+			src/app/post/edit/*
+
+https://www.itsolutionstuff.com/post/angular-11-crud-application-exampleexample.html
+https://jasonwatmore.com/post/2020/12/15/angular-11-crud-example-with-reactive-forms
+https://stackblitz.com/edit/angular-11-crud-example?embed=1&view=preview
+
+
+================== Apply ========================
+
+======== Generate Module
+ng generate module all-modules/i-recruitment --routing
+
+======== Component
+
+ng g c specific-folder/component-name
+ng g c payroll/specific-folder/component-name --flat
+
+ng generate component post/list
+ng generate component all-modules/payroll/salary-process/batch-job/list/salary-process-job-list --flat
+
+ng generate component post/view or show
+ng generate component all-modules/payroll/salary-process/batch-job/show/salary-process-job-show --flat
+
+ng generate component post/create
+ng generate component all-modules/payroll/salary-process/batch-job/create/salary-process-job-create --flat
+
+ng generate component post/edit
+ng generate component all-modules/payroll/salary-process/batch-job/edit/salary-process-job-edit --flat
+
+
+ng generate component all-modules/payroll/element-value/list/payroll-element-value-list --flat
+ng generate component all-modules/payroll/element-value/show/payroll-element-value-show --flat
+ng generate component all-modules/payroll/element-value/create/payroll-element-value-create --flat
+ng generate component all-modules/payroll/element-value/edit/payroll-element-value-edit --flat
+=============================================================================================================
+=============================================================================================================
+
+
+*** Applied *** 
+-----------------------
+ng generate module all-modules/xyzyourmodule --routing
+ng generate component all-modules/xyzyourmodule
+ng generate component all-modules/xyzyourmodule/components/xyzyourmodule-page1
+
+
+ng generate module all-modules/broadcastx --routing
+ng generate component all-modules/broadcastx
+ng generate component all-modules/broadcastx/components/attendance-mailx
+
+		<p>
 
 </body>
 </html>

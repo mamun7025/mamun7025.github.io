@@ -221,44 +221,6 @@
 
 
 
-/* Small devices (landscape phones, 576px and up)*/
-@media (min-width: 576px) {
-}
-
-/* Medium devices (tablets, 768px and up)*/
-@media (min-width: 768px) {
-}
-
-/* Large devices (desktops, 992px and up)*/
-@media (min-width: 992px) {
-}
-
-/* X-Large devices (large desktops, 1200px and up)*/
-@media (min-width: 1200px) {
-}
-
-/* XX-Large devices (larger desktops, 1400px and up)*/
-@media (min-width: 1400px) {
-}
-
-
-/*Apply styles starting from medium devices and up to extra large devices*/
-@media (min-width: 768px) and (max-width: 1299.98px) {
-  #me-main-profile-pic {
-    height: 230px;
-  }
-}
-
-/*Apply styles starting from medium devices and up to extra large devices*/
-@media (min-width: 1300px) and (max-width: 1599.98px) {
-  #me-main-profile-pic {
-    height: 300px;
-  }
-}
-
-
-
-
 
 @media (min-width: 300px) {
   .btn {
@@ -324,4 +286,55 @@
     background: #f82249;
     bottom: 0;
     left: calc(50% - 29px);
+}
+
+
+
+
+/* ================= CSS Media Query ================ */
+/* Small devices (landscape phones, 576px and up)*/
+@media (min-width: 576px) {
+}
+
+/* Medium devices (tablets, 768px and up)*/
+@media (min-width: 768px) {
+}
+
+/* Large devices (desktops, 992px and up)*/
+@media (min-width: 992px) {
+}
+
+/* X-Large devices (large desktops, 1200px and up)*/
+@media (min-width: 1200px) {
+}
+
+/* XX-Large devices (larger desktops, 1400px and up)*/
+@media (min-width: 1400px) {
+}
+
+
+
+
+/*=============== CSS for Mobile View ==================*/
+/*Apply styles starting from medium devices and up to extra large devices*/
+@media (min-width: 768px) and (max-width: 1299.98px) {
+  #me-main-profile-pic {
+    height: 230px;
+  }
+}
+
+@media (min-width: 300px) and (max-width: 768px) {
+  #me-main-profile-pic {
+    width: 100%;
+  }
+}
+
+
+
+/*=============== CSS for Lagre Monitor ==================*/
+/*Apply styles starting from medium devices and up to extra large devices*/
+@media (min-width: 1300px) and (max-width: 1599.98px) {
+  #me-main-profile-pic {
+    height: 300px;
+  }
 }
