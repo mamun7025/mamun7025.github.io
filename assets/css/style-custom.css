@@ -290,6 +290,14 @@
 
 
 
+/*======================= Articles Section CSS =======================*/
+#articles .icon-box {
+  width: 100%;
+}
+
+
+
+
 
 /* ================= CSS Media Query ================ */
 /* Small devices (landscape phones, 576px and up)*/
