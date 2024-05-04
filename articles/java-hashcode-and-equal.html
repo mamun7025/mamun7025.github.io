@@ -91,6 +91,161 @@ By default the hashCode() returns an integer that represents the internal memory
 }
 
 
+
+	===================History ===========================================
+
+	Q1. what is java object class return hashcode default?
+
+	A1:
+	Even though there are some answers here stating that the default implementation is "memory" based, this is plain wrong. This is not the case for a lot of years now.
+
+	A2:
+
+	You are getting things wrong:
+	
+	    @IntrinsicCandidate
+	    public native int hashCode();
+
+	doesn't mean there is no implementation. It just means that the method is implemented in the native aka C/C++ parts of the JVM. This means you can't find Java source code for that method. But there is still some code somewhere within the JVM that gets invoked whenever you call hashCode() on some Object.
+
+And as the other answer explains: that "default" implementation used the "memory" address of the underlying object. Thing is: using java means, there is no knowledge of "memory addresses". Keep in mind: the JVM is written in C/C++ - and the real memory management happens in these native parts of the JVM.
+
+In other words: you can't write Java code that tells you about the "native memory address" of an object.
+
+
+	A3:
+	Hashcode in Java
+In Java hash function is usually connected to hashCode() method. Precisely, the result of applying a hash function to an Object is a hashcode. Every Java object has a hash code. In general Hash Code is a number calculated by the hashCode()  method of the Object class. Usually, programmers override this method for their objects as well as related to hashCode() the equals() method for more efficient processing of specific data.
+
+The hashCode() method returns an int (4 bytes) value, which is a numeric representation of the object. This hashcode is used, for example, by collections for more efficient storage of data and, accordingly, faster access to them.
+
+By default, the hashCode() function for an object returns the number of the memory cell where the object is stored. Therefore, if no changes are made to the application code, then the function should return the same value. If the code changes slightly, the hashcode value also changes.
+
+What is the hashcode used for in Java? First of all Java hashcodes help programs run faster. For example, if we compare two objects o1 and o2 of some type, the operation o1.equals(o2) takes about 20 times more time than o1.hashCode() == o2.hashCode(). 
+
+
+	Java equals()
+In the parent class Object, along with the hashCode() method, there is also equals(), the function that is used to check the equality of two objects. The default implementation of this function simply checks the links of two objects for their equivalence.
+
+equals() and hashCode() have their contract, so if you override one of them, you should override the other, in order not to break this contract.
+
+
+	import java.util.Objects;
+
+public class Character {
+    private String Name;
+
+    public Character(String name) {
+        Name = name;
+    }
+
+    public String getName() {
+        return Name;
+    }
+
+    public void setName(String name) {
+        Name = name;
+    }
+
+    public static void main(String[] args) {
+        Character character1 = new Character("Arnold");
+        System.out.println(character1.getName());
+        System.out.println(character1.hashCode());
+        Character character2 = new Character("Arnold");
+        System.out.println(character2.getName());
+        System.out.println(character2.hashCode());
+        System.out.println(character2.equals(character1));
+    }
+}
+
+Arnold
+1595428806
+Arnold
+1072408673
+false
+
+
+
+
+	
+	import java.util.Objects;
+
+public class Character {
+    private String Name;
+
+    public Character(String name) {
+        Name = name;
+    }
+
+    public String getName() {
+        return Name;
+    }
+
+    public void setName(String name) {
+        Name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Character)) return false;
+
+        Character character = (Character) o;
+
+        return getName() != null ? getName().equals(character.getName()) : character.getName() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return getName() != null ? getName().hashCode() : 0;
+    }
+
+    public static void main(String[] args) {
+        Character character1 = new Character("Arnold");
+        System.out.println(character1.getName());
+        System.out.println(character1.hashCode());
+        Character character2 = new Character("Arnold");
+        System.out.println(character2.getName());
+        System.out.println(character2.hashCode());
+        System.out.println(character2.equals(character1));
+    }
+}
+
+Arnold
+1969563338
+Arnold
+1969563338
+true
+
+
+	***A4:
+	https://www.digitalocean.com/community/tutorials/java-equals-hashcode
+
+	Java hashCode()
+Java Object hashCode() is a native method and returns the integer hash code value of the object. The general contract of hashCode() method is:
+
+Multiple invocations of hashCode() should return the same integer value, unless the object property is modified that is being used in the equals() method.
+An object hash code value can change in multiple executions of the same application.
+If two objects are equal according to equals() method, then their hash code must be same.
+If two objects are unequal according to equals() method, their hash code are not required to be different. Their hash code value may or may-not be equal.
+
+
+	Importance of equals() and hashCode() method
+Java hashCode() and equals() method are used in Hash table based implementations in java for storing and retrieving data. I have explained it in detail at How HashMap works in java? The implementation of equals() and hashCode() should follow these rules.
+
+If o1.equals(o2), then o1.hashCode() == o2.hashCode() should always be true.
+If o1.hashCode() == o2.hashCode is true, it doesn’t mean that o1.equals(o2) will be true.
+
+	A5:
+
+	https://stackoverflow.com/questions/2427631/how-is-hashcode-calculated-in-java
+
+	new String("a").hashCode() == new String("a").hashCode() ====> true
+	
+	The hash value for new Integer(1) is 1; the hash value for String("a") is 97.
+
+	A hashcode is an integer value that represents the state of the object upon which it was called. That is why an Integer that is set to 1 will return a hashcode of "1" because an Integer's hashcode and its value are the same thing. A character's hashcode is equal to it's ASCII character code. If you write a custom type you are responsible for creating a good hashCode implementation that will best represent the state of the current instance.
+	
   </p>
 
 
