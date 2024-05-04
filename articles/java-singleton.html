@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Most Used GIT Cmds</title>
+  <meta name="description" content="Java/SpringBoot/Microservice professionals | 8+ years experienced in SpringBoot, Angular Full-Stack development | Developing business solutions, worked as a core developer and led a team | Lives in Dubai, UAE">
+  <meta name="keywords" content="Java, Spring Boot, Spring Framework, Microservice, Grails Framework, JPA, Hibernate, MySQL, Oracle, PostgreSQL, JasperReports, JasperSoft Studio, JavaScript, jQuery, HTML, CSS, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+
+</head>
+<body style="padding: 20px;">
+
+
+<h1 style="margin-bottom: 10px;">Java Singleton</h1>
+<hr>
+
+<p style="white-space: pre-wrap;">
+
+Thread Safe Singleton
+  
+  public class ThreadSafeSingleton {
+
+    private static ThreadSafeSingleton instance;
+
+    private ThreadSafeSingleton(){}
+
+    public static synchronized ThreadSafeSingleton getInstance() {
+        if (instance == null) {
+            instance = new ThreadSafeSingleton();
+        }
+        return instance;
+    }
+
+}
+
+
+  public static ThreadSafeSingleton getInstanceUsingDoubleLocking() {
+    if (instance == null) {
+        synchronized (ThreadSafeSingleton.class) {
+            if (instance == null) {
+                instance = new ThreadSafeSingleton();
+            }
+        }
+    }
+    return instance;
+}
+
+  
+
+
+  </p>
+
+
+<hr>
+<div class="credits">
+Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a>
+</div>
+
+</body>
+</html>
