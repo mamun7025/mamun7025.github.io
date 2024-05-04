@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Most Used GIT Cmds</title>
+  <meta name="description" content="Java/SpringBoot/Microservice professionals | 8+ years experienced in SpringBoot, Angular Full-Stack development | Developing business solutions, worked as a core developer and led a team | Lives in Dubai, UAE">
+  <meta name="keywords" content="Java, Spring Boot, Spring Framework, Microservice, Grails Framework, JPA, Hibernate, MySQL, Oracle, PostgreSQL, JasperReports, JasperSoft Studio, JavaScript, jQuery, HTML, CSS, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+
+</head>
+<body style="padding: 20px;">
+
+
+<h1 style="margin-bottom: 10px;">Java hasCode and equal Method</h1>
+<hr>
+
+<p style="white-space: pre-wrap;">
+
+
+Why the hashCode() Method is Important
+The purpose of the hashCode() method is to provide a numeric representation of an object's contents so as to provide an alternate mechanism to loosely identify it.
+
+
+
+By default the hashCode() returns an integer that represents the internal memory address of the object. Where this comes in handy is in the creation and use of an important computer science data structure called a hash table.
+  
+
+	public class Person {
+    private final String firstName;
+    private final String lastName;
+    private final LocalDate dob;
+
+    public Person(String firstName, String lastName, LocalDate dob) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dob = dob;
+    }
+
+    // omitting getters for brevity
+}
+
+
+  public class Person {
+    private final String firstName;
+    private final String lastName;
+    private final LocalDate dob;
+
+    // omitting all other stuff for brevity
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Person)) {
+            return false;
+        }
+        Person p = (Person)o;
+        return firstName.equals(p.firstName)
+                && lastName.equals(p.lastName)
+                && dob.equals(p.dob);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = dob == null ? 1 : dob.hashCode();
+        result = 31 * result + firstName == null ? 0 : firstName.hashCode();
+        result = 31 * result + lastName == null ? 0 : lastName.hashCode();
+        return result;
+    }
+}
+
+
+  public class Person {
+    // omitting all other stuff for brevity
+
+     @Override
+    public int hashCode() {
+        return Objects.hash(dob, firstName, lastName);
+    }
+}
+
+
+  </p>
+
+
+<hr>
+<div class="credits">
+Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a>
+</div>
+
+</body>
+</html>
