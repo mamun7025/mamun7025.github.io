@@ -1,0 +1,78 @@
+
+https://www.youtube.com/watch?v=K1iu1kXkVoA
+
+
+Generic Class
+========================
+public class Printer <T> { ---------> type parameter
+	T thingsToPring;
+
+	public Printer(T thingsToPring){
+		this.thingsToPring = thingsToPring;
+	}
+
+	public void print(){
+		System.out.println(thingsToPring);
+	}
+}
+
+
+
+public class Printer <T extend Animal> { ---------> bounded generics / more specilized for animal -- cat, dog
+	
+}
+
+
+public class Printer <T, V> {
+
+	T thingsToPring;
+	V otherThingsToPrint;
+	
+}
+
+
+
+>>> Java generics don't work with primitive type
+>>> Generics solve type safe issue
+
+
+
+
+
+Generic Method
+========================
+
+
+public class Printer { ---------> type parameter
+	
+
+	private static <T> void print(T thingsToPring){ -------------> right before the return type
+		System.out.println(thingsToPring);
+	}
+
+
+	private static <T, V> void print(T thingsToPring, V otherThingsToPrint){
+		System.out.println(thingsToPring);
+		System.out.println(otherThingsToPrint);
+	}
+
+
+	private static <T, V> T print(T thingsToPring, V otherThingsToPrint){ ------------> return T type
+		System.out.println(thingsToPring);
+		System.out.println(otherThingsToPrint);
+
+		return thingsToPring;
+	}
+
+
+
+	private static void print(List<?> myList){ -----> wild card
+		System.out.println(myList);
+	}
+
+
+	private static void print(List<?> myList extend Animal){ -----------> bounded
+		System.out.println(myList);
+	}
+
+}
