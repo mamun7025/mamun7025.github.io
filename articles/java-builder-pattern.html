@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Most Used GIT Cmds</title>
+  <meta name="description" content="Java/SpringBoot/Microservice professionals | 8+ years experienced in SpringBoot, Angular Full-Stack development | Developing business solutions, worked as a core developer and led a team | Lives in Dubai, UAE">
+  <meta name="keywords" content="Java, Spring Boot, Spring Framework, Microservice, Grails Framework, JPA, Hibernate, MySQL, Oracle, PostgreSQL, JasperReports, JasperSoft Studio, JavaScript, jQuery, HTML, CSS, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+
+</head>
+<body style="padding: 20px;">
+
+
+<h1 style="margin-bottom: 10px;">Java Builder Pattern</h1>
+<hr>
+
+<p style="white-space: pre-wrap;">
+
+
+  Builder pattern was introduced to solve some of the problems with Factory and Abstract Factory design patterns when the Object contains a lot of attributes. There are three major issues with Factory and Abstract Factory design patterns when the Object contains a lot of attributes.
+
+Too Many arguments to pass from client program to the Factory class that can be error prone because most of the time, the type of arguments are same and from client side its hard to maintain the order of the argument.
+Some of the parameters might be optional but in Factory pattern, we are forced to send all the parameters and optional parameters need to send as NULL.
+If the object is heavy and its creation is complex, then all that complexity will be part of Factory classes that is confusing.
+
+
+Builder Design Pattern in Java
+Let’s see how we can implement builder design pattern in java.
+
+First of all you need to create a static nested class and then copy all the arguments from the outer class to the Builder class. We should follow the naming convention and if the class name is Computer then builder class should be named as ComputerBuilder.
+Java Builder class should have a public constructor with all the required attributes as parameters.
+Java Builder class should have methods to set the optional parameters and it should return the same Builder object after setting the optional attribute.
+The final step is to provide a build() method in the builder class that will return the Object needed by client program. For this we need to have a private constructor in the Class with Builder class as argument.
+
+
+Approch-1:
+
+public class Computer {
+	
+	//required parameters
+	private String HDD;
+	private String RAM;
+	
+	//optional parameters
+	private boolean isGraphicsCardEnabled;
+	private boolean isBluetoothEnabled;
+	
+
+	public String getHDD() {
+		return HDD;
+	}
+
+	public String getRAM() {
+		return RAM;
+	}
+
+	public boolean isGraphicsCardEnabled() {
+		return isGraphicsCardEnabled;
+	}
+
+	public boolean isBluetoothEnabled() {
+		return isBluetoothEnabled;
+	}
+	
+	private Computer(ComputerBuilder builder) {
+		this.HDD=builder.HDD;
+		this.RAM=builder.RAM;
+		this.isGraphicsCardEnabled=builder.isGraphicsCardEnabled;
+		this.isBluetoothEnabled=builder.isBluetoothEnabled;
+	}
+	
+	//Builder Class
+	public static class ComputerBuilder{
+
+		// required parameters
+		private String HDD;
+		private String RAM;
+
+		// optional parameters
+		private boolean isGraphicsCardEnabled;
+		private boolean isBluetoothEnabled;
+		
+		public ComputerBuilder(String hdd, String ram){
+			this.HDD=hdd;
+			this.RAM=ram;
+		}
+
+		public ComputerBuilder setGraphicsCardEnabled(boolean isGraphicsCardEnabled) {
+			this.isGraphicsCardEnabled = isGraphicsCardEnabled;
+			return this;
+		}
+
+		public ComputerBuilder setBluetoothEnabled(boolean isBluetoothEnabled) {
+			this.isBluetoothEnabled = isBluetoothEnabled;
+			return this;
+		}
+		
+		public Computer build(){
+			return new Computer(this);
+		}
+
+	}
+
+}
+
+
+public class TestBuilderPattern {
+
+	public static void main(String[] args) {
+		//Using builder to get the object in a single line of code and 
+                //without any inconsistent state or arguments management issues		
+		Computer comp = new Computer.ComputerBuilder(
+				"500 GB", "2 GB").setBluetoothEnabled(true)
+				.setGraphicsCardEnabled(true).build();
+	}
+
+}
+
+
+Approch-2:
+public class Customer {
+
+  private String name;
+  private String email;
+  private String phone;
+
+  @Override
+  public String toString() {
+      return "Customer{" +
+              "name='" + name + '\'' +
+              ", email='" + email + '\'' +
+              ", phone='" + phone + '\'' +
+              '}';
+  }
+
+  public static Builder  builder(){
+      return new Builder();
+  }
+
+  private Customer(Builder b){
+      this.name = b.name;
+      this.email = b.email;
+      this.phone = b.phone;
+  }
+
+  public static class Builder {
+      private String name;
+      private String email;
+      private String phone;
+
+      public Builder name(String name){
+          this.name = name;
+          return this;
+      }
+
+      public Builder email(String email){
+          this.email = email;
+          return this;
+      }
+
+      public Builder phone(String phone){
+          this.phone = phone;
+          return this;
+      }
+
+      public Customer build(){
+          return new Customer(this);
+      }
+  }
+
+
+  public static void main(String[] args) {
+      final var customer = Customer.builder()
+              .name("Mamun")
+              .email("mamun@gmail.com")
+              .phone("+911234567")
+              .build();
+
+      System.out.println(customer);
+  }
+
+}
+
+
+  </p>
+
+
+<hr>
+<div class="credits">
+Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a>
+</div>
+
+</body>
+</html>
