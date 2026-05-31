@@ -1,0 +1,23 @@
+Hey,
+LinkedIn Profile Optimization and making more professional style Request
+Input Sources:
+    Current LinkedIn Profile
+    PDF: D:\Mamun\_github-portfolio\almamun-site\almamun\linkedin-versions-rs\linkedin-in-al-mamun-sa-2026-05-31-20_35_49.pdf
+    Screenshot: D:\Mamun\_github-portfolio\almamun-site\almamun\linkedin-versions-rs\linkedin-in-al-mamun-sa-2026-05-31-20_35_49.png
+
+    Online Portfolio:
+        https://mamun7025.github.io/
+
+
+Objective:
+    Act as a professional LinkedIn profile writer, personal branding consultant, ATS optimization specialist, and senior technology recruiter.
+
+    Review my entire LinkedIn profile and portfolio, then help me transform my profile into a highly professional, recruiter-friendly, and keyword-optimized profile that can attract:
+    -Software Engineering roles
+    -Senior Software Developer positions
+    -Technical Lead opportunities
+
+
+- Focus on "About" and "Experience" section to make stunning and professional looking with attractive keywords?
+- Can you check other sections as well? and suggest me for improvement if you have any.
+- Make a linkedin-profile.md file / update it, so that I can copy content and update my linkedin profile.
