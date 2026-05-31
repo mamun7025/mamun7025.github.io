@@ -1,407 +1,594 @@
-# LinkedIn Profile — Al Mamun (Optimized Draft)
+# LinkedIn Profile — Al Mamun (Optimized Draft v2)
 
 > **Last updated:** May 31, 2026  
-> **Sources:** [Portfolio](https://mamun7025.github.io/) · [Online CV](https://mamun7025.github.io/cv/index.html) · LinkedIn export (May 2026)  
+> **Primary source:** LinkedIn profile export (PNG/PDF, May 2026) — `linkedin-in-al-mamun-sa-2026-05-31-20_35_49`  
+> **Secondary sources:** [Portfolio](https://mamun7025.github.io/) · [Online CV](https://mamun7025.github.io/cv/index.html) — used only to fill gaps or enrich bullets where LinkedIn is thin  
 > **Target roles:** Senior Software Engineer · Senior Software Developer · Technical Lead (Java / Spring Boot / FinTech)
 
-Copy each section below directly into LinkedIn. Character counts are noted where limits apply.
+Copy the **Optimized** blocks below into LinkedIn. **Current (LinkedIn)** blocks document what you have today — do not delete accurate history.
 
 ---
 
-## Quick audit — what to fix first
+## Source notes
 
-| Area | Current gap | Action |
-|------|-------------|--------|
-| **Headline** | Generic “Software Engineer \| Backend Developer” style; undersells 9+ years & FinTech depth | Use Option A or B below |
-| **Location** | Ensure **Sharjah, UAE** (matches portfolio & target market) | Update profile location |
-| **About** | Likely short or missing FinTech / leadership keywords | Replace with full About section below |
-| **Experience** | Must reflect myZoi, Mashreq, Walton leadership — not outdated roles only | Add/update all 5 roles below |
-| **Open to Work** | Hidden from recruiters = missed inbound | Turn on for Senior SWE / Tech Lead (recruiters only) |
-| **Featured** | High impact for credibility | Pin portfolio, CV, top awards, 1–2 articles |
-| **Skills** | Pin Java, Spring Boot, Microservices first | Reorder + add missing skills (see Skills section) |
-| **Education** | Should show **KUET** B.Sc. CSE (2015) | Verify matches CV |
-| **Banner** | Tech stack banner is good — add FinTech/payments angle | See Banner suggestion |
-
----
-
-## 1. Headline (pick one — max 220 characters)
-
-### Option A — Senior Developer + FinTech (recommended)
-```
-Senior Software Engineer | Java · Spring Boot · Microservices | FinTech & Payments | AWS · Azure · Kubernetes | Technical Lead | Dubai, UAE
-```
-*(~148 characters — room for A/B testing keywords)*
-
-### Option B — Technical Lead emphasis
-```
-Senior Software Developer & Technical Lead | Java/Spring Boot Microservices | FinTech · Banking · Cross-Border Payments | AWS · Docker · K8s
-```
-*(~145 characters)*
-
-### Option C — Recruiter keyword density (ATS-heavy)
-```
-Senior Software Engineer | Java EE · Spring Boot · Spring Cloud · REST APIs · Microservices | FinTech · SME Banking · ERP | AWS · Azure · PostgreSQL · Redis
-```
-*(~158 characters)*
+| Topic | LinkedIn (primary) | Portfolio/CV (secondary) | Action in this draft |
+|-------|-------------------|--------------------------|----------------------|
+| myZoi dates | Mar 2023 – Present | Jan 2025 – Present | **Keep LinkedIn dates** |
+| myZoi title | Senior Software Engineer | Senior Software Developer | **Keep LinkedIn title** |
+| Mashreq title | Software Engineer (Contract) | Senior Software Developer | **Keep LinkedIn title**; bullets reflect senior-level delivery |
+| Location | Dubai, UAE | Sharjah, UAE | **Keep Dubai** (LinkedIn) |
+| Raqmiyat employer | Raqmiyat | Client: Emirates Flight Catering | **Keep Raqmiyat**; mention EFC projects in description |
+| Mashreq vendor | Not listed | via Optimum Solutions | Optional note in Mashreq description |
+| myZoi observability | Not listed | Datadog, PostgreSQL | Added to myZoi tech stack (secondary) |
+| Mashreq awards | Featured: Best Debut Q1-2023, Best Digital Product 2024 | Fantastic 4 of the Month | Awards woven into Mashreq bullets |
 
 ---
 
-## 2. About (copy entire block — ~2,450 characters)
+## Quick audit — prioritized improvements
 
+| Priority | Area | Current state (LinkedIn) | Recommended change |
+|----------|------|--------------------------|-------------------|
+| 🔴 High | **Headline** | Starts with "Software Engineer" while current role is **Senior Software Engineer** | Use optimized headline — lead with Senior + FinTech |
+| 🔴 High | **About** | Strong keyword lists but reads like a spec sheet; weak opening hook | Add 2-sentence narrative + achievements; keep Specialties structure |
+| 🟡 Medium | **Experience bullets** | Task-heavy lists; impact not always visible | Use optimized bullets — outcome-first, keep all modules/projects |
+| 🟡 Medium | **Featured** | Awards pinned (excellent) | Add portfolio + CV links as 4th/5th featured item |
+| 🟢 Low | **Open to Work** | Unknown | Enable for recruiters — Senior SWE / Tech Lead / UAE |
+| 🟢 Low | **Skills order** | Spring Boot, Microservices, AWS, Azure, Jasper pinned | Keep; verify Java is in top 10 |
+
+**Already strong — keep as-is:** 10 recommendations · 4,000+ followers · Mashreq award Featured posts · granular career history · KUET education · Udemy certs · Projects section
+
+---
+
+## 1. Headline (max 220 characters)
+
+### Current (LinkedIn)
 ```
-Senior Software Engineer with 9+ years of experience designing and delivering scalable, secure enterprise applications across FinTech, retail & SME banking, payments, ERP, and HRMS domains.
-
-I specialize in high-performance microservices architectures built with Java, Spring Boot, and Spring Cloud — from cross-border payment corridors and digital wallets to SME bill payments, transaction queues, and Oracle EBS integrations. I have led development teams, owned end-to-end SDLC delivery, and partnered with product, QA, and business stakeholders in Agile environments across the UAE and Bangladesh.
-
-🏦 FinTech & Banking Highlights
-• Cross-border fund transfers & Earned Wage Access (EWA) at myZoi (Standard Chartered Ventures) — integrating MoneyGram and international corridor banks
-• SME Banking modules at Mashreq Bank: bill payments (Ad-hoc & TAS), auto-pay standing instructions, Hard Token & 2FA security SDKs
-• Digital wallet logic and Open Banking platform integration for financial inclusion products
-• Awarded Best Debut Award (Q1 2023) and Fantastic 4 of the Month at Mashreq Bank
-
-⚙️ Technical Expertise
-• Backend: Java EE, Spring Boot, Spring Cloud, JPA/Hibernate, Groovy & Grails, RESTful APIs
-• Architecture: Microservices, distributed systems, event-driven patterns, API gateway integrations (IBM API Connect)
-• Cloud & DevOps: AWS, Azure, Docker, Kubernetes, Jenkins CI/CD, Datadog, Splunk
-• Databases: PostgreSQL, Oracle, MSSQL, MySQL, IBM Db2, Redis
-• Frontend (full-stack delivery): Angular, JavaScript, jQuery
-
-👥 Leadership & Delivery
-• Led a development team as Lead Software Engineer at Walton Group — HRMS, POS/VAT, and Jasper reporting at scale
-• Drove requirement gathering, process mapping, code reviews, performance optimization, and production releases
-• Delivered ERP customizations and real-time legacy system connectors in manufacturing & enterprise environments
-
-I am passionate about building reliable, user-centric financial systems that scale under real-world concurrency and compliance demands. Open to Senior Software Engineer, Senior Developer, and Technical Lead opportunities in the UAE and remote-friendly roles.
-
-📫 Connect: mdalmamun7025@gmail.com
-🌐 Portfolio: https://mamun7025.github.io/
-💼 CV: https://mamun7025.github.io/cv/index.html
+Software Engineer | Java/Spring Boot/Microservice | FinTech - Retail & SME Banking | Angular | @myZoi - by Standard Chartered Ventures
 ```
 
-**Tip:** LinkedIn allows line breaks in About. Paste as-is. Remove emoji if you prefer a more formal tone.
+### Optimized — Option A (recommended)
+Aligns headline with your **current Senior Software Engineer** title and target roles.
+```
+Senior Software Engineer | Java · Spring Boot · Microservices | FinTech · Retail & SME Banking · CBFT & EWA | @myZoi · Standard Chartered Ventures
+```
+
+### Optimized — Option B (Technical Lead angle)
+```
+Senior Software Engineer & Technical Lead | Java/Spring Boot Microservices | FinTech · Payments · SME Banking | AWS · Azure · Kubernetes | Dubai, UAE
+```
+
+### Optimized — Option C (minimal change to current)
+```
+Senior Software Engineer | Java/Spring Boot/Microservice | FinTech - Retail & SME Banking | Angular | Cross-Border Payments | @myZoi - Standard Chartered Ventures
+```
+
+---
+
+## 2. About
+
+### Current (LinkedIn) — preserve for reference
+```
+Java/Spring Boot software developer with 9+ years experience in FinTech (Retail and SME Banking), Payments and Digital Industry - ERP, HRMS, POS using microservice and monolithic architecture. I have worked as a Full-Stack developer and managed teams effectively to achieve project success.
+
+Specialties on
+Business Knowledge: Retail and SME Banking, Payments, Accounting, HRMS, Sales, Inventory, POS and VAT
+Programming Languages and Frameworks: Java EE/Spring Boot, Microservice, Groovy and Grails, Angular, JavaScript, jQuery, REST API, Ajax, JSON, HTML, CSS, Bootstrap-CSS
+Database: Oracle, MSSQL Server, MySQL, PostgreSQL, IBM DB2
+BI and Report Tools: Hands-on work experience on TIBCO Jasper Studio, Jasper Reports and Jasper Server
+Software Applications: SME Banking Applications, Cross Border Funds Transfer(CBFT), Early Wage Access (EWA), HRMS, POS, VAT, Inventory, ERP, Datatex N.O.W Software
+Server and Infra: Docker, Kubernetes, AWS, Azure, Linux Ubuntu, CentOS, Windows Server, Tomcat, Apache, Shell script, Windows batch script, Crontab, Task Scheduler
+```
+
+**Top skills shown:** Spring Boot · Microservices · AWS · Azure · Jasper Reports
+
+---
+
+### Optimized About (copy into LinkedIn — ~2,600 characters)
+
+```
+Senior Software Engineer with 9+ years of experience building scalable FinTech, banking, and enterprise systems — from cross-border payments and digital wallets to SME banking platforms, ERP, HRMS, and POS/VAT solutions. I work across microservices and monolithic architectures as a full-stack developer and have led teams to deliver production-grade software on time.
+
+Currently at myZoi (Standard Chartered Ventures), I develop Cross-Border Fund Transfer (CBFT) and Earned Wage Access (EWA) payment products — integrating MoneyGram, corridor banks, and SCB's Open Banking platform. Previously at Mashreq Bank, I was instrumental in launching the Mashreq Biz Platform and executing a complex FCDB-to-digital-channel data migration — recognized with Best Debut Award (Q1 2023) and Best Digital Product Award (2024).
+
+Specialties
+
+Business Knowledge
+Retail and SME Banking · Payments · Accounting · HRMS · Sales · Inventory · POS and VAT
+
+Programming Languages and Frameworks
+Java EE · Spring Boot · Microservices · Groovy and Grails · Angular · JavaScript · jQuery · REST API · Ajax · JSON · HTML · CSS · Bootstrap
+
+Database
+Oracle · MSSQL Server · MySQL · PostgreSQL · IBM DB2 · Redis
+
+BI and Report Tools
+TIBCO Jasper Studio · Jasper Reports · Jasper Server
+
+Software Applications
+SME Banking Applications · Cross Border Funds Transfer (CBFT) · Early Wage Access (EWA) · Digital Wallet · HRMS · POS · VAT · Inventory · ERP · Datatex N.O.W Software
+
+Server and Infrastructure
+Docker · Kubernetes · AWS · Azure · Linux (Ubuntu, CentOS) · Windows Server · Tomcat · Apache · Shell Script · Batch Script · Crontab · Task Scheduler · Datadog · Splunk
+
+Open to Senior Software Engineer, Senior Developer, and Technical Lead opportunities in the UAE.
+
+Portfolio: https://mamun7025.github.io/
+CV: https://mamun7025.github.io/cv/index.html
+```
 
 ---
 
 ## 3. Experience
 
-Add roles in reverse chronological order. For each role: set location, dates, and employment type (Full-time). Paste description into the description field.
+Update descriptions in place — **do not merge or delete roles**. LinkedIn shows your full progression; that is a strength for Technical Lead positioning.
 
 ---
 
-### Role 1 — myZoi Financial Inclusion Technologies (Standard Chartered Ventures)
+### 3.1 Senior Software Engineer — myZoi | Financial Inclusion Technologies
 
-| Field | Value |
-|-------|-------|
-| **Title** | Senior Software Developer |
-| **Company** | myZoi Financial Inclusion Technologies |
-| **Employment type** | Full-time |
-| **Location** | Dubai, United Arab Emirates |
-| **Start** | January 2025 |
-| **End** | Present |
+| Field | Value (LinkedIn — keep) |
+|-------|-------------------------|
+| **Title** | Senior Software Engineer |
+| **Company** | myZoi \| Financial Inclusion Technologies |
+| **Type** | Full-time |
+| **Dates** | Mar 2023 – Present |
+| **Location** | Dubai, United Arab Emirates · Hybrid |
 
-**Description:**
+**Current projects (LinkedIn):** CBFT Payment · Earn Wage Access (EWA)
+
+**Optimized description:**
 
 ```
-Building next-generation financial inclusion products for underbanked segments at a Standard Chartered Ventures portfolio company.
+Building financial inclusion products at a Standard Chartered Ventures portfolio company — focused on cross-border payments and earned wage access for underbanked workers in the UAE.
 
-• Design and develop high-concurrency payment microservices for cross-border fund transfers, integrating MoneyGram and international corridor banking partners
-• Build Earned Wage Access (EWA) — "Send Now, Pay Later" modules that enable early salary access for blue-collar and gig-economy workers
-• Own digital wallet business logic and ensure seamless integration with Standard Chartered's Open Banking platform
-• Collaborate with product, compliance, and QA teams in an Agile delivery model to ship secure, production-grade payment flows
+Project 1: Cross Border Fund Transfer (CBFT) Payment
+• Develop high-concurrency payment microservices for cross-border fund transfers
+• Integrate MoneyGram and international corridor banking partners
+• Manage digital wallet logic and transaction lifecycle
 
-Tech Stack: Java, Spring Boot, Microservices, Docker, Kubernetes, AWS, Redis, Datadog, PostgreSQL
+Project 2: Earned Wage Access (EWA) — Send Now, Pay Later
+• Build Early Wage Access modules enabling salary advance for blue-collar and gig-economy segments
+• Integrate with SCB Open Banking platform for secure, compliant fund flows
+
+Tech Stack: Java, Spring Boot, Microservices, Docker, Kubernetes, AWS, Azure, Redis, PostgreSQL, Datadog
 ```
 
-**Skills to tag on this role:** Java, Spring Boot, Microservices, AWS, Docker, Kubernetes, PostgreSQL, Redis, REST APIs, FinTech, Payments
+**Skills to tag:** Java, Spring Boot, Microservices, AWS, Azure, Docker, Kubernetes, REST APIs, FinTech, Payments
 
 ---
 
-### Role 2 — Mashreq Bank
+### 3.2 Software Engineer (Contract) — Mashreq Bank
 
-| Field | Value |
-|-------|-------|
-| **Title** | Senior Software Developer |
-| **Company** | Mashreq Bank |
-| **Note** | If contracted via vendor, add "via Optimum Solutions" in description first line |
-| **Employment type** | Full-time |
-| **Location** | Dubai, United Arab Emirates |
-| **Start** | November 2022 |
-| **End** | December 2024 |
-
-**Description:**
-
-```
-Senior developer on Mashreq's SME Banking digital channel — delivering secure, high-availability banking features in a regulated FinTech environment.
-
-• Architected and implemented Bill Payments (Ad-hoc & TAS), Transaction Queues, and Auto-Pay Standing Instructions for SME corporate banking users
-• Integrated Hard Token and Two-Factor Authentication (2FA) SDKs via i-Sprint IAM, strengthening authentication for sensitive financial journeys
-• Built secure password-reset flows using Debit Card validation and Email/SMS OTP verification
-• Led data analysis and migration from FCDB to the core channel platform — ensuring zero-loss cutover for live banking data
-• Recognized with Best Debut Award (Q1 2023) and Fantastic 4 of the Month for exceptional delivery and team impact
-
-Tech Stack: Java, Spring Boot, Microservices, IBM API Connect, i-Sprint IAM, Azure, Docker, Kubernetes, Redis, Splunk, MSSQL, Oracle
-```
-
-**Skills to tag:** Java, Spring Boot, Microservices, Azure, IBM API Connect, Banking, FinTech, REST APIs, Docker, Kubernetes
-
----
-
-### Role 3 — Emirates Flight Catering (via Raqmiyat LLC)
-
-| Field | Value |
-|-------|-------|
-| **Title** | Software Developer |
-| **Company** | Emirates Flight Catering |
-| **Employment type** | Full-time (Contract) |
-| **Location** | Dubai, United Arab Emirates |
-| **Start** | July 2022 |
-| **End** | October 2022 |
-
-**Description:**
-
-```
-Full-stack developer for Foodcraft CMS and FSMS (Fulfillment Smart Goods Receiving) — operational systems supporting Emirates Flight Catering's supply chain.
-
-• Delivered backend and frontend features for content management and smart goods-receiving workflows
-• Optimized backend logic and conducted code reviews to resolve critical performance bottlenecks in production
-• Integrated RayTemp Blue IoT devices for real-time temperature monitoring during goods receiving — improving food safety compliance
-
-Tech Stack: Java EE, Spring Boot, JavaScript, jQuery, MySQL, Mailchimp, Meta Pixel, Google Analytics 4
-```
-
----
-
-### Role 4 — Walton Group
-
-| Field | Value |
-|-------|-------|
-| **Title** | Lead Software Engineer |
-| **Company** | Walton Group |
-| **Employment type** | Full-time |
-| **Location** | Dhaka, Bangladesh |
-| **Start** | July 2019 |
-| **End** | January 2022 |
-
-**Description:**
-
-```
-Technical lead responsible for enterprise HRMS and retail POS/VAT systems integrated with Oracle E-Business Suite — one of Bangladesh's largest electronics manufacturers.
-
-• Led a team of developers building HRMS and POS/VAT applications from requirements through production deployment
-• Managed full SDLC: requirement gathering, process mapping, architecture, development, UAT, and release management
-• Integrated POS solutions with Oracle EBS for synchronized inventory, pricing, and financial reporting
-• Implemented large-scale operational reporting via TIBCO Jasper Server and JasperReports
-
-Tech Stack: Java EE, Spring Boot, Groovy & Grails, Angular 11, PostgreSQL, Oracle Database, Jasper Reports
-```
-
-**Skills to tag:** Java, Spring Boot, Angular, Oracle, PostgreSQL, Technical Leadership, ERP, HRMS
-
-> **Important for Technical Lead positioning:** This role is your strongest leadership proof point. Consider adding a "Team size: X developers" line if accurate.
-
----
-
-### Role 5 — Liz Fashion Industries Ltd
-
-| Field | Value |
-|-------|-------|
+| Field | Value (LinkedIn — keep) |
+|-------|-------------------------|
 | **Title** | Software Engineer |
-| **Company** | Liz Fashion Industries Ltd |
-| **Employment type** | Full-time |
-| **Location** | Dhaka, Bangladesh |
-| **Start** | September 2015 |
-| **End** | June 2019 |
+| **Company** | Mashreq Bank |
+| **Type** | Contract |
+| **Dates** | Nov 2022 – Dec 2024 |
+| **Location** | Dubai, United Arab Emirates · On-site |
 
-**Description:**
+**Optimized description:**
 
 ```
-Software engineer customizing enterprise ERP solutions for textile manufacturing operations.
+SME Banking Application Development — core contributor to Mashreq Business Banking (Web & Mobile) in an Agile, regulated FinTech environment.
 
-• Customized and deployed Datatex NOW-ERP modules aligned to complex textile production workflows
-• Developed custom connector programs for real-time data synchronization across multiple legacy systems
-• Partnered with business analysts to translate manufacturing processes into scalable digital workflows
-• Completed Datatex NOW-ERP customization training in Istanbul, Turkey
+Technology Stack
+Spring Boot · Microservices · IBM API Connect (API Gateway) · i-Sprint IAM Solutions · Docker · Kubernetes · Azure Cloud · Redis · Splunk (Distributed Tracing) · MSSQL · FCDB Data Migration · Maven · Git · TwoFA SDK
 
-Tech Stack: Java-ABS, PHP (OOP), JavaScript, MySQL, IBM Db2
+Key Deliverables
+• Dashboard, quick links, and Beneficiary Management modules
+• Bill Payment — Ad-hoc and TAS (Tax Authority System) flows
+• Auto Pay Standing Instructions and Transaction Queue
+• Letter, Statement, and Cheque book request modules
+• RM information and Help & Support module
+• Reset password journeys — Debit Card, Email, and SMS OTP
+• SAM user OAuth — Sequential and Non-Sequential approval workflows
+• FCDB to Digital Channel data migration — analysis, mapping, and cutover support
+• TwoFA SDK and Hard Token security integration
+
+Recognition
+• Best Debut Award — Q1 2023
+• Best Digital Product Award — 2024 (Business Banking Product)
+• Instrumental in successful launch of Mashreq Biz Platform (per leadership recommendation)
+```
+
+**Optional line** *(from CV — add only if accurate):* `Engaged via Optimum Solutions.`
+
+**Skills to tag:** Java, Spring Boot, Microservices, IBM API Connect, Azure, Git, Docker, Kubernetes, Banking, FinTech
+
+---
+
+### 3.3 Software Engineer — Raqmiyat
+
+| Field | Value (LinkedIn — keep) |
+|-------|-------------------------|
+| **Title** | Software Engineer |
+| **Company** | Raqmiyat |
+| **Type** | Full-time |
+| **Dates** | Jul 2022 – Oct 2022 |
+| **Location** | Dubai, United Arab Emirates |
+
+**Client context** *(portfolio secondary — add as first line if desired):* `Client: Emirates Flight Catering (EFC), Dubai, UAE`
+
+**Optimized description:**
+
+```
+Full-stack developer on two operational systems for Emirates Flight Catering (via Raqmiyat).
+
+Project 1: Foodcraft CMS
+• Backend and frontend feature development for content management workflows
+• Tech: Java EE, Spring Boot, JavaScript, jQuery, HTML, CSS, MySQL
+• Tools: Mailchimp, Facebook Meta Pixel, Google GA4
+
+Project 2: FSMS — Fulfillment Smart Goods Receiving
+• Smart goods-receiving system with RayTemp Blue device integration for temperature monitoring
+• Tech: Java EE, Spring Boot, JavaScript, jQuery, HTML, CSS, MySQL
+
+Role
+• Develop backend and frontend features as a team member
+• Improve and add new features; conduct code reviews and bug fixing
+• Optimize backend logic to resolve performance bottlenecks
+```
+
+**Skills to tag:** Java, Spring Boot, Hibernate, Git, JavaScript, MySQL
+
+---
+
+### 3.4 Walton Group — multiple roles (keep all entries separate)
+
+LinkedIn shows career progression within one company. **Keep each title and date exactly as on your profile.** Optimized bullets below — paste into the matching entry.
+
+---
+
+#### Deputy Director, Software - IT
+
+| **Dates** | Jul 2021 – Jan 2022 · 7 mos |
+| **Location** | Bangladesh |
+
+```
+Team Lead — HRMS Application Development
+
+Technology
+Java EE · Spring Boot · Angular 11 · PostgreSQL · Jasper Reports · Punch Machine DB Integration
+
+Responsibilities
+• Requirement collection, analysis, and process mapping
+• Team lead — core development, code review, bug fixing
+• Daily stand-ups and weekly sprint planning
+• Implemented Pal-Pai VAT software across Walton Group entities
+• Managed data migration from legacy systems
+
+Tech Stack: Java EE, Spring Boot, Angular 11, PostgreSQL, Jasper Reports
+```
+
+---
+
+#### Sr. Assistant Director, Software - IT
+
+| **Dates** | Jan 2021 – Jun 2021 · 6 mos |
+
+```
+POS and VAT Software — Oracle EBS Integration
+
+Technology
+Java EE · Groovy and Grails · JavaScript · jQuery · JSON · Oracle Database · TIBCO Jasper Report and Jasper Server · Oracle EBS Integration
+
+Responsibilities
+• Implemented Pal-Pai VAT software at Walton Hi-Tech Industries, Walton Digi-Tech Industries, and Walton Micro-Tech Industries
+• Data migration from legacy software to new POS/VAT platform
+• Integration with Oracle E-Business Suite for synchronized financial data
+
+Tech Stack: Java EE, Groovy & Grails, Oracle Database, Jasper Server, Oracle EBS
+```
+
+---
+
+#### Assistant Director, Software
+
+| **Dates** | *Keep your existing LinkedIn dates — verify on profile before editing* |
+
+```
+Use your current LinkedIn description. If updating, focus bullets on:
+• POS/VAT software analysis and development
+• UI standards definition to reduce training time and cost
+• Multi-system integration for data export/import
+• Software upgrade and standardization initiatives
+```
+
+---
+
+#### Team Lead — POS and VAT Software
+
+| **Dates** | Jan 2020 – Dec 2020 · 1 yr |
+
+```
+Team Lead — POS and VAT Software Development
+
+Technology
+Java EE · Groovy and Grails · JavaScript · jQuery · JSON · Oracle Database · TIBCO Jasper Report and Jasper Server · Oracle EBS Integration
+
+Responsibilities
+• Led team developing POS and VAT management software
+• Analyzed VAT processes — Mushak forms 6.1 through 9.1 per NBR (National Board of Revenue) rules
+• Studied accounting processes (GL, AR, AP, Party Ledger, Trial Balance, Balance Sheet) for POS design
+• Oracle EBS integration for inventory, pricing, and financial reporting
+```
+
+---
+
+#### Sr. Deputy Assistant Director - Software
+
+| **Dates** | Jul 2019 – Jan 2020 · 7 mos |
+
+```
+POS and VAT Software — Analysis and Architecture
+
+Responsibilities
+• Analyzed and proposed standard system UI to reduce training time and cost
+• Designed integration among multiple systems for data export/import
+• Software upgrade and standardization for POS and VAT management
+• New software design and development for retail operations
+```
+
+---
+
+### 3.5 Liz Fashion Industry Ltd — multiple roles (keep all entries separate)
+
+Total tenure on LinkedIn: **3 yrs 10 mos** (Sep 2015 – Jun 2019)
+
+---
+
+#### Assistant Manager, ERP
+
+| **Dates** | Jan 2019 – Jun 2019 · 6 mos |
+| **Location** | Gazipur, Bangladesh |
+
+```
+IT Infrastructure and ERP Project Management
+
+• Managed IT infrastructure and full project lifecycle — initiation, proposals, business liaison, post-implementation review, and handover
+• Administered Linux (Ubuntu, CentOS) and Windows servers
+• Batch scripts for IBM Db2 database backup and restore
+• Task Scheduler, PuTTY, and Plink automation
+```
+
+---
+
+#### Sr. System Analyst
+
+| **Dates** | Jan 2018 – Dec 2018 · 1 yr |
+| **Location** | Gazipur, Bangladesh |
+
+```
+Datatex ERP Deployment — Team Lead
+
+• Led and managed tech team deploying Datatex NOW-ERP for textile manufacturing
+• ABS programming (Java-based) for ERP customization
+• Connector programs: FORMOSA WMS, Datatex Warehouse, in-house ERP integration
+• Electronic Data Interchange (EDI) research and implementation
+• Ubuntu Server setup, shell scripting, IBM Db2 on Windows Server 2012 R2
+• Completed Datatex NOW-ERP customization training (Istanbul, Turkey)
+```
+
+---
+
+#### System Analyst
+
+| **Dates** | Jan 2017 – Dec 2017 · 1 yr |
+| **Location** | Sofipur, Gazipur, Dhaka |
+
+```
+ERP Module Development
+
+• Managed and developed Base Module — Item Type, Product, Full Item/Item Code, Lot, Item Serial, Master Library Data
+• Tech: JSON, PHP, JavaScript, MySQL
+```
+
+---
+
+#### Jr. System Analyst
+
+| **Dates** | Sep 2015 – Dec 2016 · 1 yr 4 mos |
+| **Location** | Sofipur, Gazipur |
+
+```
+ERP and Manufacturing Systems
+
+• Garment Development and Planning · Printing Development and Planning
+• Textile PDD system · Price Requisition · Quality · Admin/Privilege control modules
+• Tech: JSON, PHP, JavaScript, MySQL, IBM Db2
 ```
 
 ---
 
 ## 4. Education
 
+### Current (LinkedIn) — keep
 ```
-Khulna University of Engineering & Technology (KUET)
-Bachelor of Science (B.Sc.), Computer Science and Engineering
+Khulna University of Engineering and Technology
+Bachelor of Science (B.Sc), Computer Science & Engineering (CSE)
 2011 – 2015
 ```
 
-*(Optional second entry if you want completeness:)*
+No change needed. Skills tagged (MySQL, PHP) are fine to keep.
 
+---
+
+## 5. Licenses & Certifications
+
+### Current (LinkedIn) — keep, optionally reorder most recent first
+
+| Certification | Issuer | Issued |
+|---------------|--------|--------|
+| Apache Kafka - Core Concepts, Real World Example | Udemy | Nov 2022 |
+| Master Microservices with Java, Spring, Docker, Kubernetes | Udemy | Oct 2022 |
+
+**Skills to tag:** Apache Kafka, Spring Boot, Microservices, Docker, Kubernetes
+
+**Optional add** *(if you hold these — visible in portfolio awards gallery):*
+- Java & Spring Boot — Udemy
+- Consider AWS certification if applicable to strengthen cloud keyword match
+
+---
+
+## 6. Projects
+
+### Current (LinkedIn) — keep both, optionally refresh descriptions
+
+#### Mashreq Biz Application
+| **Dates** | Nov 2022 – Dec 2024 |
+| **Associated with** | Mashreq Bank |
+
+**Optimized description:**
 ```
-Govt. Shah Sultan College, Bogura
-Higher Secondary Certificate (HSC)
-2008 – 2010
+Mashreq Business Banking Application for Web and Mobile — SME banking platform covering bill payments, beneficiary management, transaction queues, auto-pay standing instructions, and secure authentication flows.
+
+Skills: Spring Boot, Microservices, Java, IBM API Connect, Azure
+```
+
+#### POS and VAT Project
+| **Dates** | Jan 2020 – Jan 2022 |
+| **Associated with** | Walton Group |
+
+**Optimized description:**
+```
+Enterprise POS and VAT management software integrated with Oracle E-Business Suite — deployed across multiple Walton Group entities. Includes Jasper reporting, NBR-compliant VAT (Mushak) processing, and legacy data migration.
+
+Skills: Groovy and Grails, Java, Oracle Database, Jasper Reports, Oracle EBS
 ```
 
 ---
 
-## 5. Licenses & Certifications (add if on LinkedIn)
+## 7. Featured section
 
-| Certification | Issuer | Notes |
-|---------------|--------|-------|
-| Java & Spring Boot | Udemy | Add from portfolio awards gallery |
-| Apache Kafka | Udemy | Add from portfolio awards gallery |
-| AWS Certified Cloud Practitioner | Amazon Web Services | Add if you hold this — strong for cloud keyword match |
-| Datatex NOW-ERP Customization | Datatex | Training — list under Licenses or Projects |
+### Current (LinkedIn) — strong, keep all
+1. Award winner / top performer post  
+2. Mashreq Best Digital Product Award 2024 — Business Banking Product  
+3. Mashreq Bank Best Debut Award Q1-2023  
 
----
-
-## 6. Skills (recommended order — pin top 3)
-
-**Pin these 3 first:**
-1. Java
-2. Spring Boot
-3. Microservices
-
-**Add / verify full list (50 max shown, prioritize these):**
-
-```
-Spring Framework · Spring Cloud · REST APIs · JPA · Hibernate · Groovy · Grails
-PostgreSQL · Oracle Database · Microsoft SQL Server · MySQL · Redis · IBM Db2
-AWS · Microsoft Azure · Docker · Kubernetes · Jenkins · CI/CD · DevOps
-FinTech · Banking · Payments · ERP · Agile Methodologies · Scrum
-Angular · JavaScript · jQuery · API Integration · IBM API Connect
-Datadog · Splunk · Jasper Reports · Technical Leadership · Software Architecture
-Distributed Systems · Oracle E-Business Suite · Git
-```
-
-**Endorsement strategy:** Ask 2–3 Mashreq/myZoi colleagues to endorse Java, Spring Boot, and Microservices within 2 weeks of updating.
-
----
-
-## 7. Featured section (recommended links)
-
-| Item | URL / asset |
-|------|-------------|
-| Portfolio website | https://mamun7025.github.io/ |
+### Recommended additions
+| Item | URL |
+|------|-----|
+| Portfolio | https://mamun7025.github.io/ |
 | Professional CV | https://mamun7025.github.io/cv/index.html |
-| Best Debut Award photo | Upload from portfolio awards |
-| Git article | https://mamun7025.github.io/articles/most-used-git-cmds.html |
+| Git article (optional) | https://mamun7025.github.io/articles/most-used-git-cmds.html |
 
 ---
 
-## 8. Projects (optional — add 2–3 strong ones)
+## 8. Skills
 
-### Cross-Border Payments & Digital Wallet Platform
+### Current top skills (LinkedIn)
+Spring Boot · Microservices · AWS · Azure · Jasper Reports
+
+### Recommended pin order
+1. **Java**
+2. **Spring Boot**
+3. **Microservices**
+
+### Full list to verify on profile
 ```
-Enterprise payment microservices for cross-border transfers, Earned Wage Access, and digital wallet integration with Open Banking APIs.
-
-Skills: Java, Spring Boot, Microservices, AWS, Kubernetes, PostgreSQL, FinTech
-Associated with: myZoi Financial Inclusion Technologies
-```
-
-### SME Banking — Bill Payments & Transaction Engine
-```
-Architected bill payment modules (Ad-hoc & TAS), transaction queues, auto-pay standing instructions, and 2FA/Hard Token security for corporate banking.
-
-Skills: Java, Spring Boot, Azure, IBM API Connect, Banking
-Associated with: Mashreq Bank
-```
-
-### HRMS & POS/VAT with Oracle EBS Integration
-```
-Led development of enterprise HRMS and retail POS/VAT system with Oracle EBS integration and Jasper reporting at scale.
-
-Skills: Java, Spring Boot, Angular, Oracle, Groovy, Grails
-Associated with: Walton Group
+Java · Spring Boot · Spring Cloud · Microservices · REST APIs · Hibernate · JPA
+Groovy · Grails · Angular · JavaScript · jQuery
+PostgreSQL · Oracle · MSSQL · MySQL · IBM Db2 · Redis
+AWS · Azure · Docker · Kubernetes · Git · Maven · CI/CD
+IBM API Connect · Apache Kafka · Splunk · Datadog
+FinTech · Banking · ERP · Agile · Software Architecture · Technical Leadership
+Jasper Reports · Jasper Server · Oracle EBS
 ```
 
 ---
 
-## 9. Other sections — improvement checklist
+## 9. Recommendations
 
-### Profile photo & banner
-- **Photo:** Professional headshot with neutral background — you already have a strong one on the portfolio.
-- **Banner:** Update text overlay to:  
-  `Senior Software Engineer | Java · Spring Boot · Microservices | FinTech · Payments · Banking | AWS · Azure · K8s`  
-  Keep your existing Java/Spring/AWS/Docker/K8s logos — they reinforce keyword association visually.
+### Current (LinkedIn)
+**10 received · 7 given** — excellent social proof. Do not remove.
 
-### Custom URL
-- Confirm: `linkedin.com/in/al-mamun-sa` ✓
+**Leverage in About/Experience** *(already woven into optimized About and Mashreq bullets):*
+- **Arnica Sood** (Digital Product Leader): instrumental in Mashreq Biz Platform launch; complex data migration expertise
+- **Darshit Zakhariya** (FinTech Front-End Lead): outstanding backend professional; MOB Entities project; complex problem-solving
 
-### Contact info
-- Add: portfolio URL, GitHub (https://github.com/mamun7025), email
+No action needed unless you want to request 1–2 fresh recommendations after profile update.
 
-### Creator mode / Activity
-- Publish 1 post per month on Java, Spring Boot, or FinTech lessons learned (you already have articles on Git/Angular — link them).
-- Example first post: *"3 things I learned integrating MoneyGram into a cross-border payment microservice"*
+---
 
-### Recommendations
-- Request 2 recommendations:
-  1. **Mashreq** — manager or senior peer (emphasize architecture + delivery)
-  2. **Walton** — stakeholder or team member (emphasize leadership)
+## 10. Other sections
 
-**Template to send:**
-> Hi [Name], I'm refreshing my LinkedIn profile for senior engineering roles. Would you be open to writing a brief recommendation about our work on [project]? Happy to reciprocate.
-
-### Languages
+### Languages — keep
 ```
-English — Professional working proficiency
 Bengali — Native or bilingual proficiency
-Hindi — Limited working proficiency (optional)
+English — Professional working proficiency
 ```
 
-### Volunteer / Honors & Awards
-Add under **Honors & Awards** (or Featured):
-- Best Debut Award — Mashreq Bank, Q1 2023
-- Fantastic 4 of the Month — Mashreq Bank, 2024
-- Best Digital Product Award — Walton Group (if applicable)
+*(Optional from CV: Hindi — Communicative)*
+
+### Courses — keep
+```
+ARS Language Training Course — Liz Fashion Industry Ltd
+ERP Destination Training Course — Liz Fashion Industry Ltd
+```
+
+### Banner — keep current design
+Your banner (Java, Spring Boot, Docker, Angular, JasperReports, Tomcat) aligns well with headline keywords. Optional overlay text:
+```
+Senior Software Engineer | FinTech · CBFT · EWA · SME Banking | Java · Spring Boot · Microservices
+```
+
+### Custom URL — confirmed
+`linkedin.com/in/al-mamun-sa`
+
+### Contact info — verify listed
+- Email: mdalmamun7025@gmail.com  
+- Portfolio: https://mamun7025.github.io/  
+- GitHub: https://github.com/mamun7025  
 
 ### Open to Work
-- **Job titles:** Senior Software Engineer, Senior Software Developer, Technical Lead, Lead Software Engineer
-- **Location:** United Arab Emirates (+ Remote if desired)
-- **Visibility:** Recruiters only (recommended)
+- **Titles:** Senior Software Engineer, Senior Software Developer, Technical Lead, Lead Software Engineer  
+- **Location:** United Arab Emirates  
+- **Visibility:** Recruiters only  
 
 ---
 
-## 10. ATS keyword map (for recruiter searches)
+## 11. ATS keyword checklist
 
-Ensure these appear naturally in Headline + About + at least 2 Experience entries:
+Ensure these appear in **Headline + About + at least 2 Experience entries:**
 
 | Category | Keywords |
 |----------|----------|
-| Role | Senior Software Engineer, Senior Software Developer, Technical Lead, Lead Software Engineer |
-| Core stack | Java, Java EE, Spring Boot, Spring Cloud, Spring Framework, Microservices, REST API |
-| Cloud/DevOps | AWS, Azure, Docker, Kubernetes, CI/CD, Jenkins |
-| Data | PostgreSQL, Oracle, MSSQL, Redis, MySQL |
-| Domain | FinTech, Banking, Payments, SME Banking, ERP, HRMS, Cross-Border Payments |
-| Practices | Agile, Scrum, SDLC, Code Review, System Design, Software Architecture |
-| Integrations | MoneyGram, Open Banking, IBM API Connect, Oracle EBS, IAM, 2FA |
+| Role | Senior Software Engineer, Software Engineer, Technical Lead, Team Lead |
+| Stack | Java, Java EE, Spring Boot, Microservices, REST API, Groovy, Grails, Angular |
+| Cloud/DevOps | AWS, Azure, Docker, Kubernetes, Git, Maven, CI/CD |
+| Data | PostgreSQL, Oracle, MSSQL, MySQL, IBM Db2, Redis |
+| Domain | FinTech, Banking, SME Banking, Payments, CBFT, EWA, ERP, HRMS, POS, VAT |
+| Integrations | MoneyGram, Open Banking, IBM API Connect, Oracle EBS, i-Sprint IAM, TwoFA |
+| Tools | Splunk, Datadog, Jasper Reports, Apache Kafka |
 
 ---
 
-## 11. Before / after summary
+## 12. Implementation order (~45 min)
 
-| Element | Before (typical gap) | After (this draft) |
-|---------|----------------------|---------------------|
-| Positioning | Generic backend developer | Senior FinTech engineer + tech lead |
-| Experience depth | Missing or outdated roles | 5 roles, 9+ years, UAE banking focus |
-| Proof points | Vague bullets | Named integrations (MoneyGram, Mashreq SME, Oracle EBS) + awards |
-| Keywords | Scattered | ATS-mapped across headline, about, experience |
-| Leadership | Not visible | Walton Lead role + team delivery highlighted |
-| Credibility | Low Featured usage | Portfolio, CV, awards, articles pinned |
+1. **Headline** — Option A (2 min)  
+2. **About** — replace with optimized block; keep Specialties format (5 min)  
+3. **myZoi + Mashreq** — paste optimized descriptions (10 min)  
+4. **Raqmiyat** — add EFC client line + optimized bullets (5 min)  
+5. **Walton + Liz Fashion** — update bullets in place; do not merge roles (15 min)  
+6. **Featured** — add portfolio + CV links (3 min)  
+7. **Skills** — pin Java, Spring Boot, Microservices (2 min)  
+8. **Open to Work** — enable for recruiters (2 min)  
 
 ---
 
-## 12. Implementation order (≈ 30 minutes)
+## 13. Portfolio/CV sync reminder
 
-1. Update **Headline** and **Location** (2 min)
-2. Replace **About** section (3 min)
-3. Add/update all **Experience** entries — start with myZoi & Mashreq (15 min)
-4. Reorder **Skills** and pin top 3 (3 min)
-5. Update **Featured**, **Education**, **Languages** (5 min)
-6. Enable **Open to Work** for recruiters (2 min)
-7. Send 2 **recommendation** requests this week
+After updating LinkedIn, consider aligning your portfolio and CV to match LinkedIn primary facts:
+
+| Field | Portfolio/CV currently | LinkedIn (authoritative) |
+|-------|------------------------|--------------------------|
+| myZoi start date | Jan 2025 | Mar 2023 |
+| myZoi title | Senior Software Developer | Senior Software Engineer |
+| Location | Sharjah | Dubai |
+| Mashreq title | Senior Software Developer | Software Engineer (Contract) |
+
+This keeps all three profiles consistent for recruiters who cross-check.
 
 ---
 
