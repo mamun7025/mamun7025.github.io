@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SOLID Principles — Java Interview Notes</title>
+  <meta name="description" content="SOLID principles explained with practical Java examples (bad vs good) plus the tricky questions interviewers actually ask.">
+  <meta name="keywords" content="SOLID, SRP, OCP, LSP, ISP, DIP, Single Responsibility, Open Closed, Liskov, Interface Segregation, Dependency Inversion, Java, Spring, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+  <link rel="stylesheet" href="../assets/notes.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../index.html">&larr; All Tech Notes</a>
+
+  <header class="hero">
+    <div class="eyebrow">Java · Design Principles</div>
+    <h1>SOLID Principles</h1>
+    <p class="sub">Five object-oriented design principles (coined by Robert C. Martin, "Uncle Bob") that make software easier to <b>understand, extend and maintain</b> — and a favourite topic in Java / Spring Boot interviews.</p>
+    <div class="legend">
+      <span class="chip"><b>S</b>&nbsp;Single Responsibility</span>
+      <span class="chip"><b>O</b>&nbsp;Open/Closed</span>
+      <span class="chip"><b>L</b>&nbsp;Liskov Substitution</span>
+      <span class="chip"><b>I</b>&nbsp;Interface Segregation</span>
+      <span class="chip"><b>D</b>&nbsp;Dependency Inversion</span>
+    </div>
+  </header>
+
+  <!-- TOC -->
+  <nav class="refs" style="margin-top:0">
+    <h4>On this page</h4>
+    <ul>
+      <li><a href="#srp">S — Single Responsibility Principle</a></li>
+      <li><a href="#ocp">O — Open/Closed Principle</a></li>
+      <li><a href="#lsp">L — Liskov Substitution Principle</a></li>
+      <li><a href="#isp">I — Interface Segregation Principle</a></li>
+      <li><a href="#dip">D — Dependency Inversion Principle</a></li>
+      <li><a href="#interview">🎯 Tricky interview questions</a></li>
+    </ul>
+  </nav>
+
+  <!-- ================= SRP ================= -->
+  <h2 class="section" id="srp">S · Single Responsibility Principle</h2>
+  <p class="section-intro"><em>"A class should have only <b>one reason to change</b>."</em> — i.e. it should do one job.</p>
+
+  <div class="card-block c1">
+    <h4 style="margin-top:0">❌ Violation — one class doing three jobs</h4>
+    <pre><span class="kw">class</span> <span class="cls">User</span> {
+    <span class="kw">private</span> <span class="cls">String</span> name, email;
+
+    <span class="kw">public void</span> saveToDatabase() { <span class="com">/* JDBC / persistence */</span> }   <span class="com">// reason to change #2</span>
+    <span class="kw">public void</span> sendWelcomeEmail() { <span class="com">/* SMTP logic */</span> }       <span class="com">// reason to change #3</span>
+}</pre>
+    <p>This class changes if the <b>data model</b>, the <b>database</b>, <em>or</em> the <b>email provider</b> changes — three reasons.</p>
+
+    <h4>✔ Fix — one responsibility each</h4>
+    <pre><span class="kw">class</span> <span class="cls">User</span> {                 <span class="com">// just holds user data</span>
+    <span class="kw">private</span> <span class="cls">String</span> name, email;
+}
+
+<span class="kw">class</span> <span class="cls">UserRepository</span> {       <span class="com">// persistence only</span>
+    <span class="kw">public void</span> save(<span class="cls">User</span> u) { <span class="com">/* ... */</span> }
+}
+
+<span class="kw">class</span> <span class="cls">EmailService</span> {          <span class="com">// notifications only</span>
+    <span class="kw">public void</span> sendWelcome(<span class="cls">User</span> u) { <span class="com">/* ... */</span> }
+}</pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>SRP = one class, one reason to change.</b> Not "one method" — one <em>responsibility</em>.</span></div>
+  </div>
+
+  <!-- ================= OCP ================= -->
+  <h2 class="section" id="ocp">O · Open/Closed Principle</h2>
+  <p class="section-intro"><em>"Software entities should be <b>open for extension, but closed for modification</b>."</em> Add new behaviour by adding code, not editing existing, tested code.</p>
+
+  <div class="card-block c2">
+    <h4 style="margin-top:0">❌ Violation — every new shape edits the calculator</h4>
+    <pre><span class="kw">class</span> <span class="cls">AreaCalculator</span> {
+    <span class="kw">public double</span> area(<span class="cls">Object</span> shape) {
+        <span class="kw">if</span> (shape <span class="kw">instanceof</span> <span class="cls">Circle</span> c)      <span class="kw">return</span> <span class="num">3.14</span> * c.r * c.r;
+        <span class="kw">else if</span> (shape <span class="kw">instanceof</span> <span class="cls">Rectangle</span> r) <span class="kw">return</span> r.w * r.h;
+        <span class="com">// adding Triangle? You must MODIFY this method again…</span>
+        <span class="kw">return</span> <span class="num">0</span>;
+    }
+}</pre>
+
+    <h4>✔ Fix — extend via a common abstraction</h4>
+    <pre><span class="kw">interface</span> <span class="cls">Shape</span> { <span class="kw">double</span> area(); }
+
+<span class="kw">class</span> <span class="cls">Circle</span> <span class="kw">implements</span> <span class="cls">Shape</span> {
+    <span class="kw">double</span> r;
+    <span class="kw">public double</span> area() { <span class="kw">return</span> <span class="cls">Math</span>.PI * r * r; }
+}
+<span class="kw">class</span> <span class="cls">Rectangle</span> <span class="kw">implements</span> <span class="cls">Shape</span> {
+    <span class="kw">double</span> w, h;
+    <span class="kw">public double</span> area() { <span class="kw">return</span> w * h; }
+}
+
+<span class="com">// The calculator never changes again</span>
+<span class="kw">class</span> <span class="cls">AreaCalculator</span> {
+    <span class="kw">public double</span> area(<span class="cls">Shape</span> s) { <span class="kw">return</span> s.area(); }
+}
+<span class="com">// New shape = new class implementing Shape. Zero edits to AreaCalculator.</span></pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>OCP = extend without editing.</b> New requirement &rarr; new class, not a new <code class="inline">if</code>.</span></div>
+  </div>
+
+  <!-- ================= LSP ================= -->
+  <h2 class="section" id="lsp">L · Liskov Substitution Principle</h2>
+  <p class="section-intro"><em>"Objects of a superclass should be <b>replaceable</b> with objects of its subclasses without breaking the program."</em> A subclass must honour the parent's contract.</p>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">❌ Classic violation — Square extends Rectangle</h4>
+    <pre><span class="kw">class</span> <span class="cls">Rectangle</span> {
+    <span class="kw">protected int</span> w, h;
+    <span class="kw">public void</span> setWidth(<span class="kw">int</span> w)  { <span class="kw">this</span>.w = w; }
+    <span class="kw">public void</span> setHeight(<span class="kw">int</span> h) { <span class="kw">this</span>.h = h; }
+    <span class="kw">public int</span> area() { <span class="kw">return</span> w * h; }
+}
+
+<span class="kw">class</span> <span class="cls">Square</span> <span class="kw">extends</span> <span class="cls">Rectangle</span> {
+    <span class="kw">public void</span> setWidth(<span class="kw">int</span> w)  { <span class="kw">this</span>.w = <span class="kw">this</span>.h = w; }  <span class="com">// forces both equal</span>
+    <span class="kw">public void</span> setHeight(<span class="kw">int</span> h) { <span class="kw">this</span>.w = <span class="kw">this</span>.h = h; }
+}
+
+<span class="com">// Code written against Rectangle now breaks:</span>
+<span class="kw">void</span> test(<span class="cls">Rectangle</span> r) {
+    r.setWidth(<span class="num">5</span>);
+    r.setHeight(<span class="num">4</span>);
+    assert r.area() == <span class="num">20</span>;   <span class="com">// FAILS for Square -> area is 16!</span>
+}</pre>
+    <p>A <code class="inline">Square</code> <em>is-a</em> rectangle mathematically, but it does <b>not</b> behave like one — so it isn't a valid subtype here.</p>
+
+    <h4>✔ Fix — don't force a broken hierarchy</h4>
+    <pre><span class="kw">interface</span> <span class="cls">Shape</span> { <span class="kw">int</span> area(); }
+<span class="kw">class</span> <span class="cls">Rectangle</span> <span class="kw">implements</span> <span class="cls">Shape</span> { <span class="com">/* w, h */</span> }
+<span class="kw">class</span> <span class="cls">Square</span>    <span class="kw">implements</span> <span class="cls">Shape</span> { <span class="com">/* side  */</span> }
+<span class="com">// Each models its own invariants; neither breaks the other's contract.</span></pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>LSP = a subclass shouldn't surprise you.</b> If it can't fully stand in for the parent, it shouldn't extend it.</span></div>
+  </div>
+
+  <!-- ================= ISP ================= -->
+  <h2 class="section" id="isp">I · Interface Segregation Principle</h2>
+  <p class="section-intro"><em>"Clients should not be forced to depend on methods they do not use."</em> Prefer several small, focused interfaces over one fat one.</p>
+
+  <div class="card-block c1">
+    <h4 style="margin-top:0">❌ Violation — a fat interface</h4>
+    <pre><span class="kw">interface</span> <span class="cls">Worker</span> {
+    <span class="kw">void</span> work();
+    <span class="kw">void</span> eat();
+}
+
+<span class="kw">class</span> <span class="cls">Robot</span> <span class="kw">implements</span> <span class="cls">Worker</span> {
+    <span class="kw">public void</span> work() { <span class="com">/* ok */</span> }
+    <span class="kw">public void</span> eat()  { <span class="kw">throw new</span> <span class="cls">UnsupportedOperationException</span>(); }  <span class="com">// robots don't eat!</span>
+}</pre>
+
+    <h4>✔ Fix — split the interface</h4>
+    <pre><span class="kw">interface</span> <span class="cls">Workable</span> { <span class="kw">void</span> work(); }
+<span class="kw">interface</span> <span class="cls">Eatable</span>   { <span class="kw">void</span> eat();  }
+
+<span class="kw">class</span> <span class="cls">Human</span> <span class="kw">implements</span> <span class="cls">Workable</span>, <span class="cls">Eatable</span> {
+    <span class="kw">public void</span> work() { }
+    <span class="kw">public void</span> eat()  { }
+}
+<span class="kw">class</span> <span class="cls">Robot</span> <span class="kw">implements</span> <span class="cls">Workable</span> {   <span class="com">// only what it actually needs</span>
+    <span class="kw">public void</span> work() { }
+}</pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>ISP = many small interfaces &gt; one fat one.</b> No class should implement methods it must stub out.</span></div>
+  </div>
+
+  <!-- ================= DIP ================= -->
+  <h2 class="section" id="dip">D · Dependency Inversion Principle</h2>
+  <p class="section-intro"><em>"Depend on <b>abstractions</b>, not concretions. High-level modules shouldn't depend on low-level modules — both should depend on abstractions."</em></p>
+
+  <div class="card-block c2">
+    <h4 style="margin-top:0">❌ Violation — high-level class nailed to a concrete class</h4>
+    <pre><span class="kw">class</span> <span class="cls">EmailSender</span> {
+    <span class="kw">public void</span> send(<span class="cls">String</span> msg) { <span class="com">/* ... */</span> }
+}
+
+<span class="kw">class</span> <span class="cls">NotificationService</span> {
+    <span class="kw">private</span> <span class="cls">EmailSender</span> sender = <span class="kw">new</span> <span class="cls">EmailSender</span>();   <span class="com">// hard-wired!</span>
+    <span class="kw">public void</span> notify(<span class="cls">String</span> msg) { sender.send(msg); }
+}
+<span class="com">// Want SMS or push? You must rewrite NotificationService.</span></pre>
+
+    <h4>✔ Fix — depend on an abstraction, inject the implementation</h4>
+    <pre><span class="kw">interface</span> <span class="cls">MessageSender</span> { <span class="kw">void</span> send(<span class="cls">String</span> msg); }
+
+<span class="kw">class</span> <span class="cls">EmailSender</span> <span class="kw">implements</span> <span class="cls">MessageSender</span> { <span class="kw">public void</span> send(<span class="cls">String</span> m) { } }
+<span class="kw">class</span> <span class="cls">SmsSender</span>   <span class="kw">implements</span> <span class="cls">MessageSender</span> { <span class="kw">public void</span> send(<span class="cls">String</span> m) { } }
+
+<span class="kw">class</span> <span class="cls">NotificationService</span> {
+    <span class="kw">private final</span> <span class="cls">MessageSender</span> sender;
+    <span class="kw">public</span> <span class="cls">NotificationService</span>(<span class="cls">MessageSender</span> sender) {   <span class="com">// injected</span>
+        <span class="kw">this</span>.sender = sender;
+    }
+    <span class="kw">public void</span> notify(<span class="cls">String</span> msg) { sender.send(msg); }
+}</pre>
+    <div class="note"><b>Spring in one line:</b> this is exactly what <code class="inline">@Autowired</code> / constructor injection does — the container supplies the concrete <code class="inline">MessageSender</code>, so your high-level code depends only on the interface.</div>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>DIP = program to an interface, inject the details.</b> <code class="inline">new</code> in a high-level class is a smell.</span></div>
+  </div>
+
+  <!-- SUMMARY -->
+  <hr class="div">
+  <h2 class="section" id="summary">One-line summary</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>#</th><th>Principle</th><th>In one line</th></tr></thead>
+      <tbody>
+        <tr><td><b>S</b></td><td>Single Responsibility</td><td>One class, one reason to change</td></tr>
+        <tr><td><b>O</b></td><td>Open/Closed</td><td>Extend without modifying</td></tr>
+        <tr><td><b>L</b></td><td>Liskov Substitution</td><td>Subtypes must stand in for their base type</td></tr>
+        <tr><td><b>I</b></td><td>Interface Segregation</td><td>Small focused interfaces, no forced methods</td></tr>
+        <tr><td><b>D</b></td><td>Dependency Inversion</td><td>Depend on abstractions, inject concretions</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ================= INTERVIEW ================= -->
+  <hr class="div">
+  <h2 class="section" id="interview">🎯 Tricky Interview Questions</h2>
+  <p class="section-intro">The questions that separate "I memorised the acronym" from "I actually understand it."</p>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Q1. Does SRP mean a class should have only one method?</h4>
+    <p><b>No.</b> SRP is about having a single <b>reason to change</b> (one responsibility / one actor it serves), not a single method. A class can have many methods as long as they all serve the same responsibility.</p>
+  </div>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Q2. Isn't the Open/Closed Principle impossible — you always edit code eventually?</h4>
+    <p>You can't make <em>everything</em> closed. OCP means: design so the parts <b>most likely to change</b> (e.g. adding a new shape, payment type, discount rule) can be extended via new classes/strategies, while the <b>stable core</b> stays untouched. It's about anticipating the axis of change, not achieving zero edits forever.</p>
+  </div>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Q3. Give a real-world LSP violation you've seen.</h4>
+    <p>The <b>Square-extends-Rectangle</b> problem (above), or a <code class="inline">Bird</code> superclass with <code class="inline">fly()</code> where <code class="inline">Ostrich</code> or <code class="inline">Penguin</code> must throw an exception. Also: an overridden method that <b>strengthens preconditions</b> (rejects inputs the parent accepted) or <b>weakens postconditions</b> breaks LSP even if it compiles fine.</p>
+  </div>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Q4. SRP and ISP sound the same — what's the difference?</h4>
+    <p>Both fight "doing too much," but at different levels. <b>SRP</b> applies to <b>classes/modules</b> (one reason to change). <b>ISP</b> applies to <b>interfaces</b> (don't force clients to implement methods they don't use). SRP is about cohesion of implementation; ISP is about the shape of the contract.</p>
+  </div>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Q5. What's the difference between DIP, Dependency Injection (DI), and Inversion of Control (IoC)?</h4>
+    <ul class="clean">
+      <li><b>DIP</b> — a design <em>principle</em>: depend on abstractions.</li>
+      <li><b>IoC</b> — a broad <em>concept</em>: the framework, not your code, controls the flow/wiring.</li>
+      <li><b>DI</b> — a concrete <em>technique</em> (constructor/setter/field injection) that implements IoC and helps you follow DIP.</li>
+    </ul>
+    <p style="margin-bottom:0">So: Spring's IoC container uses DI so that your code can obey DIP.</p>
+  </div>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Q6. How does the Spring Framework relate to SOLID?</h4>
+    <p>Spring is basically SOLID in action: constructor injection &rarr; <b>DIP</b>; coding against interfaces + strategy beans &rarr; <b>OCP</b>; small <code class="inline">@Repository</code>/<code class="inline">@Service</code> beans &rarr; <b>SRP</b>; focused repository interfaces &rarr; <b>ISP</b>.</p>
+  </div>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Q7. Can blindly following SOLID hurt a codebase?</h4>
+    <p><b>Yes.</b> Over-applying it leads to <b>over-engineering</b> — an explosion of tiny classes and interfaces with one implementation, indirection that hides intent, and premature abstraction. SOLID is a guide, not a law; apply it where change is likely, keep simple things simple (YAGNI).</p>
+  </div>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Q8. Which SOLID principle does the Strategy pattern demonstrate?</h4>
+    <p>Mainly <b>OCP</b> (add new strategies without touching the context) and <b>DIP</b> (the context depends on a strategy interface). Many GoF patterns are just SOLID principles crystallised into a reusable shape.</p>
+  </div>
+
+  <div class="refs">
+    <h4>Related notes</h4>
+    <ul>
+      <li><a href="../design-patterns/">Java Design Patterns — All</a> (SOLID's practical cousins)</li>
+      <li><a href="../design-patterns/java-singleton.html">Java Singleton</a> · <a href="../design-patterns/java-builder-pattern.html">Builder Pattern</a></li>
+    </ul>
+  </div>
+
+  <hr class="div">
+  <div class="credits">Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a></div>
+
+</div>
+</body>
+</html>
