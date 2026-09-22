@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UML Diagrams &amp; Types</title>
+  <meta name="description" content="UML (Unified Modeling Language) explained — what it is, and the structural vs behavioral diagram types used to model software systems.">
+  <meta name="keywords" content="UML, Unified Modeling Language, Class Diagram, Sequence Diagram, Use Case, Structural, Behavioral, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+  <link rel="stylesheet" href="../assets/notes.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../index.html">&larr; All Tech Notes</a>
+
+  <header class="hero">
+    <div class="eyebrow">System Design</div>
+    <h1>UML Diagrams &amp; Types</h1>
+    <p class="sub"><b>UML</b> (Unified Modeling Language) is a visual language for representing the architecture, design and implementation of complex software systems — splitting a system into components you can actually reason about.</p>
+    <div class="legend">
+      <span class="chip"><span class="dot c1"></span> Structural — how it's built</span>
+      <span class="chip"><span class="dot c2"></span> Behavioral — how it behaves</span>
+    </div>
+  </header>
+
+  <!-- WHAT -->
+  <div class="card-block c1">
+    <h4 style="margin-top:0">What is UML?</h4>
+    <p>An application can span thousands of lines of code, and it's hard to keep track of the relationships and hierarchies inside it. UML diagrams break a software system into components and subcomponents so engineers can understand the design, code architecture and proposed implementation — and even model workflows and business processes.</p>
+    <div class="note"><b>Remember:</b> UML is <b>not</b> a programming language — it's a <b>visual</b> language.</div>
+  </div>
+
+  <!-- STRUCTURAL -->
+  <span class="group-label c1">Structural UML Diagrams</span>
+  <p class="section-intro">Describe the <b>static</b> structure of a system — the things that make it up and how they're arranged.</p>
+  <div class="card-block c1">
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Diagram</th><th>Models</th></tr></thead>
+        <tbody>
+          <tr><td><b>Class diagram</b></td><td>Classes, their attributes/methods and relationships</td></tr>
+          <tr><td><b>Object diagram</b></td><td>Instances of classes at a point in time</td></tr>
+          <tr><td><b>Package diagram</b></td><td>How elements are grouped into packages</td></tr>
+          <tr><td><b>Component diagram</b></td><td>Software components and their interfaces</td></tr>
+          <tr><td><b>Composite structure diagram</b></td><td>Internal structure of a class/component</td></tr>
+          <tr><td><b>Deployment diagram</b></td><td>Hardware nodes and where artifacts run</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BEHAVIORAL -->
+  <span class="group-label c2">Behavioral UML Diagrams</span>
+  <p class="section-intro">Describe the <b>dynamic</b> behaviour — how the system acts and how parts interact over time.</p>
+  <div class="card-block c2">
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Diagram</th><th>Models</th></tr></thead>
+        <tbody>
+          <tr><td><b>Activity diagram</b></td><td>Flow from one activity to another — an advanced flowchart</td></tr>
+          <tr><td><b>Sequence diagram</b></td><td>Messages exchanged between objects, in order</td></tr>
+          <tr><td><b>Use case diagram</b></td><td>Actors and the goals they achieve with the system</td></tr>
+          <tr><td><b>State diagram</b></td><td>States of an object and transitions between them</td></tr>
+          <tr><td><b>Communication diagram</b></td><td>Interactions organized around the objects involved</td></tr>
+          <tr><td><b>Interaction overview diagram</b></td><td>High-level flow combining interaction diagrams</td></tr>
+          <tr><td><b>Timing diagram</b></td><td>Behaviour of objects against a time axis</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- IMAGE -->
+  <figure>
+    <img src="../assets/uml-diagram-types.png" alt="Overview of UML diagram types — structural and behavioral">
+    <figcaption>The full family of UML diagram types</figcaption>
+  </figure>
+
+  <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Structural = the nouns</b> (what exists). &nbsp; <b>Behavioral = the verbs</b> (what happens).</span></div>
+
+  <hr class="div">
+  <div class="credits">Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a></div>
+
+</div>
+</body>
+</html>
