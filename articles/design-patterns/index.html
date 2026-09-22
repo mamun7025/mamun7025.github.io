@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Java Design Patterns — All</title>
+  <meta name="description" content="Java/SpringBoot/Microservice professionals | 8+ years experienced in SpringBoot, Angular Full-Stack development | Design patterns interview notes with examples">
+  <meta name="keywords" content="Java, Design Patterns, GoF, Spring Boot, Singleton, Factory, Builder, Adapter, Facade, Proxy, Decorator, Strategy, Observer, Chain of Responsibility, Template Method, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #171a21;
+      --surface-2: #1e222b;
+      --border: #2a2f3a;
+      --text: #d7dce4;
+      --text-dim: #97a0b0;
+      --heading: #f4f6fa;
+      --accent: #61afef;
+      --code-bg: #11141b;
+      --code-text: #c8d3e0;
+      --kw: #c678dd;
+      --str: #98c379;
+      --com: #5c6672;
+      --num: #d19a66;
+      --creational: #6ab7ff;
+      --structural: #7ee787;
+      --behavioral: #f0a868;
+      --callout-bg: #16211c;
+      --callout-border: #2f9e6b;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f6f7f9;
+        --surface: #ffffff;
+        --surface-2: #f0f2f5;
+        --border: #e3e7ec;
+        --text: #2b313b;
+        --text-dim: #64707f;
+        --heading: #161a20;
+        --accent: #1a6fd4;
+        --code-bg: #1b1f27;
+        --code-text: #d7dce4;
+        --kw: #c678dd;
+        --str: #98c379;
+        --com: #7a8494;
+        --num: #d19a66;
+        --creational: #1a6fd4;
+        --structural: #1f8a4c;
+        --behavioral: #c0730f;
+        --callout-bg: #eef8f2;
+        --callout-border: #2f9e6b;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      font-size: 16px;
+    }
+
+    .wrap { max-width: 900px; margin: 0 auto; padding: 40px 22px 80px; }
+
+    /* Header */
+    header.hero {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 26px;
+      margin-bottom: 32px;
+    }
+    header.hero h1 {
+      color: var(--heading);
+      font-size: 2rem;
+      line-height: 1.2;
+      margin: 0 0 8px;
+      letter-spacing: -.5px;
+    }
+    header.hero p.sub { color: var(--text-dim); margin: 0; font-size: 1.02rem; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .legend .chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 999px; padding: 5px 12px; font-size: .82rem; color: var(--text-dim);
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+    .dot.c { background: var(--creational); }
+    .dot.s { background: var(--structural); }
+    .dot.b { background: var(--behavioral); }
+
+    /* TOC */
+    nav.toc {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px 22px; margin-bottom: 40px;
+    }
+    nav.toc h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin: 0 0 14px; }
+    nav.toc ol { margin: 0; padding: 0; list-style: none; columns: 2; column-gap: 34px; }
+    @media (max-width: 620px) { nav.toc ol { columns: 1; } }
+    nav.toc li { margin-bottom: 8px; break-inside: avoid; }
+    nav.toc a { color: var(--text); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: .93rem; }
+    nav.toc a:hover { color: var(--accent); }
+    nav.toc .num { color: var(--text-dim); font-variant-numeric: tabular-nums; font-size: .8rem; min-width: 20px; }
+
+    /* Section groups */
+    .group-label {
+      display: inline-block; font-size: .74rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.4px; padding: 4px 11px; border-radius: 6px; margin: 46px 0 6px;
+    }
+    .group-label.c { color: var(--creational); background: color-mix(in srgb, var(--creational) 14%, transparent); }
+    .group-label.s { color: var(--structural); background: color-mix(in srgb, var(--structural) 14%, transparent); }
+    .group-label.b { color: var(--behavioral); background: color-mix(in srgb, var(--behavioral) 14%, transparent); }
+    .group-intro { color: var(--text-dim); margin: 0 0 8px; font-size: .95rem; }
+
+    /* Pattern card */
+    .pattern {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 26px 26px 28px; margin: 20px 0 28px;
+      border-left: 4px solid var(--accent);
+    }
+    .pattern.c { border-left-color: var(--creational); }
+    .pattern.s { border-left-color: var(--structural); }
+    .pattern.b { border-left-color: var(--behavioral); }
+    .pattern h3 {
+      color: var(--heading); font-size: 1.35rem; margin: 0 0 4px; scroll-margin-top: 20px;
+      display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    }
+    .pattern h3 .tag { font-size: .68rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); }
+    .pattern h4 { color: var(--heading); font-size: .98rem; margin: 22px 0 8px; }
+    .pattern p { margin: 10px 0; }
+
+    code.inline {
+      background: var(--surface-2); border: 1px solid var(--border);
+      padding: 1px 6px; border-radius: 5px; font-family: "SF Mono", "Cascadia Code", Consolas, Menlo, monospace;
+      font-size: .86em; color: var(--accent);
+    }
+
+    pre {
+      background: var(--code-bg); color: var(--code-text);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px 18px; overflow-x: auto; margin: 12px 0;
+      font-family: "SF Mono", "Cascadia Code", Consolas, Menlo, monospace;
+      font-size: .86rem; line-height: 1.55; tab-size: 4;
+    }
+    pre.ascii { color: var(--text-dim); font-size: .82rem; line-height: 1.5; }
+    pre .kw { color: var(--kw); }
+    pre .str { color: var(--str); }
+    pre .com { color: var(--com); font-style: italic; }
+    pre .num { color: var(--num); }
+    pre .cls { color: var(--accent); }
+    .code-label {
+      font-size: .74rem; text-transform: uppercase; letter-spacing: 1px;
+      color: var(--text-dim); margin: 16px 0 -2px; font-weight: 600;
+    }
+
+    /* Callout / memory trick */
+    .trick {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: var(--callout-bg); border: 1px solid var(--border);
+      border-left: 3px solid var(--callout-border);
+      border-radius: 10px; padding: 13px 16px; margin: 18px 0 2px;
+    }
+    .trick .ico { flex: none; font-size: 1.05rem; line-height: 1.5; }
+    .trick .txt { font-size: .95rem; }
+    .trick .txt b { color: var(--heading); }
+
+    .note {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 16px; margin: 16px 0; font-size: .92rem; color: var(--text-dim);
+    }
+    .note b { color: var(--text); }
+
+    /* Tables */
+    .table-scroll { overflow-x: auto; margin: 16px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    thead th { color: var(--heading); font-weight: 600; border-bottom: 2px solid var(--border); white-space: nowrap; }
+    tbody tr:hover { background: var(--surface); }
+    td .badge { font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; }
+    .badge.c { color: var(--creational); background: color-mix(in srgb, var(--creational) 14%, transparent); }
+    .badge.s { color: var(--structural); background: color-mix(in srgb, var(--structural) 14%, transparent); }
+    .badge.b { color: var(--behavioral); background: color-mix(in srgb, var(--behavioral) 14%, transparent); }
+
+    h2.section { color: var(--heading); font-size: 1.5rem; margin: 54px 0 6px; letter-spacing: -.3px; }
+
+    hr.div { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+    .credits { color: var(--text-dim); font-size: .9rem; text-align: center; padding-top: 10px; }
+    .credits a { color: var(--accent); text-decoration: none; }
+    .back { display: inline-block; margin-bottom: 22px; color: var(--text-dim); text-decoration: none; font-size: .9rem; }
+    .back:hover { color: var(--accent); }
+    .star { color: var(--behavioral); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="https://mamun7025.github.io/notes/">&larr; All Tech Notes</a>
+
+  <header class="hero">
+    <h1>Java Design Patterns — All</h1>
+    <p class="sub">The classic Gang-of-Four patterns that actually matter for Java / Spring Boot interviews — each with a real-world analogy, a code example, and a one-line memory hook.</p>
+    <div class="legend">
+      <span class="chip"><span class="dot c"></span> Creational — how objects are <b>created</b></span>
+      <span class="chip"><span class="dot s"></span> Structural — how objects are <b>connected</b></span>
+      <span class="chip"><span class="dot b"></span> Behavioral — how objects <b>communicate</b></span>
+    </div>
+  </header>
+
+  <!-- TABLE OF CONTENTS -->
+  <nav class="toc">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#singleton"><span class="num">01</span> Singleton</a></li>
+      <li><a href="#factory"><span class="num">02</span> Factory</a></li>
+      <li><a href="#builder"><span class="num">03</span> Builder</a></li>
+      <li><a href="#adapter"><span class="num">04</span> Adapter</a></li>
+      <li><a href="#decorator"><span class="num">05</span> Decorator</a></li>
+      <li><a href="#facade"><span class="num">06</span> Facade</a></li>
+      <li><a href="#proxy"><span class="num">07</span> Proxy</a></li>
+      <li><a href="#strategy"><span class="num">08</span> Strategy</a></li>
+      <li><a href="#chain"><span class="num">09</span> Chain of Responsibility</a></li>
+      <li><a href="#observer"><span class="num">10</span> Observer</a></li>
+      <li><a href="#template"><span class="num">11</span> Template Method</a></li>
+      <li><a href="#command"><span class="num">12</span> Command</a></li>
+      <li><a href="#state"><span class="num">13</span> State</a></li>
+      <li><a href="#distinction"><span class="num">14</span> Factory vs Strategy vs Chain</a></li>
+      <li><a href="#revision"><span class="num">15</span> Quick Revision Table</a></li>
+    </ol>
+  </nav>
+
+  <!-- =========================== CREATIONAL =========================== -->
+  <span class="group-label c">Creational Patterns</span>
+  <p class="group-intro">These deal with <b>object creation</b> — hiding the messy details of how instances come to life.</p>
+
+  <!-- Singleton -->
+  <section class="pattern c">
+    <h3 id="singleton">01 · Singleton <span class="tag">Creational</span></h3>
+    <p>An application has a single <b>Configuration Manager</b>. We don't want each layer building its own copy — everyone shares <b>one</b> instance.</p>
+    <pre class="ascii">              &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+Application &#9472;&#9472;&#9656;&#9474; Configuration   &#9474;
+Service &#9472;&#9472;&#9472;&#9472;&#9472;&#9656;&#9474; Manager         &#9474;
+Controller &#9472;&#9472;&#9472;&#9656;&#9474; ONE object      &#9474;
+              &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</pre>
+
+    <div class="code-label">Java</div>
+    <pre><span class="kw">class</span> <span class="cls">ConfigurationManager</span> {
+
+    <span class="kw">private static</span> <span class="cls">ConfigurationManager</span> instance;
+
+    <span class="kw">private</span> <span class="cls">ConfigurationManager</span>() { }
+
+    <span class="kw">public static</span> <span class="cls">ConfigurationManager</span> getInstance() {
+        <span class="kw">if</span> (instance == <span class="kw">null</span>) {
+            instance = <span class="kw">new</span> <span class="cls">ConfigurationManager</span>();
+        }
+        <span class="kw">return</span> instance;
+    }
+}
+
+<span class="com">// c1 == c2  ->  true  (same object)</span>
+<span class="cls">ConfigurationManager</span> c1 = <span class="cls">ConfigurationManager</span>.getInstance();
+<span class="cls">ConfigurationManager</span> c2 = <span class="cls">ConfigurationManager</span>.getInstance();</pre>
+
+    <div class="note"><b>Spring note:</b> Spring beans are singleton-scoped by default, but that's managed by the container — it's not identical to the classic GoF singleton implementation.</div>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Singleton = only ONE instance.</b></span></div>
+  </section>
+
+  <!-- Factory -->
+  <section class="pattern c">
+    <h3 id="factory">02 · Factory <span class="tag">Creational</span></h3>
+    <p>Instead of the client calling <code class="inline">new VisaPayment()</code> everywhere, it asks a factory: <em>"give me the right object for this type."</em></p>
+    <pre class="ascii">        Payment Request
+              &#8595;
+        Payment Factory
+         /     |      \
+      VISA   PayPal   ApplePay</pre>
+
+    <div class="code-label">Java</div>
+    <pre><span class="kw">interface</span> <span class="cls">Payment</span> { <span class="kw">void</span> pay(); }
+
+<span class="kw">class</span> <span class="cls">VisaPayment</span> <span class="kw">implements</span> <span class="cls">Payment</span> {
+    <span class="kw">public void</span> pay() { System.out.println(<span class="str">"Paying using Visa"</span>); }
+}
+
+<span class="kw">class</span> <span class="cls">PaypalPayment</span> <span class="kw">implements</span> <span class="cls">Payment</span> {
+    <span class="kw">public void</span> pay() { System.out.println(<span class="str">"Paying using PayPal"</span>); }
+}
+
+<span class="kw">class</span> <span class="cls">PaymentFactory</span> {
+    <span class="kw">public static</span> <span class="cls">Payment</span> create(<span class="cls">String</span> type) {
+        <span class="kw">if</span> (<span class="str">"VISA"</span>.equals(type))   <span class="kw">return new</span> <span class="cls">VisaPayment</span>();
+        <span class="kw">if</span> (<span class="str">"PAYPAL"</span>.equals(type)) <span class="kw">return new</span> <span class="cls">PaypalPayment</span>();
+        <span class="kw">throw new</span> <span class="cls">IllegalArgumentException</span>(<span class="str">"Unknown payment"</span>);
+    }
+}
+
+<span class="com">// Client just asks for what it needs</span>
+<span class="cls">Payment</span> payment = <span class="cls">PaymentFactory</span>.create(<span class="str">"VISA"</span>);
+payment.pay();</pre>
+
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Factory = "Tell me what you need; I'll create it."</b></span></div>
+  </section>
+
+  <!-- Builder -->
+  <section class="pattern c">
+    <h3 id="builder">03 · Builder <span class="tag">Creational</span></h3>
+    <p>Great for objects with <b>many optional parameters</b>. A telescoping constructor is unreadable — a builder makes each value self-documenting.</p>
+
+    <div class="code-label">Without builder — what does each argument mean?</div>
+    <pre><span class="cls">User</span> user = <span class="kw">new</span> <span class="cls">User</span>(<span class="str">"Mamun"</span>, <span class="str">"mamun@email.com"</span>, <span class="num">33</span>, <span class="str">"Dubai"</span>, <span class="str">"Java"</span>, <span class="kw">true</span>);</pre>
+
+    <div class="code-label">With builder — readable, order-independent</div>
+    <pre><span class="cls">User</span> user = <span class="cls">User</span>.builder()
+        .name(<span class="str">"Mamun"</span>)
+        .email(<span class="str">"mamun@email.com"</span>)
+        .age(<span class="num">33</span>)
+        .city(<span class="str">"Dubai"</span>)
+        .skill(<span class="str">"Java"</span>)
+        .active(<span class="kw">true</span>)
+        .build();</pre>
+
+    <div class="note">This is exactly why you see Lombok's <code class="inline">@Builder</code> all over Spring Boot code.</div>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Builder = build a complex object step-by-step.</b></span></div>
+  </section>
+
+  <!-- =========================== STRUCTURAL =========================== -->
+  <span class="group-label s">Structural Patterns</span>
+  <p class="group-intro">These deal with <b>how objects and classes are connected</b> together.</p>
+
+  <!-- Adapter -->
+  <section class="pattern s">
+    <h3 id="adapter">04 · Adapter <span class="tag">Structural</span></h3>
+    <p>Your app expects <code class="inline">PaymentService</code>, but a third-party bank exposes <code class="inline">BankPaymentAPI</code>. The interfaces don't match, so you wrap it in a <b>translator</b>.</p>
+    <pre class="ascii">Your App  &#8594;  PaymentService  &#8594;  Adapter  &#8594;  BankPaymentAPI</pre>
+
+    <div class="code-label">Java</div>
+    <pre><span class="kw">interface</span> <span class="cls">PaymentService</span> { <span class="kw">void</span> pay(<span class="kw">double</span> amount); }
+
+<span class="com">// Third-party class with an incompatible method name</span>
+<span class="kw">class</span> <span class="cls">BankPaymentAPI</span> {
+    <span class="kw">public void</span> makePayment(<span class="kw">double</span> amount) {
+        System.out.println(<span class="str">"Bank payment: "</span> + amount);
+    }
+}
+
+<span class="com">// Adapter bridges the two</span>
+<span class="kw">class</span> <span class="cls">BankPaymentAdapter</span> <span class="kw">implements</span> <span class="cls">PaymentService</span> {
+    <span class="kw">private</span> <span class="cls">BankPaymentAPI</span> bankAPI = <span class="kw">new</span> <span class="cls">BankPaymentAPI</span>();
+    <span class="kw">public void</span> pay(<span class="kw">double</span> amount) { bankAPI.makePayment(amount); }
+}
+
+<span class="cls">PaymentService</span> payment = <span class="kw">new</span> <span class="cls">BankPaymentAdapter</span>();
+payment.pay(<span class="num">1000</span>);</pre>
+
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Adapter = translator between incompatible interfaces.</b></span></div>
+  </section>
+
+  <!-- Decorator -->
+  <section class="pattern s">
+    <h3 id="decorator">05 · Decorator <span class="tag">Structural</span></h3>
+    <p>A coffee + milk + sugar + cream. Instead of a class for every combination, you <b>wrap</b> the base object, and each wrapper adds one behavior.</p>
+    <pre class="ascii">Coffee &#8594; MilkDecorator &#8594; SugarDecorator &#8594; CreamDecorator</pre>
+
+    <div class="code-label">Java (concept)</div>
+    <pre><span class="cls">Coffee</span> coffee = <span class="kw">new</span> <span class="cls">BasicCoffee</span>();
+coffee = <span class="kw">new</span> <span class="cls">MilkDecorator</span>(coffee);
+coffee = <span class="kw">new</span> <span class="cls">SugarDecorator</span>(coffee);
+coffee = <span class="kw">new</span> <span class="cls">CreamDecorator</span>(coffee);</pre>
+
+    <div class="note"><b>Real Java example:</b> the I/O streams — <code class="inline">new DataInputStream(new BufferedInputStream(inputStream))</code>. Each wrapper adds functionality.</div>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Decorator = add behavior by wrapping the original object.</b></span></div>
+  </section>
+
+  <!-- Facade -->
+  <section class="pattern s">
+    <h3 id="facade">06 · Facade <span class="tag">Structural</span></h3>
+    <p>Making a payment touches account validation, balance, fraud checks, processing and notifications. A <b>facade</b> hides all of that behind one simple call.</p>
+    <pre class="ascii">Client
+  &#8595;
+PaymentFacade
+  &#8595;
+ &#9500;&#9472; AccountService
+ &#9500;&#9472; FraudService
+ &#9500;&#9472; PaymentService
+ &#9492;&#9472; NotificationService</pre>
+
+    <div class="code-label">Java</div>
+    <pre><span class="com">// Client doesn't need to know the sub-systems exist</span>
+paymentFacade.pay(amount);</pre>
+
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Facade = one simple front door to a complicated system.</b></span></div>
+  </section>
+
+  <!-- Proxy -->
+  <section class="pattern s">
+    <h3 id="proxy">07 · Proxy <span class="tag">Structural</span></h3>
+    <p>A security guard stands in front of the real object. The client talks to the <b>proxy</b>, which can authenticate, authorize, log, cache or control access before delegating.</p>
+    <pre class="ascii">Client  &#8594;  Proxy (guard)  &#8594;  Real Service</pre>
+
+    <div class="code-label">Spring example</div>
+    <pre><span class="kw">@Transactional</span>
+<span class="kw">public void</span> transferMoney() {
+    <span class="com">// Spring wraps this bean in a proxy that</span>
+    <span class="com">// opens/commits the transaction around the call</span>
+}</pre>
+
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Proxy = gatekeeper in front of the real object.</b></span></div>
+  </section>
+
+  <!-- =========================== BEHAVIORAL =========================== -->
+  <span class="group-label b">Behavioral Patterns</span>
+  <p class="group-intro">These deal with <b>how objects communicate</b> and distribute responsibilities.</p>
+
+  <!-- Strategy -->
+  <section class="pattern b">
+    <h3 id="strategy">08 · Strategy <span class="tag">Behavioral</span></h3>
+    <p>Multiple payment methods, one job: <em>pay</em>. Instead of a giant <code class="inline">if/else</code>, each algorithm becomes its own swappable strategy.</p>
+    <pre class="ascii">PaymentService
+      &#8595;
+   Strategy
+   /   |   \
+ Card PayPal Bank</pre>
+
+    <div class="code-label">Java</div>
+    <pre><span class="kw">interface</span> <span class="cls">PaymentStrategy</span> { <span class="kw">void</span> pay(<span class="kw">double</span> amount); }
+
+<span class="kw">class</span> <span class="cls">CardPayment</span> <span class="kw">implements</span> <span class="cls">PaymentStrategy</span> {
+    <span class="kw">public void</span> pay(<span class="kw">double</span> amount) { System.out.println(<span class="str">"Card payment"</span>); }
+}
+
+<span class="kw">class</span> <span class="cls">PaymentService</span> {
+    <span class="kw">private</span> <span class="cls">PaymentStrategy</span> strategy;
+    <span class="kw">public</span> <span class="cls">PaymentService</span>(<span class="cls">PaymentStrategy</span> strategy) { <span class="kw">this</span>.strategy = strategy; }
+    <span class="kw">public void</span> pay(<span class="kw">double</span> amount) { strategy.pay(amount); }
+}
+
+<span class="com">// Inject the behavior you want</span>
+<span class="cls">PaymentService</span> service = <span class="kw">new</span> <span class="cls">PaymentService</span>(<span class="kw">new</span> <span class="cls">CardPayment</span>());
+service.pay(<span class="num">1000</span>);</pre>
+
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Strategy = same job, different ways of doing it.</b></span></div>
+  </section>
+
+  <!-- Chain of Responsibility -->
+  <section class="pattern b">
+    <h3 id="chain">09 · Chain of Responsibility <span class="tag">Behavioral</span></h3>
+    <p>Expense approval by level. Each handler asks <em>"Can I approve this?"</em> — if not, it passes the request along the chain.</p>
+    <pre class="ascii">Employee &#8594; Manager ($100) &#8594; Director ($1k) &#8594; VP ($10k) &#8594; CEO (&gt;$10k)
+
+approveExpense(5000):
+  Manager  &#8594; No
+  Director &#8594; No
+  VP       &#8594; Yes  &#10003;</pre>
+
+    <div class="code-label">Java</div>
+    <pre><span class="kw">abstract class</span> <span class="cls">ExpenseHandler</span> {
+    <span class="kw">protected</span> <span class="cls">ExpenseHandler</span> next;
+    <span class="kw">public void</span> setNext(<span class="cls">ExpenseHandler</span> next) { <span class="kw">this</span>.next = next; }
+    <span class="kw">public abstract void</span> approveExpense(<span class="kw">double</span> amount);
+}
+
+<span class="kw">class</span> <span class="cls">Manager</span> <span class="kw">extends</span> <span class="cls">ExpenseHandler</span> {
+    <span class="kw">public void</span> approveExpense(<span class="kw">double</span> amount) {
+        <span class="kw">if</span> (amount &lt;= <span class="num">100</span>)      System.out.println(<span class="str">"Manager approved: $"</span> + amount);
+        <span class="kw">else if</span> (next != <span class="kw">null</span>) next.approveExpense(amount);
+    }
+}
+<span class="com">// Director (<= 1000) and VP (<= 10000) follow the same shape...</span>
+
+<span class="cls">ExpenseHandler</span> manager = <span class="kw">new</span> <span class="cls">Manager</span>(), director = <span class="kw">new</span> <span class="cls">Director</span>(), vp = <span class="kw">new</span> <span class="cls">VP</span>();
+manager.setNext(director);
+director.setNext(vp);
+manager.approveExpense(<span class="num">5000</span>);   <span class="com">// -> VP approved: $5000.0</span></pre>
+
+    <div class="note"><b>Spring Boot:</b> the same idea powers HTTP filter chains — authentication &#8594; authorization &#8594; logging &#8594; validation &#8594; controller.</div>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Chain = pass the request along until someone handles it.</b></span></div>
+  </section>
+
+  <!-- Observer -->
+  <section class="pattern b">
+    <h3 id="observer">10 · Observer <span class="tag">Behavioral</span></h3>
+    <p>An order is created &#8594; publish an event &#8594; every interested subscriber reacts. The publisher doesn't need to know who's listening. This is the heart of <b>event-driven architecture</b> and Kafka.</p>
+    <pre class="ascii">Order Created &#8594; OrderCreated event
+                    &#8595;
+     &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9524;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9524;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+     &#8595;             &#8595;              &#8595;
+   Email          SMS         Notification</pre>
+
+    <div class="code-label">Spring example</div>
+    <pre><span class="kw">@EventListener</span>
+<span class="kw">public void</span> onOrderCreated(<span class="cls">OrderCreated</span> event) { <span class="com">/* react */</span> }</pre>
+
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Observer = one event &#8594; notify many interested parties.</b></span></div>
+  </section>
+
+  <!-- Template Method -->
+  <section class="pattern b">
+    <h3 id="template">11 · Template Method <span class="tag">Behavioral</span></h3>
+    <p>Every payment follows the same skeleton — validate, authenticate, process, notify — but the <em>process</em> step differs. The base class fixes the steps; subclasses fill in the variable part.</p>
+
+    <div class="code-label">Java</div>
+    <pre><span class="kw">abstract class</span> <span class="cls">Payment</span> {
+    <span class="com">// final = the workflow order can't be changed</span>
+    <span class="kw">public final void</span> process() {
+        validate();
+        authenticate();
+        makePayment();     <span class="com">// <- the only step subclasses change</span>
+        notifyCustomer();
+    }
+    <span class="kw">abstract void</span> makePayment();
+    <span class="kw">void</span> validate()      { System.out.println(<span class="str">"Validate"</span>); }
+    <span class="kw">void</span> authenticate()  { System.out.println(<span class="str">"Authenticate"</span>); }
+    <span class="kw">void</span> notifyCustomer(){ System.out.println(<span class="str">"Notify"</span>); }
+}
+
+<span class="kw">class</span> <span class="cls">CardPayment</span> <span class="kw">extends</span> <span class="cls">Payment</span> {
+    <span class="kw">void</span> makePayment() { System.out.println(<span class="str">"Card payment"</span>); }
+}</pre>
+
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Template Method = same steps, different implementation of some steps.</b></span></div>
+  </section>
+
+  <!-- Command -->
+  <section class="pattern b">
+    <h3 id="command">12 · Command <span class="tag">Behavioral</span></h3>
+    <p>A waiter takes your order but doesn't cook it. The request is packaged as a <b>command object</b> and handed to whoever executes it.</p>
+    <pre class="ascii">Client &#8594; Command &#8594; Invoker &#8594; Receiver</pre>
+    <p>Useful for <b>job queues, undo/redo, task scheduling, and message processing</b> — anywhere you want to store, queue or replay an action.</p>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Command = turn a request/action into an object.</b></span></div>
+  </section>
+
+  <!-- State -->
+  <section class="pattern b">
+    <h3 id="state">13 · State <span class="tag">Behavioral</span></h3>
+    <p>An order behaves differently depending on its lifecycle stage. Rather than one huge <code class="inline">if (state == ...)</code> block, model each state as its own object.</p>
+    <pre class="ascii">Created   &#8594; can cancel
+Paid      &#8594; can refund
+Shipped   &#8594; cannot cancel
+Delivered &#8594; can review</pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>State = object behaves differently depending on its current state.</b></span></div>
+  </section>
+
+  <!-- =========================== DISTINCTION =========================== -->
+  <hr class="div">
+  <h2 class="section" id="distinction">Factory vs Strategy vs Chain</h2>
+  <p style="color:var(--text-dim)">A classic interview trap. The cleanest way to separate them:</p>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>Pattern</th><th>The question it answers</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>Factory</b></td><td>Which <b>object</b> should I create?</td><td><code class="inline">PaymentFactory</code> &#8594; creates <code class="inline">CardPayment</code></td></tr>
+        <tr><td><b>Strategy</b></td><td>Which <b>behavior / algorithm</b> should I use?</td><td><code class="inline">PaymentService</code> &#8594; uses <code class="inline">CardStrategy</code></td></tr>
+        <tr><td><b>Chain</b></td><td><b>Who</b> should handle this request?</td><td>Manager &#8594; Director &#8594; VP &#8594; CEO</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- =========================== REVISION =========================== -->
+  <hr class="div">
+  <h2 class="section" id="revision">Quick Revision Table</h2>
+  <p style="color:var(--text-dim)">Patterns marked <span class="star">&#9733;</span> are the highest-value ones for Java / Spring Boot interviews — study these first.</p>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>Pattern</th><th>Category</th><th>One-line memory</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>Singleton</b></td><td><span class="badge c">Creational</span></td><td>Only one instance</td></tr>
+        <tr><td><b>Factory</b> <span class="star">&#9733;</span></td><td><span class="badge c">Creational</span></td><td>Create the right object</td></tr>
+        <tr><td><b>Builder</b> <span class="star">&#9733;</span></td><td><span class="badge c">Creational</span></td><td>Build step-by-step</td></tr>
+        <tr><td><b>Adapter</b> <span class="star">&#9733;</span></td><td><span class="badge s">Structural</span></td><td>Translate interfaces</td></tr>
+        <tr><td><b>Decorator</b></td><td><span class="badge s">Structural</span></td><td>Wrap and add functionality</td></tr>
+        <tr><td><b>Facade</b> <span class="star">&#9733;</span></td><td><span class="badge s">Structural</span></td><td>One front door</td></tr>
+        <tr><td><b>Proxy</b> <span class="star">&#9733;</span></td><td><span class="badge s">Structural</span></td><td>Gatekeeper</td></tr>
+        <tr><td><b>Strategy</b> <span class="star">&#9733;</span></td><td><span class="badge b">Behavioral</span></td><td>Choose behavior</td></tr>
+        <tr><td><b>Chain of Responsibility</b> <span class="star">&#9733;</span></td><td><span class="badge b">Behavioral</span></td><td>Pass request along</td></tr>
+        <tr><td><b>Observer</b> <span class="star">&#9733;</span></td><td><span class="badge b">Behavioral</span></td><td>Notify subscribers</td></tr>
+        <tr><td><b>Template Method</b></td><td><span class="badge b">Behavioral</span></td><td>Same workflow, different steps</td></tr>
+        <tr><td><b>Command</b></td><td><span class="badge b">Behavioral</span></td><td>Request as an object</td></tr>
+        <tr><td><b>State</b></td><td><span class="badge b">Behavioral</span></td><td>Behavior depends on state</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note" style="margin-top:24px">
+    <b>Suggested study order</b> for a Java / Spring Boot backend engineer:
+    Strategy &#8594; Factory &#8594; Builder &#8594; Chain of Responsibility &#8594; Adapter &#8594; Proxy &#8594; Observer &#8594; Template Method &#8594; Facade &#8594; Singleton.
+  </div>
+
+  <hr class="div">
+  <div class="credits">
+    Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
@@ -7,43 +7,245 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-QF8LYW219D');
   </script>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Most Used GIT Cmds</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>All Tech Notes — Al Mamun</title>
   <meta name="description" content="Java/SpringBoot/Microservice professionals | 8+ years experienced in SpringBoot, Angular Full-Stack development | Developing business solutions, worked as a core developer and led a team | Lives in Dubai, UAE">
   <meta name="keywords" content="Java, Spring Boot, Spring Framework, Microservice, Grails Framework, JPA, Hibernate, MySQL, Oracle, PostgreSQL, JasperReports, JasperSoft Studio, JavaScript, jQuery, HTML, CSS, mamun7025, al-mamun-sa">
   <meta name="author" content="Al Mamun">
 
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #171a21;
+      --surface-2: #1e222b;
+      --border: #2a2f3a;
+      --text: #d7dce4;
+      --text-dim: #97a0b0;
+      --heading: #f4f6fa;
+      --accent: #61afef;
+      --java: #6ab7ff;
+      --system: #7ee787;
+      --misc: #f0a868;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f6f7f9;
+        --surface: #ffffff;
+        --surface-2: #f0f2f5;
+        --border: #e3e7ec;
+        --text: #2b313b;
+        --text-dim: #64707f;
+        --heading: #161a20;
+        --accent: #1a6fd4;
+        --java: #1a6fd4;
+        --system: #1f8a4c;
+        --misc: #c0730f;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    .wrap { max-width: 900px; margin: 0 auto; padding: 48px 22px 80px; }
+
+    /* Header */
+    header.hero { border-bottom: 1px solid var(--border); padding-bottom: 26px; margin-bottom: 30px; }
+    header.hero .eyebrow {
+      font-size: .74rem; text-transform: uppercase; letter-spacing: 2px;
+      color: var(--accent); font-weight: 700; margin-bottom: 8px;
+    }
+    header.hero h1 { color: var(--heading); font-size: 2.1rem; line-height: 1.15; margin: 0 0 10px; letter-spacing: -.6px; }
+    header.hero p.sub { color: var(--text-dim); margin: 0; font-size: 1.02rem; max-width: 640px; }
+
+    /* Search */
+    .search-row { margin: 26px 0 8px; position: relative; }
+    .search-row input {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); border-radius: 12px; padding: 13px 16px 13px 42px;
+      font-size: .98rem; outline: none; transition: border-color .15s, box-shadow .15s;
+    }
+    .search-row input::placeholder { color: var(--text-dim); }
+    .search-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+    .search-row .mag {
+      position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); font-size: 1rem; pointer-events: none;
+    }
+    .no-results { color: var(--text-dim); font-size: .95rem; padding: 20px 4px; display: none; }
+
+    /* Category */
+    .cat { margin-top: 38px; }
+    .cat-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .cat-head .label {
+      font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px;
+      padding: 4px 11px; border-radius: 6px;
+    }
+    .cat-head .count { color: var(--text-dim); font-size: .82rem; }
+    .label.java   { color: var(--java);   background: color-mix(in srgb, var(--java) 14%, transparent); }
+    .label.system { color: var(--system); background: color-mix(in srgb, var(--system) 14%, transparent); }
+    .label.misc   { color: var(--misc);   background: color-mix(in srgb, var(--misc) 14%, transparent); }
+
+    /* Card grid */
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 14px; }
+    @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } }
+
+    a.card {
+      display: flex; align-items: center; gap: 14px; text-decoration: none;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 18px; color: var(--text);
+      transition: transform .12s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+    a.card:hover {
+      transform: translateY(-2px); border-color: var(--accent);
+      box-shadow: 0 6px 20px color-mix(in srgb, var(--accent) 14%, transparent);
+    }
+    a.card .ico {
+      flex: none; width: 40px; height: 40px; border-radius: 10px;
+      display: grid; place-items: center; font-size: 1.15rem; font-weight: 700;
+    }
+    a.card.java .ico   { color: var(--java);   background: color-mix(in srgb, var(--java) 15%, transparent); }
+    a.card.system .ico { color: var(--system); background: color-mix(in srgb, var(--system) 15%, transparent); }
+    a.card.misc .ico   { color: var(--misc);   background: color-mix(in srgb, var(--misc) 15%, transparent); }
+    a.card .meta { min-width: 0; }
+    a.card .title { color: var(--heading); font-weight: 600; font-size: .98rem; line-height: 1.3; }
+    a.card .desc { color: var(--text-dim); font-size: .84rem; margin-top: 2px; }
+    a.card .arrow { margin-left: auto; color: var(--text-dim); transition: transform .12s, color .15s; flex: none; }
+    a.card:hover .arrow { transform: translateX(3px); color: var(--accent); }
+
+    footer { border-top: 1px solid var(--border); margin-top: 54px; padding-top: 18px; text-align: center; color: var(--text-dim); font-size: .9rem; }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
 </head>
-<body style="padding: 20px;">
+<body>
+<div class="wrap">
 
+  <header class="hero">
+    <div class="eyebrow">Knowledge Base</div>
+    <h1>All Tech Notes</h1>
+    <p class="sub">A growing collection of concise notes on Java, Spring Boot and system design — written as quick-reference material for interviews and day-to-day engineering.</p>
+    <div class="search-row">
+      <span class="mag">&#128269;</span>
+      <input type="text" id="search" placeholder="Search notes…" autocomplete="off" oninput="filterNotes()">
+    </div>
+  </header>
 
-<h1 style="margin-bottom: 10px;">All Tech Notes</h1>
-<hr>
+  <!-- ===================== JAVA & SPRING ===================== -->
+  <section class="cat" data-cat="java">
+    <div class="cat-head">
+      <span class="label java">Java &amp; Spring</span>
+      <span class="count"></span>
+    </div>
+    <div class="grid">
+      <a class="card java" href="https://mamun7025.github.io/articles/java-generics.html">
+        <span class="ico">&lt;T&gt;</span>
+        <span class="meta">
+          <span class="title">Java Generics</span>
+          <span class="desc">Type parameters &amp; bounded types</span>
+        </span>
+        <span class="arrow">&rarr;</span>
+      </a>
+      <a class="card java" href="https://mamun7025.github.io/articles/java-singleton.html">
+        <span class="ico">1</span>
+        <span class="meta">
+          <span class="title">Java Singleton</span>
+          <span class="desc">One shared instance</span>
+        </span>
+        <span class="arrow">&rarr;</span>
+      </a>
+      <a class="card java" href="https://mamun7025.github.io/articles/java-builder-pattern.html">
+        <span class="ico">&#9881;</span>
+        <span class="meta">
+          <span class="title">Java Builder Pattern</span>
+          <span class="desc">Build complex objects step-by-step</span>
+        </span>
+        <span class="arrow">&rarr;</span>
+      </a>
+      <a class="card java" href="https://mamun7025.github.io/articles/design-patterns/">
+        <span class="ico">&#9634;</span>
+        <span class="meta">
+          <span class="title">Java Design Patterns</span>
+          <span class="desc">GoF patterns — All</span>
+        </span>
+        <span class="arrow">&rarr;</span>
+      </a>
+      <a class="card java" href="https://mamun7025.github.io/articles/java-hashcode-and-equal.html">
+        <span class="ico">&#8801;</span>
+        <span class="meta">
+          <span class="title">hashCode &amp; equals</span>
+          <span class="desc">The contract between the two</span>
+        </span>
+        <span class="arrow">&rarr;</span>
+      </a>
+    </div>
+  </section>
 
-<p style="white-space: pre-wrap;">
+  <!-- ===================== SYSTEM DESIGN ===================== -->
+  <section class="cat" data-cat="system">
+    <div class="cat-head">
+      <span class="label system">System Design</span>
+      <span class="count"></span>
+    </div>
+    <div class="grid">
+      <a class="card system" href="https://mamun7025.github.io/articles/HLD-and-LLD.html">
+        <span class="ico">&#9707;</span>
+        <span class="meta">
+          <span class="title">HLD and LLD</span>
+          <span class="desc">High- vs low-level design</span>
+        </span>
+        <span class="arrow">&rarr;</span>
+      </a>
+      <a class="card system" href="https://mamun7025.github.io/articles/UML-Diagram.html">
+        <span class="ico">&#9636;</span>
+        <span class="meta">
+          <span class="title">UML Diagram</span>
+          <span class="desc">Modelling classes &amp; relationships</span>
+        </span>
+        <span class="arrow">&rarr;</span>
+      </a>
+    </div>
+  </section>
 
+  <p class="no-results" id="noResults">No notes match your search.</p>
 
-  <a href="https://mamun7025.github.io/articles/java-generics.html">Java Generics</a>
-  <a href="https://mamun7025.github.io/articles/java-singleton.html">Java Singleton</a>
-  <a href="https://mamun7025.github.io/articles/java-builder-pattern.html">Java Builder Pattern</a>
-  <a href="https://mamun7025.github.io/articles/java-hashcode-and-equal.html">Java hashCode and equal method</a>
-  <a href="https://mamun7025.github.io/articles/HLD-and-LLD.html">System Design HLD and LLD</a>
-  <a href="https://mamun7025.github.io/articles/UML-Diagram.html">System Design - UML Diagram</a>
+  <footer>
+    Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a>
+  </footer>
 
-	
-
-
-  </p>
-
-
-<hr>
-<div class="credits">
-Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a>
 </div>
+
+<script>
+  // Show a count next to each category label
+  document.querySelectorAll('.cat').forEach(function (cat) {
+    var n = cat.querySelectorAll('a.card').length;
+    cat.querySelector('.count').textContent = n + (n === 1 ? ' note' : ' notes');
+  });
+
+  function filterNotes() {
+    var q = document.getElementById('search').value.trim().toLowerCase();
+    var anyVisible = false;
+    document.querySelectorAll('.cat').forEach(function (cat) {
+      var catVisible = false;
+      cat.querySelectorAll('a.card').forEach(function (card) {
+        var text = card.textContent.toLowerCase();
+        var match = text.indexOf(q) !== -1;
+        card.style.display = match ? '' : 'none';
+        if (match) { catVisible = true; anyVisible = true; }
+      });
+      cat.style.display = catVisible ? '' : 'none';
+    });
+    document.getElementById('noResults').style.display = anyVisible ? 'none' : 'block';
+  }
+</script>
 
 </body>
 </html>
