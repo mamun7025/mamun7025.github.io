@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>System Design — HLD vs LLD</title>
+  <meta name="description" content="System design basics — High-Level Design (HLD) vs Low-Level Design (LLD): what each covers, who owns it, and how they fit together.">
+  <meta name="keywords" content="System Design, HLD, LLD, High Level Design, Low Level Design, Architecture, Scalability, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+  <link rel="stylesheet" href="../assets/notes.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../index.html">&larr; All Tech Notes</a>
+
+  <header class="hero">
+    <div class="eyebrow">System Design</div>
+    <h1>System Design — HLD vs LLD</h1>
+    <p class="sub">Designing a software system means planning it before you build it. <b>HLD</b> describes the big-picture architecture; <b>LLD</b> zooms into each module's internal design. Together they take you from a client requirement all the way to code.</p>
+    <div class="legend">
+      <span class="chip"><span class="dot c1"></span> HLD — the blueprint</span>
+      <span class="chip"><span class="dot c2"></span> LLD — the wiring diagram</span>
+    </div>
+  </header>
+
+  <!-- WHAT -->
+  <div class="card-block c1">
+    <h4 style="margin-top:0">What is system design?</h4>
+    <p>The process of designing any software application before/while building it. Before writing code, you weigh a few things up front:</p>
+    <ul class="clean">
+      <li>What features will the application have?</li>
+      <li>How many users will access it?</li>
+      <li>How many requests arrive at peak, at any one time?</li>
+      <li>How far do we need to scale — and what's the allowed cost?</li>
+    </ul>
+    <p style="margin-bottom:0">It helps to think in real-world terms — how do Twitter, Instagram, WhatsApp or Facebook handle these problems? Borrowing those proven ideas leads to a better design.</p>
+  </div>
+
+  <!-- HLD -->
+  <h2 class="section" id="hld">High-Level Design (HLD)</h2>
+  <p class="section-intro">The overall architecture — the 30,000-foot view of the system, usually produced by solution architects.</p>
+  <div class="card-block c1">
+    <h4 style="margin-top:0">What HLD covers</h4>
+    <ul class="clean">
+      <li><b>Functional requirements</b> — what the system must do.</li>
+      <li><b>Non-functional requirements</b> — consistency, availability, performance, scalability.</li>
+      <li><b>Costing limitations</b> — the budget that shapes the trade-offs.</li>
+      <li><b>Limitations of the system</b> — known constraints and boundaries.</li>
+    </ul>
+    <figure>
+      <img src="../assets/System%20Design%20HLD.png" alt="High-Level Design diagram">
+      <figcaption>High-Level Design — overall architecture &amp; components</figcaption>
+    </figure>
+  </div>
+
+  <!-- LLD -->
+  <h2 class="section" id="lld">Low-Level Design (LLD)</h2>
+  <p class="section-intro">The component-level design — how each module is actually built, produced by designers and developers.</p>
+  <div class="card-block c2">
+    <h4 style="margin-top:0">What LLD covers</h4>
+    <ul class="clean">
+      <li><b>UML diagrams</b> — class diagrams, data model / ER diagrams, sequence diagrams.</li>
+      <li><b>Interfaces</b> — the contracts each module exposes.</li>
+      <li><b>Coding</b> — the concrete implementation, e.g. <em>fetch all posts, create a new post, reply to a post.</em></li>
+    </ul>
+    <figure>
+      <img src="../assets/System%20Design%20LLD.png" alt="Low-Level Design diagram">
+      <figcaption>Low-Level Design — module internals &amp; class-level detail</figcaption>
+    </figure>
+  </div>
+
+  <!-- COMPARE -->
+  <hr class="div">
+  <h2 class="section" id="compare">HLD vs LLD at a glance</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Aspect</th><th><span class="badge c1">HLD</span></th><th><span class="badge c2">LLD</span></th></tr></thead>
+      <tbody>
+        <tr><td>Scope</td><td>Overall design of the system</td><td>Component / module-level design</td></tr>
+        <tr><td>Description level</td><td>Overall architecture</td><td>Each and every module in detail</td></tr>
+        <tr><td>Owned by</td><td>Solution architects</td><td>Designers &amp; developers</td></tr>
+        <tr><td>Purpose</td><td>Turns client requirements into a high-level solution</td><td>Turns the high-level solution into a detailed implementation</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="trick"><span class="ico">🧠</span><span class="txt"><b>HLD = what &amp; where</b> (the blueprint). &nbsp; <b>LLD = how</b> (the wiring diagram that developers build from).</span></div>
+
+  <hr class="div">
+  <div class="credits">Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a></div>
+
+</div>
+</body>
+</html>

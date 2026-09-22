@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Java Generics — Classes &amp; Methods</title>
+  <meta name="description" content="Java Generics explained — generic classes, bounded type parameters, generic methods, and wildcards, with clear examples.">
+  <meta name="keywords" content="Java, Generics, Type Parameter, Bounded Generics, Wildcards, Type Safety, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+  <link rel="stylesheet" href="../assets/notes.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../index.html">&larr; All Tech Notes</a>
+
+  <header class="hero">
+    <div class="eyebrow">Java · Core</div>
+    <h1>Java Generics — Classes &amp; Methods</h1>
+    <p class="sub">Generics let you write classes and methods that work with <b>any type</b> while keeping full compile-time type safety — no casting, no <code class="inline">ClassCastException</code> surprises at runtime.</p>
+  </header>
+
+  <!-- WHY -->
+  <div class="card-block c1">
+    <h4 style="margin-top:0">Why generics exist</h4>
+    <ul class="clean">
+      <li><b>Type safety</b> — errors are caught at compile time instead of blowing up at runtime.</li>
+      <li><b>No casting</b> — the compiler already knows the type, so you skip explicit casts.</li>
+      <li><b>Reusable code</b> — one class/method handles many types instead of duplicating logic.</li>
+    </ul>
+    <div class="warn"><b>Note:</b> Java generics only work with <b>reference types</b>, not primitives. Use the wrapper types — <code class="inline">Integer</code>, <code class="inline">Double</code>, <code class="inline">Boolean</code> — instead of <code class="inline">int</code>, <code class="inline">double</code>, <code class="inline">boolean</code>.</div>
+  </div>
+
+  <!-- ============ GENERIC CLASS ============ -->
+  <h2 class="section" id="generic-class">1 · Generic Class</h2>
+  <p class="section-intro">A class that declares one or more <b>type parameters</b> in angle brackets right after the class name.</p>
+
+  <div class="card-block c1">
+    <div class="code-label">Single type parameter &lt;T&gt;</div>
+    <pre><span class="kw">public class</span> <span class="cls">Printer</span>&lt;T&gt; {          <span class="com">// T = type parameter</span>
+
+    <span class="kw">private</span> T thingToPrint;
+
+    <span class="kw">public</span> <span class="cls">Printer</span>(T thingToPrint) {
+        <span class="kw">this</span>.thingToPrint = thingToPrint;
+    }
+
+    <span class="kw">public void</span> print() {
+        System.out.println(thingToPrint);
+    }
+}</pre>
+
+    <div class="code-label">Usage — the type is chosen by the caller</div>
+    <pre><span class="cls">Printer</span>&lt;<span class="cls">String</span>&gt;  p1 = <span class="kw">new</span> <span class="cls">Printer</span>&lt;&gt;(<span class="str">"Hello"</span>);
+<span class="cls">Printer</span>&lt;<span class="cls">Integer</span>&gt; p2 = <span class="kw">new</span> <span class="cls">Printer</span>&lt;&gt;(<span class="num">2025</span>);
+p1.print();   <span class="com">// Hello</span>
+p2.print();   <span class="com">// 2025</span></pre>
+  </div>
+
+  <div class="card-block c1">
+    <h4 style="margin-top:0">Multiple type parameters</h4>
+    <p>A class can declare several type parameters, conventionally named <code class="inline">T</code>, <code class="inline">V</code>, <code class="inline">K</code>, <code class="inline">E</code>.</p>
+    <pre><span class="kw">public class</span> <span class="cls">Pair</span>&lt;T, V&gt; {
+    <span class="kw">private</span> T first;
+    <span class="kw">private</span> V second;
+
+    <span class="kw">public</span> <span class="cls">Pair</span>(T first, V second) {
+        <span class="kw">this</span>.first  = first;
+        <span class="kw">this</span>.second = second;
+    }
+}
+
+<span class="cls">Pair</span>&lt;<span class="cls">String</span>, <span class="cls">Integer</span>&gt; user = <span class="kw">new</span> <span class="cls">Pair</span>&lt;&gt;(<span class="str">"age"</span>, <span class="num">33</span>);</pre>
+  </div>
+
+  <div class="card-block c1">
+    <h4 style="margin-top:0">Bounded type parameter &nbsp;<code class="inline">&lt;T extends Animal&gt;</code></h4>
+    <p>Restricts <code class="inline">T</code> to a type (or subtype). Now <code class="inline">T</code> can only be an <code class="inline">Animal</code> — e.g. <code class="inline">Cat</code>, <code class="inline">Dog</code> — and you can safely call <code class="inline">Animal</code>'s methods on it.</p>
+    <pre><span class="kw">public class</span> <span class="cls">Cage</span>&lt;T <span class="kw">extends</span> <span class="cls">Animal</span>&gt; {
+    <span class="kw">private</span> T animal;
+
+    <span class="kw">public void</span> makeSound() {
+        animal.sound();   <span class="com">// allowed: T is guaranteed to be an Animal</span>
+    }
+}</pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>extends</b> = "this type, or anything below it in the hierarchy."</span></div>
+  </div>
+
+  <!-- ============ GENERIC METHOD ============ -->
+  <h2 class="section" id="generic-method">2 · Generic Method</h2>
+  <p class="section-intro">A single method can be generic even inside a non-generic class. The type parameter goes <b>right before the return type</b>.</p>
+
+  <div class="card-block c2">
+    <div class="code-label">Java</div>
+    <pre><span class="kw">public class</span> <span class="cls">Printer</span> {
+
+    <span class="com">// &lt;T&gt; declared right before the return type (void)</span>
+    <span class="kw">private static</span> &lt;T&gt; <span class="kw">void</span> print(T thing) {
+        System.out.println(thing);
+    }
+
+    <span class="com">// two type parameters</span>
+    <span class="kw">private static</span> &lt;T, V&gt; <span class="kw">void</span> print(T a, V b) {
+        System.out.println(a);
+        System.out.println(b);
+    }
+
+    <span class="com">// returning a generic type (returns T)</span>
+    <span class="kw">private static</span> &lt;T, V&gt; T printAndReturn(T a, V b) {
+        System.out.println(a);
+        System.out.println(b);
+        <span class="kw">return</span> a;
+    }
+}</pre>
+  </div>
+
+  <!-- ============ WILDCARDS ============ -->
+  <h2 class="section" id="wildcards">3 · Wildcards <code class="inline">&lt;?&gt;</code></h2>
+  <p class="section-intro">A wildcard <code class="inline">?</code> means "some unknown type." Handy when the method only reads from a collection and doesn't care about the exact element type.</p>
+
+  <div class="card-block c3">
+    <div class="code-label">Unbounded &amp; bounded wildcards</div>
+    <pre><span class="com">// unbounded — accepts a List of ANY type</span>
+<span class="kw">private static void</span> print(<span class="cls">List</span>&lt;?&gt; list) {
+    System.out.println(list);
+}
+
+<span class="com">// upper-bounded — a List of Animal or any subtype</span>
+<span class="kw">private static void</span> printAnimals(<span class="cls">List</span>&lt;? <span class="kw">extends</span> <span class="cls">Animal</span>&gt; list) {
+    <span class="kw">for</span> (<span class="cls">Animal</span> a : list) a.sound();
+}
+
+<span class="com">// lower-bounded — a List of Integer or any supertype</span>
+<span class="kw">private static void</span> addNumbers(<span class="cls">List</span>&lt;? <span class="kw">super</span> <span class="cls">Integer</span>&gt; list) {
+    list.add(<span class="num">42</span>);
+}</pre>
+    <div class="note"><b>PECS rule:</b> <b>P</b>roducer <code class="inline">extends</code>, <b>C</b>onsumer <code class="inline">super</code>. Read from a structure &rarr; use <code class="inline">? extends</code>; write into it &rarr; use <code class="inline">? super</code>.</div>
+  </div>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <hr class="div">
+  <h2 class="section" id="cheat">Quick Reference</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Syntax</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">class Box&lt;T&gt;</code></td><td>Generic class with type parameter T</td></tr>
+        <tr><td><code class="inline">&lt;T, V&gt;</code></td><td>Multiple type parameters</td></tr>
+        <tr><td><code class="inline">&lt;T extends Animal&gt;</code></td><td>Bounded — T must be Animal or a subtype</td></tr>
+        <tr><td><code class="inline">&lt;T&gt; void m(T x)</code></td><td>Generic method (declared before return type)</td></tr>
+        <tr><td><code class="inline">List&lt;?&gt;</code></td><td>Unbounded wildcard — list of any type</td></tr>
+        <tr><td><code class="inline">List&lt;? extends Animal&gt;</code></td><td>Upper-bounded — read as Animal (producer)</td></tr>
+        <tr><td><code class="inline">List&lt;? super Integer&gt;</code></td><td>Lower-bounded — write Integers (consumer)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="refs">
+    <h4>Reference</h4>
+    <ul>
+      <li><a href="https://www.youtube.com/watch?v=K1iu1kXkVoA" target="_blank" rel="noopener">Java Generics — video walkthrough (YouTube)</a></li>
+    </ul>
+  </div>
+
+  <hr class="div">
+  <div class="credits">Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a></div>
+
+</div>
+</body>
+</html>

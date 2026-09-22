@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Java Singleton — Thread-Safe Variants</title>
+  <meta name="description" content="Java Singleton pattern — basic, thread-safe synchronized, double-checked locking, eager and enum approaches with examples.">
+  <meta name="keywords" content="Java, Singleton, Thread Safe, Double Checked Locking, Enum Singleton, Design Pattern, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+  <link rel="stylesheet" href="../assets/notes.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../index.html">&larr; All Tech Notes</a>
+
+  <header class="hero">
+    <div class="eyebrow">Java · Design Pattern</div>
+    <h1>Java Singleton</h1>
+    <p class="sub">A Singleton guarantees a class has <b>exactly one instance</b> and gives a single global access point to it — think configuration managers, connection pools, loggers.</p>
+    <div class="legend">
+      <span class="chip"><span class="dot c1"></span> Private constructor</span>
+      <span class="chip"><span class="dot c2"></span> Static holder field</span>
+      <span class="chip"><span class="dot c3"></span> Static accessor</span>
+    </div>
+  </header>
+
+  <div class="card-block c1">
+    <h4 style="margin-top:0">The three ingredients</h4>
+    <ul class="clean">
+      <li>A <b>private constructor</b> so no one else can call <code class="inline">new</code>.</li>
+      <li>A <b>private static field</b> that holds the single instance.</li>
+      <li>A <b>public static method</b> (<code class="inline">getInstance()</code>) that returns it.</li>
+    </ul>
+  </div>
+
+  <!-- BASIC -->
+  <h2 class="section" id="basic">1 · Basic (lazy) Singleton</h2>
+  <p class="section-intro">Simple and fine for single-threaded use — but <b>not</b> safe if two threads call <code class="inline">getInstance()</code> at the same time.</p>
+  <div class="card-block c1">
+    <pre><span class="kw">public class</span> <span class="cls">BasicSingleton</span> {
+
+    <span class="kw">private static</span> <span class="cls">BasicSingleton</span> instance;
+
+    <span class="kw">private</span> <span class="cls">BasicSingleton</span>() { }        <span class="com">// no external instantiation</span>
+
+    <span class="kw">public static</span> <span class="cls">BasicSingleton</span> getInstance() {
+        <span class="kw">if</span> (instance == <span class="kw">null</span>) {        <span class="com">// two threads can both pass this check!</span>
+            instance = <span class="kw">new</span> <span class="cls">BasicSingleton</span>();
+        }
+        <span class="kw">return</span> instance;
+    }
+}</pre>
+    <div class="warn"><b>Race condition:</b> if two threads hit the <code class="inline">null</code> check together, you can end up with <b>two</b> instances. Use one of the thread-safe variants below.</div>
+  </div>
+
+  <!-- SYNCHRONIZED -->
+  <h2 class="section" id="synchronized">2 · Thread-Safe (synchronized method)</h2>
+  <p class="section-intro">The simplest fix — synchronize the whole method. Correct, but every call pays a locking cost even after the instance exists.</p>
+  <div class="card-block c2">
+    <pre><span class="kw">public class</span> <span class="cls">ThreadSafeSingleton</span> {
+
+    <span class="kw">private static</span> <span class="cls">ThreadSafeSingleton</span> instance;
+
+    <span class="kw">private</span> <span class="cls">ThreadSafeSingleton</span>() { }
+
+    <span class="kw">public static synchronized</span> <span class="cls">ThreadSafeSingleton</span> getInstance() {
+        <span class="kw">if</span> (instance == <span class="kw">null</span>) {
+            instance = <span class="kw">new</span> <span class="cls">ThreadSafeSingleton</span>();
+        }
+        <span class="kw">return</span> instance;
+    }
+}</pre>
+  </div>
+
+  <!-- DOUBLE CHECKED -->
+  <h2 class="section" id="double-checked">3 · Double-Checked Locking</h2>
+  <p class="section-intro">Locks only on first creation, then runs lock-free. The <code class="inline">volatile</code> keyword is essential — it prevents a partially-constructed object from being seen by another thread.</p>
+  <div class="card-block c2">
+    <pre><span class="kw">public class</span> <span class="cls">DclSingleton</span> {
+
+    <span class="kw">private static volatile</span> <span class="cls">DclSingleton</span> instance;   <span class="com">// volatile is key</span>
+
+    <span class="kw">private</span> <span class="cls">DclSingleton</span>() { }
+
+    <span class="kw">public static</span> <span class="cls">DclSingleton</span> getInstance() {
+        <span class="kw">if</span> (instance == <span class="kw">null</span>) {                         <span class="com">// 1st check (no lock)</span>
+            <span class="kw">synchronized</span> (<span class="cls">DclSingleton</span>.<span class="kw">class</span>) {
+                <span class="kw">if</span> (instance == <span class="kw">null</span>) {                 <span class="com">// 2nd check (with lock)</span>
+                    instance = <span class="kw">new</span> <span class="cls">DclSingleton</span>();
+                }
+            }
+        }
+        <span class="kw">return</span> instance;
+    }
+}</pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt">Check &rarr; lock &rarr; <b>check again</b>. The second check stops a second thread that was waiting on the lock from creating a duplicate.</span></div>
+  </div>
+
+  <!-- OTHER -->
+  <h2 class="section" id="other">4 · Two simpler alternatives</h2>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Eager initialization</h4>
+    <p>Create the instance up front. Thread-safe by the JVM's class-loading guarantees — use it when the object is cheap and always needed.</p>
+    <pre><span class="kw">public class</span> <span class="cls">EagerSingleton</span> {
+    <span class="kw">private static final</span> <span class="cls">EagerSingleton</span> INSTANCE = <span class="kw">new</span> <span class="cls">EagerSingleton</span>();
+    <span class="kw">private</span> <span class="cls">EagerSingleton</span>() { }
+    <span class="kw">public static</span> <span class="cls">EagerSingleton</span> getInstance() { <span class="kw">return</span> INSTANCE; }
+}</pre>
+  </div>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Enum Singleton <span style="color:var(--text-dim);font-weight:400;font-size:.85rem">(the "best" way — Effective Java)</span></h4>
+    <p>Concise, thread-safe, and immune to reflection and serialization attacks for free.</p>
+    <pre><span class="kw">public enum</span> <span class="cls">Config</span> {
+    INSTANCE;
+
+    <span class="kw">public void</span> load() { <span class="com">/* ... */</span> }
+}
+
+<span class="com">// usage</span>
+<span class="cls">Config</span>.INSTANCE.load();</pre>
+  </div>
+
+  <!-- SUMMARY -->
+  <hr class="div">
+  <h2 class="section" id="summary">Which one to use?</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Approach</th><th>Thread-safe</th><th>Lazy</th><th>Best for</th></tr></thead>
+      <tbody>
+        <tr><td>Basic</td><td><span class="badge c3">No</span></td><td>Yes</td><td>Single-threaded code / learning</td></tr>
+        <tr><td>Synchronized method</td><td><span class="badge c2">Yes</span></td><td>Yes</td><td>Low-traffic access</td></tr>
+        <tr><td>Double-checked locking</td><td><span class="badge c2">Yes</span></td><td>Yes</td><td>High-performance lazy init</td></tr>
+        <tr><td>Eager</td><td><span class="badge c2">Yes</span></td><td>No</td><td>Cheap, always-needed objects</td></tr>
+        <tr><td>Enum</td><td><span class="badge c2">Yes</span></td><td>No</td><td>Most cases — simplest &amp; safest</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><b>Spring note:</b> Spring beans are singleton-scoped by default, but that scope is managed per-container — it isn't the same as the classic GoF Singleton implemented here.</div>
+
+  <hr class="div">
+  <div class="credits">Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a></div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Java Builder Pattern</title>
+  <meta name="description" content="Java Builder pattern — build complex objects step-by-step with a fluent, readable API. Two implementation approaches plus Lombok.">
+  <meta name="keywords" content="Java, Builder Pattern, Creational, Fluent API, Lombok, Design Pattern, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+  <link rel="stylesheet" href="../assets/notes.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../index.html">&larr; All Tech Notes</a>
+
+  <header class="hero">
+    <div class="eyebrow">Java · Creational Pattern</div>
+    <h1>Java Builder Pattern</h1>
+    <p class="sub">The Builder pattern constructs a complex object <b>step-by-step</b> through a fluent API — ideal when a class has many parameters, several of them optional.</p>
+  </header>
+
+  <!-- PROBLEM -->
+  <h2 class="section" id="problem">The problem it solves</h2>
+  <p class="section-intro">A telescoping constructor with many arguments is error-prone: the types are similar, the order is easy to get wrong, and optional values must be passed as <code class="inline">null</code>.</p>
+  <div class="card-block c3">
+    <div class="code-label">Hard to read — what does each argument mean?</div>
+    <pre><span class="cls">Computer</span> pc = <span class="kw">new</span> <span class="cls">Computer</span>(<span class="str">"500 GB"</span>, <span class="str">"2 GB"</span>, <span class="kw">true</span>, <span class="kw">false</span>);</pre>
+    <ul class="clean">
+      <li>Too many arguments &rarr; easy to swap by mistake.</li>
+      <li>Optional parameters still have to be supplied (often as <code class="inline">null</code>).</li>
+      <li>Complex construction logic leaks into the caller / factory.</li>
+    </ul>
+  </div>
+
+  <!-- STEPS -->
+  <h2 class="section" id="steps">How to implement it</h2>
+  <div class="card-block c1">
+    <ol>
+      <li>Create a <b>static nested Builder</b> class that mirrors the outer class's fields.</li>
+      <li>Put the <b>required</b> attributes in the Builder's constructor.</li>
+      <li>Add a setter per <b>optional</b> attribute that <b>returns the Builder</b> (<code class="inline">this</code>) so calls chain.</li>
+      <li>Add a <code class="inline">build()</code> method that returns the finished object via a <b>private constructor</b> taking the Builder.</li>
+    </ol>
+  </div>
+
+  <!-- APPROACH 1 -->
+  <h2 class="section" id="approach-1">Approach 1 — required params in the Builder constructor</h2>
+  <div class="card-block c2">
+    <div class="code-label">Java</div>
+    <pre><span class="kw">public class</span> <span class="cls">Computer</span> {
+
+    <span class="com">// required</span>
+    <span class="kw">private final</span> <span class="cls">String</span> hdd;
+    <span class="kw">private final</span> <span class="cls">String</span> ram;
+    <span class="com">// optional</span>
+    <span class="kw">private final boolean</span> graphicsCard;
+    <span class="kw">private final boolean</span> bluetooth;
+
+    <span class="kw">private</span> <span class="cls">Computer</span>(<span class="cls">Builder</span> b) {
+        <span class="kw">this</span>.hdd          = b.hdd;
+        <span class="kw">this</span>.ram          = b.ram;
+        <span class="kw">this</span>.graphicsCard = b.graphicsCard;
+        <span class="kw">this</span>.bluetooth    = b.bluetooth;
+    }
+
+    <span class="kw">public static class</span> <span class="cls">Builder</span> {
+        <span class="kw">private final</span> <span class="cls">String</span> hdd;      <span class="com">// required</span>
+        <span class="kw">private final</span> <span class="cls">String</span> ram;      <span class="com">// required</span>
+        <span class="kw">private boolean</span> graphicsCard;   <span class="com">// optional</span>
+        <span class="kw">private boolean</span> bluetooth;      <span class="com">// optional</span>
+
+        <span class="kw">public</span> <span class="cls">Builder</span>(<span class="cls">String</span> hdd, <span class="cls">String</span> ram) {
+            <span class="kw">this</span>.hdd = hdd;
+            <span class="kw">this</span>.ram = ram;
+        }
+
+        <span class="kw">public</span> <span class="cls">Builder</span> graphicsCard(<span class="kw">boolean</span> v) { <span class="kw">this</span>.graphicsCard = v; <span class="kw">return this</span>; }
+        <span class="kw">public</span> <span class="cls">Builder</span> bluetooth(<span class="kw">boolean</span> v)    { <span class="kw">this</span>.bluetooth = v;    <span class="kw">return this</span>; }
+
+        <span class="kw">public</span> <span class="cls">Computer</span> build() { <span class="kw">return new</span> <span class="cls">Computer</span>(<span class="kw">this</span>); }
+    }
+}</pre>
+
+    <div class="code-label">Usage</div>
+    <pre><span class="cls">Computer</span> pc = <span class="kw">new</span> <span class="cls">Computer</span>.<span class="cls">Builder</span>(<span class="str">"500 GB"</span>, <span class="str">"2 GB"</span>)
+        .bluetooth(<span class="kw">true</span>)
+        .graphicsCard(<span class="kw">true</span>)
+        .build();</pre>
+  </div>
+
+  <!-- APPROACH 2 -->
+  <h2 class="section" id="approach-2">Approach 2 — fluent <code class="inline">builder()</code> entry point</h2>
+  <p class="section-intro">A slightly cleaner style where a static <code class="inline">builder()</code> method starts the chain and every field is optional/fluent.</p>
+  <div class="card-block c2">
+    <div class="code-label">Java</div>
+    <pre><span class="kw">public class</span> <span class="cls">Customer</span> {
+
+    <span class="kw">private final</span> <span class="cls">String</span> name;
+    <span class="kw">private final</span> <span class="cls">String</span> email;
+    <span class="kw">private final</span> <span class="cls">String</span> phone;
+
+    <span class="kw">private</span> <span class="cls">Customer</span>(<span class="cls">Builder</span> b) {
+        <span class="kw">this</span>.name  = b.name;
+        <span class="kw">this</span>.email = b.email;
+        <span class="kw">this</span>.phone = b.phone;
+    }
+
+    <span class="kw">public static</span> <span class="cls">Builder</span> builder() { <span class="kw">return new</span> <span class="cls">Builder</span>(); }
+
+    <span class="kw">public static class</span> <span class="cls">Builder</span> {
+        <span class="kw">private</span> <span class="cls">String</span> name, email, phone;
+
+        <span class="kw">public</span> <span class="cls">Builder</span> name(<span class="cls">String</span> v)  { <span class="kw">this</span>.name = v;  <span class="kw">return this</span>; }
+        <span class="kw">public</span> <span class="cls">Builder</span> email(<span class="cls">String</span> v) { <span class="kw">this</span>.email = v; <span class="kw">return this</span>; }
+        <span class="kw">public</span> <span class="cls">Builder</span> phone(<span class="cls">String</span> v) { <span class="kw">this</span>.phone = v; <span class="kw">return this</span>; }
+
+        <span class="kw">public</span> <span class="cls">Customer</span> build() { <span class="kw">return new</span> <span class="cls">Customer</span>(<span class="kw">this</span>); }
+    }
+}</pre>
+
+    <div class="code-label">Usage — reads like a sentence</div>
+    <pre><span class="kw">var</span> customer = <span class="cls">Customer</span>.builder()
+        .name(<span class="str">"Mamun"</span>)
+        .email(<span class="str">"mamun@gmail.com"</span>)
+        .phone(<span class="str">"+9711234567"</span>)
+        .build();</pre>
+  </div>
+
+  <!-- LOMBOK -->
+  <div class="card-block c1">
+    <h4 style="margin-top:0">In practice: Lombok's <code class="inline">@Builder</code></h4>
+    <p>In Spring Boot projects you rarely hand-write all this boilerplate — Lombok generates the entire builder from a single annotation.</p>
+    <pre><span class="anno">@Getter</span>
+<span class="anno">@Builder</span>
+<span class="kw">public class</span> <span class="cls">Customer</span> {
+    <span class="kw">private</span> <span class="cls">String</span> name;
+    <span class="kw">private</span> <span class="cls">String</span> email;
+    <span class="kw">private</span> <span class="cls">String</span> phone;
+}
+
+<span class="cls">Customer</span> c = <span class="cls">Customer</span>.builder().name(<span class="str">"Mamun"</span>).email(<span class="str">"a@b.com"</span>).build();</pre>
+  </div>
+
+  <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Builder = build a complex object step-by-step</b> — readable, order-independent, and immutable once built.</span></div>
+
+  <hr class="div">
+  <div class="credits">Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a></div>
+
+</div>
+</body>
+</html>

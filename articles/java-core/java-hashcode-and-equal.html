@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Java hashCode() &amp; equals()</title>
+  <meta name="description" content="Java hashCode() and equals() explained — the contract between them, why you override both together, and correct examples.">
+  <meta name="keywords" content="Java, hashCode, equals, contract, HashMap, HashSet, Objects.hash, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+  <link rel="stylesheet" href="../assets/notes.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../index.html">&larr; All Tech Notes</a>
+
+  <header class="hero">
+    <div class="eyebrow">Java · Core</div>
+    <h1>hashCode() &amp; equals()</h1>
+    <p class="sub">These two <code class="inline">Object</code> methods decide when two objects are considered "the same." Hash-based collections like <code class="inline">HashMap</code> and <code class="inline">HashSet</code> rely on both — get them wrong and lookups silently break.</p>
+  </header>
+
+  <!-- INTRO -->
+  <div class="card-block c1">
+    <ul class="clean">
+      <li><b>equals()</b> — decides whether two objects are logically equal. The default checks <b>reference</b> identity (<code class="inline">==</code>).</li>
+      <li><b>hashCode()</b> — returns an <code class="inline">int</code> "bucket number" for the object. The default is derived from the object's identity, not its contents.</li>
+    </ul>
+    <p style="margin-bottom:0">Hash collections first jump to the bucket given by <code class="inline">hashCode()</code>, then use <code class="inline">equals()</code> to find the exact match inside that bucket. Comparing hash codes is roughly <b>20&times; faster</b> than a full <code class="inline">equals()</code>, which is why the hash comes first.</p>
+  </div>
+
+  <!-- CONTRACT -->
+  <h2 class="section" id="contract">The contract</h2>
+  <p class="section-intro">If you override one, you <b>must</b> override the other — otherwise you break this contract.</p>
+  <div class="card-block c2">
+    <ol>
+      <li>If <code class="inline">a.equals(b)</code> is <b>true</b>, then <code class="inline">a.hashCode() == b.hashCode()</code> <b>must</b> be true.</li>
+      <li>The reverse is <b>not</b> required — equal hash codes do <b>not</b> imply the objects are equal (that's a hash <em>collision</em>, and it's allowed).</li>
+      <li><code class="inline">hashCode()</code> must return the same value on repeated calls, as long as the fields used in <code class="inline">equals()</code> don't change.</li>
+      <li>Unequal objects <em>may</em> share a hash code — but spreading them out gives better performance.</li>
+    </ol>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Equal objects &rarr; equal hash codes. Always.</b> Equal hash codes &rarr; maybe equal.</span></div>
+  </div>
+
+  <!-- WITHOUT -->
+  <h2 class="section" id="without">Without overriding — the trap</h2>
+  <p class="section-intro">Two objects with identical content are treated as different, because the defaults compare identity.</p>
+  <div class="card-block c3">
+    <pre><span class="kw">public class</span> <span class="cls">Character</span> {
+    <span class="kw">private</span> <span class="cls">String</span> name;
+    <span class="kw">public</span> <span class="cls">Character</span>(<span class="cls">String</span> name) { <span class="kw">this</span>.name = name; }
+}
+
+<span class="cls">Character</span> c1 = <span class="kw">new</span> <span class="cls">Character</span>(<span class="str">"Arnold"</span>);
+<span class="cls">Character</span> c2 = <span class="kw">new</span> <span class="cls">Character</span>(<span class="str">"Arnold"</span>);
+
+System.out.println(c1.hashCode());   <span class="com">// 1595428806</span>
+System.out.println(c2.hashCode());   <span class="com">// 1072408673  (different!)</span>
+System.out.println(c1.equals(c2));   <span class="com">// false</span></pre>
+    <pre class="output">1595428806
+1072408673
+false</pre>
+    <p style="margin-bottom:0">Put both into a <code class="inline">HashSet</code> and you'd get <b>two</b> entries, even though they represent the same character.</p>
+  </div>
+
+  <!-- WITH -->
+  <h2 class="section" id="with">With both overridden — correct</h2>
+  <div class="card-block c2">
+    <pre><span class="kw">public class</span> <span class="cls">Character</span> {
+    <span class="kw">private</span> <span class="cls">String</span> name;
+    <span class="kw">public</span> <span class="cls">Character</span>(<span class="cls">String</span> name) { <span class="kw">this</span>.name = name; }
+
+    <span class="anno">@Override</span>
+    <span class="kw">public boolean</span> equals(<span class="cls">Object</span> o) {
+        <span class="kw">if</span> (<span class="kw">this</span> == o) <span class="kw">return true</span>;
+        <span class="kw">if</span> (!(o <span class="kw">instanceof</span> <span class="cls">Character</span>)) <span class="kw">return false</span>;
+        <span class="cls">Character</span> other = (<span class="cls">Character</span>) o;
+        <span class="kw">return</span> <span class="cls">Objects</span>.equals(name, other.name);
+    }
+
+    <span class="anno">@Override</span>
+    <span class="kw">public int</span> hashCode() {
+        <span class="kw">return</span> name == <span class="kw">null</span> ? <span class="num">0</span> : name.hashCode();
+    }
+}
+
+<span class="cls">Character</span> c1 = <span class="kw">new</span> <span class="cls">Character</span>(<span class="str">"Arnold"</span>);
+<span class="cls">Character</span> c2 = <span class="kw">new</span> <span class="cls">Character</span>(<span class="str">"Arnold"</span>);
+
+System.out.println(c1.hashCode());   <span class="com">// 1969563338</span>
+System.out.println(c2.hashCode());   <span class="com">// 1969563338  (same!)</span>
+System.out.println(c1.equals(c2));   <span class="com">// true</span></pre>
+    <pre class="output">1969563338
+1969563338
+true</pre>
+  </div>
+
+  <!-- OBJECTS.HASH -->
+  <h2 class="section" id="objects-hash">The clean way — <code class="inline">Objects.hash()</code></h2>
+  <p class="section-intro">For multiple fields, don't hand-roll the <code class="inline">31 * result + ...</code> arithmetic (it's easy to get the operator precedence wrong). Let <code class="inline">java.util.Objects</code> do it.</p>
+  <div class="card-block c1">
+    <pre><span class="kw">public class</span> <span class="cls">Person</span> {
+    <span class="kw">private final</span> <span class="cls">String</span> firstName;
+    <span class="kw">private final</span> <span class="cls">String</span> lastName;
+    <span class="kw">private final</span> <span class="cls">LocalDate</span> dob;
+
+    <span class="anno">@Override</span>
+    <span class="kw">public boolean</span> equals(<span class="cls">Object</span> o) {
+        <span class="kw">if</span> (<span class="kw">this</span> == o) <span class="kw">return true</span>;
+        <span class="kw">if</span> (!(o <span class="kw">instanceof</span> <span class="cls">Person</span> p)) <span class="kw">return false</span>;
+        <span class="kw">return</span> <span class="cls">Objects</span>.equals(firstName, p.firstName)
+            &amp;&amp; <span class="cls">Objects</span>.equals(lastName, p.lastName)
+            &amp;&amp; <span class="cls">Objects</span>.equals(dob, p.dob);
+    }
+
+    <span class="anno">@Override</span>
+    <span class="kw">public int</span> hashCode() {
+        <span class="kw">return</span> <span class="cls">Objects</span>.hash(firstName, lastName, dob);
+    }
+}</pre>
+    <div class="note"><b>Tip:</b> use exactly the same fields in <code class="inline">equals()</code> and <code class="inline">hashCode()</code>. Your IDE and Lombok's <code class="inline">@EqualsAndHashCode</code> can generate both correctly for you.</div>
+  </div>
+
+  <!-- FACTS -->
+  <hr class="div">
+  <h2 class="section" id="facts">Good-to-know facts</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Expression</th><th>Result / note</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">new Integer(1).hashCode()</code></td><td><code class="inline">1</code> — an Integer's hash is its value</td></tr>
+        <tr><td><code class="inline">"a".hashCode()</code></td><td><code class="inline">97</code> — matches the ASCII code of 'a'</td></tr>
+        <tr><td><code class="inline">new String("a").hashCode() == new String("a").hashCode()</code></td><td><code class="inline">true</code> — String hash is content-based</td></tr>
+        <tr><td><code class="inline">Object.hashCode()</code></td><td>a <code class="inline">native</code> method; JVM-specific (historically derived from the object's address)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="refs">
+    <h4>Further reading</h4>
+    <ul>
+      <li><a href="https://www.baeldung.com/java-hashcode" target="_blank" rel="noopener">Baeldung — Guide to hashCode()</a></li>
+      <li><a href="https://howtodoinjava.com/java/basics/java-hashcode-equals-methods/" target="_blank" rel="noopener">HowToDoInJava — hashCode() &amp; equals()</a></li>
+      <li><a href="https://www.digitalocean.com/community/tutorials/java-equals-hashcode" target="_blank" rel="noopener">DigitalOcean — Java equals() &amp; hashCode()</a></li>
+      <li><a href="https://stackoverflow.com/questions/2427631/how-is-hashcode-calculated-in-java" target="_blank" rel="noopener">Stack Overflow — How is hashCode calculated?</a></li>
+    </ul>
+  </div>
+
+  <hr class="div">
+  <div class="credits">Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a></div>
+
+</div>
+</body>
+</html>
