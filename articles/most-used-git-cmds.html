@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
@@ -7,125 +7,158 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-QF8LYW219D');
   </script>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Most Used GIT Cmds</title>
-  <meta name="description" content="Java/SpringBoot/Microservice professionals | 7+ years experienced in SpringBoot, Angular Full-Stack development | Developing business solutions, worked as a core developer and led a team | Lives in Dubai, UAE">
-  <meta name="keywords" content="Java, Spring Boot, Spring Framework, Microservice, Grails Framework, JPA, Hibernate, MySQL, Oracle, PostgreSQL, JasperReports, JasperSoft Studio, JavaScript, jQuery, HTML, CSS, mamun7025, al-mamun-sa">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Most Used Git Commands — Daily Workflow</title>
+  <meta name="description" content="Most used Git commands for day-to-day work — status, commit, branching, diff, stash, plus a morning sync routine and a safe before-push workflow.">
+  <meta name="keywords" content="Git, Git Commands, Git Workflow, Git Diff, Git Stash, Git Merge, Branching, mamun7025, al-mamun-sa">
   <meta name="author" content="Al Mamun">
-
+  <link rel="stylesheet" href="assets/notes.css">
 </head>
-<body style="padding: 20px;">
+<body>
+<div class="wrap">
 
+  <a class="back" href="index.html">&larr; All Tech Notes</a>
 
-<h1 style="margin-bottom: 10px;">Most used git commands</h1>
-<hr>
+  <header class="hero">
+    <div class="eyebrow">Tools · Git</div>
+    <h1>Most Used Git Commands</h1>
+    <p class="sub">The Git commands I actually use every day, grouped by task, plus two routines: syncing your branch in the morning and pushing changes safely.</p>
+    <div class="legend">
+      <span class="chip"><span class="dot c1"></span> Everyday basics</span>
+      <span class="chip"><span class="dot c2"></span> Branching &amp; comparing</span>
+      <span class="chip"><span class="dot c3"></span> Workflows</span>
+    </div>
+  </header>
 
-<p style="white-space: pre-wrap;">
+  <div class="note"><b>Branch names used below:</b> <code class="inline">main</code> is the shared branch and <code class="inline">feature/my-work</code> is your personal working branch. Replace them with your own.</div>
+
+  <!-- QUICK REFERENCE -->
+  <h2 class="section" id="quick-reference">Quick reference</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">git status</code></td><td>Show changed, staged and untracked files</td></tr>
+        <tr><td><code class="inline">git add &lt;file&gt;</code></td><td>Stage a file for the next commit</td></tr>
+        <tr><td><code class="inline">git commit -m "msg"</code></td><td>Record staged changes</td></tr>
+        <tr><td><code class="inline">git pull</code></td><td>Fetch and merge the remote branch</td></tr>
+        <tr><td><code class="inline">git push</code></td><td>Upload local commits to the remote</td></tr>
+        <tr><td><code class="inline">git fetch origin main</code></td><td>Download remote changes without merging</td></tr>
+        <tr><td><code class="inline">git checkout -b &lt;name&gt;</code></td><td>Create and switch to a new branch</td></tr>
+        <tr><td><code class="inline">git merge &lt;branch&gt;</code></td><td>Merge another branch into the current one</td></tr>
+        <tr><td><code class="inline">git diff A..B --name-only</code></td><td>List files that differ between two branches</td></tr>
+        <tr><td><code class="inline">git stash push -- &lt;file&gt;</code></td><td>Temporarily shelve changes to a file</td></tr>
+        <tr><td><code class="inline">git log -p &lt;file&gt;</code></td><td>Full change history of one file</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- BASICS -->
+  <h2 class="section" id="basics">1 · Everyday basics</h2>
+  <p class="section-intro">Check what changed, stage only what you mean to commit, then push.</p>
+  <div class="card-block c1">
+    <pre>git pull                                  <span class="com"># start from the latest remote state</span>
+git status                                <span class="com"># what changed?</span>
+
+git add src/pages/sales-report.js src/pages/sales-report.html
+git add src/pages/order-list.html
+git status                                <span class="com"># confirm what is staged</span>
+
+git commit -m <span class="str">"CMS: add date filter to sales reports"</span>
+git push</pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt">Stage files <b>by name</b> instead of <code class="inline">git add .</code> so stray debug files or local config never end up in a commit.</span></div>
+  </div>
+
+  <!-- BRANCHING -->
+  <h2 class="section" id="branching">2 · Branching</h2>
+  <p class="section-intro">A cheap backup branch before risky work, and merging the shared branch into yours.</p>
+  <div class="card-block c2">
+    <pre>git checkout -b bkp-sep-30                <span class="com"># snapshot of the current state</span>
+
+git checkout main
+git pull                                  <span class="com"># update the shared branch</span>
+
+git checkout feature/my-work
+git merge main                            <span class="com"># bring main's changes into your branch</span></pre>
+    <div class="note"><b>Tip:</b> newer Git versions also have <code class="inline">git switch &lt;branch&gt;</code> and <code class="inline">git switch -c &lt;new-branch&gt;</code>, which only switch branches. <code class="inline">checkout</code> can also restore files, so <code class="inline">switch</code> is harder to misuse.</div>
+  </div>
+
+  <!-- COMPARING -->
+  <h2 class="section" id="comparing">3 · Comparing changes</h2>
+  <p class="section-intro">See what differs before you merge, or trace how a single file changed over time.</p>
+  <div class="card-block c2">
+    <h4 style="margin-top:0">Between two branches</h4>
+    <pre>git diff main..feature/my-work --name-only                <span class="com"># just the file names</span>
+git diff main..feature/my-work                            <span class="com"># full diff</span>
+git diff main..feature/my-work -- src/dao/OrdersDAO.java  <span class="com"># one file only</span></pre>
+
+    <h4>Against the remote (without merging)</h4>
+    <pre>git fetch origin main
+git diff origin/main -- src/dao/OrdersDAO.java</pre>
+
+    <h4>History of one file</h4>
+    <pre>git log -p src/utils/ErpUtil.java         <span class="com"># every commit with its patch</span></pre>
+  </div>
+
+  <!-- STASH -->
+  <h2 class="section" id="stash">4 · Stash — park local changes</h2>
+  <p class="section-intro">Useful when <code class="inline">git pull</code> refuses to run because a local edit would be overwritten.</p>
+  <div class="card-block c1">
+    <pre>git stash push -- src/core/app-constants.js   <span class="com"># shelve just this file</span>
 git pull
-git push
-git status
+git stash pop                                 <span class="com"># re-apply the shelved change</span>
 
-git add  app-cms/assets/js_companyName/ns-js/pages/rpt-sales-daily-weekly-monthly-yearly.js  app-cms/rpt-sales-daily-weekly-monthly-yearly.html
-git add app-cms/view-order-list.html
-git status
-git commit -m "FC-CMS : Work on date filter on reports"
-git push
+git stash list                                <span class="com"># see what is stashed</span></pre>
+  </div>
 
+  <!-- MORNING -->
+  <h2 class="section" id="morning-routine">5 · Workflow: before starting work in the morning</h2>
+  <p class="section-intro">Take a backup, update <code class="inline">main</code>, review what is new, then merge it into your branch.</p>
+  <div class="card-block c3">
+    <pre>git checkout -b bkp-sep-22                    <span class="com"># 1. safety backup of yesterday's work</span>
+
+git checkout main                             <span class="com"># 2. update the shared branch</span>
 git pull
+
+git checkout feature/my-work                  <span class="com"># 3. review incoming changes</span>
+git diff main..feature/my-work --name-only
+git diff main..feature/my-work
+
+git merge main                                <span class="com"># 4. merge and re-check</span>
+git diff main..feature/my-work</pre>
+  </div>
+
+  <!-- BEFORE PUSH -->
+  <h2 class="section" id="before-push">6 · Workflow: before pushing to the remote</h2>
+  <p class="section-intro">Commit on your branch, merge into <code class="inline">main</code>, pull, resolve any conflicts, then push.</p>
+  <div class="card-block c3">
+    <pre>git status                                    <span class="com"># 1. commit on your branch</span>
+git add src/core/JsClient.js src/pages/sales-report.js
+git commit -m <span class="str">"CMS: daily/weekly/monthly/yearly reports"</span>
+
+git checkout main                             <span class="com"># 2. merge into main</span>
+git merge feature/my-work
 git status
 
+git pull                                      <span class="com"># 3. get anything pushed meanwhile</span>
+                                              <span class="com">#    resolve conflicts here if any</span>
+git push                                      <span class="com"># 4. publish</span></pre>
+    <div class="warn"><b>Conflicts?</b> Fix them before <code class="inline">git push</code>. A visual merge tool makes this much easier, see <a href="git-mergetool-and-difftool-config.html">Git MergeTool &amp; DiffTool Config</a>.</div>
+  </div>
 
-git checkout -b bkp-sep-30
-git checkout wikiMaster
-git checkout dev-mamun
-git merge wikiMaster
-git diff wikiMaster..dev-mamun --name-only
-git checkout wikiMaster
+  <!-- HISTORY -->
+  <h2 class="section" id="shell-history">Bonus · Save your shell history</h2>
+  <div class="card-block c1">
+    <pre>history                                       <span class="com"># list recent commands</span>
+history &gt; history_for_print.txt               <span class="com"># save them to a file</span></pre>
+  </div>
 
+  <hr class="div">
+  <div class="credits">Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a></div>
 
-  git status
-  git commit -m "FC : Work on update mail template for testing purpose..."
-  git status
-  git fetch origin wikiMaster
-  git diff origin/wikiMaster -- app-backend/src/main/java/com/companyName/app/dao/OrdersDAO.java
-  clear
-  git diff origin/wikiMaster -- app-backend/src/main/java/com/companyName/app/dao/OrdersDAO.java
-  git diff wikiMaster..dev-mamun -- app-backend/src/main/java/com/companyName/app/dao/OrdersDAO.java
-  git status
-  git pull
-  git stash --  app/assets/js/core/fc-constants.js
-  git pull
-  git status
-  git push
-  git diff wikiMaster..dev-mamun -- app-backend/src/main/java/com/companyName/app/templates/EmailTemplate.java
-  git diff wikiMaster..dev-mamun -- app-backend/src/main/java/com/companyName/app/utils/ERPUtil.java
-  git status
-  git checkout dev-mamun
-  git merge wikiMaster
-  git checkout wikiMaster
-  git status
-  git log -p app-backend/src/main/java/com/companyName/app/utils/ERPUtil.java
-
-    history
-    history > history_for_print.txt
-
-
-
-
-
-=====================================================================
------------------- Before Start Work in Morning ---------------------
-=====================================================================
-git checkout -b bkp-sep-22
-git status
-git checkout wikiMaster
-git status
-git pull
-git status
-git pull
-git checkout dev-mamun
-git diff wikiMaster..dev-mamun
-git diff wikiMaster..dev-mamun --name-only
-git diff wikiMaster..dev-mamun
-git merge wikiMaster
-git diff wikiMaster..dev-mamun
-
-
-
-
-
-=====================================================================
--------------- Before Push Changes Code to Remote  ------------------
-=====================================================================
-git status
-git add appname-cms/assets/js_companyName/ns-js/core/JsClient.js appname-cms/assets/js_companyName/ns-js/pages/rpt-sales-daily-weekly-monthly-yearly.js appname-cms/index.html appname-cms/rpt-sales-daily-weekly-monthly-yearly.html
-git status
-git commit -m "FC-CMS : DWMY - Reports"
-git status
-
-
-
-git checkout wikiMaster
-git merge dev-mamun
-git status
-
-
-
-git pull
-            -----------> if any conflict merge before push
-git push
-
-</p>
-
-
-<hr>
-<div class="credits">
-Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a>
 </div>
-
 </body>
 </html>
