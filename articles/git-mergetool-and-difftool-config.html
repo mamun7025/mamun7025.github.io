@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
@@ -7,74 +7,114 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-QF8LYW219D');
   </script>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Git Config</title>
-    <meta name="description" content="Java/SpringBoot/Microservice professionals | 7+ years experienced in SpringBoot, Angular Full-Stack development | Developing business solutions, worked as a core developer and led a team | Lives in Dubai, UAE">
-    <meta name="keywords" content="Java, Spring Boot, Spring Framework, Microservice, Grails Framework, JPA, Hibernate, MySQL, Oracle, PostgreSQL, JasperReports, JasperSoft Studio, JavaScript, jQuery, HTML, CSS, mamun7025, al-mamun-sa">
-    <meta name="author" content="Al Mamun">
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Git MergeTool &amp; DiffTool Config — Meld</title>
+  <meta name="description" content="Configure Meld as Git's merge tool and diff tool — commands, the resulting .gitconfig, resolving conflicts with git mergetool and comparing branches with git difftool.">
+  <meta name="keywords" content="Git, git mergetool, git difftool, Meld, gitconfig, Merge Conflict, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+  <link rel="stylesheet" href="assets/notes.css">
 </head>
-<body style="padding: 20px;">
+<body>
+<div class="wrap">
 
+  <a class="back" href="index.html">&larr; All Tech Notes</a>
 
-<h1 style="margin-bottom: 10px;">Git Config - Merge and Diff Tools</h1>
-<hr>
+  <header class="hero">
+    <div class="eyebrow">Tools · Git</div>
+    <h1>Git MergeTool &amp; DiffTool Config</h1>
+    <p class="sub">Use <b>Meld</b>, a free visual diff and merge tool, to resolve merge conflicts and compare branches side by side instead of reading raw <code class="inline">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> markers.</p>
+    <div class="legend">
+      <span class="chip"><span class="dot c1"></span> Setup</span>
+      <span class="chip"><span class="dot c2"></span> Resolve conflicts</span>
+      <span class="chip"><span class="dot c3"></span> Compare branches</span>
+    </div>
+  </header>
 
-<p style="white-space: pre-wrap;">
-
+  <!-- SETUP -->
+  <h2 class="section" id="setup">1 · Configure Meld from the command line</h2>
+  <p class="section-intro">Run these once. <code class="inline">--global</code> writes to your user-level <code class="inline">~/.gitconfig</code>, so they apply to every repository.</p>
+  <div class="card-block c1">
+    <pre><span class="com"># merge tool</span>
 git config --global merge.tool meld
-git config --global mergetool.meld.path "D:/installed_tools/meld/Meld.exe"
+git config --global mergetool.meld.path <span class="str">"D:/installed_tools/meld/Meld.exe"</span>
+git config --global mergetool.keepBackup false      <span class="com"># don't leave *.orig files behind</span>
 
-git config --global diff.guitool meld
+<span class="com"># diff tool</span>
+git config --global diff.tool meld                  <span class="com"># used by: git difftool</span>
+git config --global diff.guitool meld               <span class="com"># used by: git difftool --gui</span>
+git config --global difftool.meld.path <span class="str">"D:/installed_tools/meld/Meld.exe"</span>
+git config --global difftool.prompt false           <span class="com"># open Meld without asking per file</span></pre>
+    <div class="note"><b>Path:</b> replace the <code class="inline">Meld.exe</code> path with your install location. Use forward slashes on Windows. On macOS or Linux, if <code class="inline">meld</code> is on your <code class="inline">PATH</code>, you can skip the <code class="inline">*.path</code> lines.</div>
+  </div>
 
+  <!-- GITCONFIG -->
+  <h2 class="section" id="gitconfig">2 · The resulting <code class="inline">.gitconfig</code></h2>
+  <p class="section-intro">You can also paste this straight into <code class="inline">~/.gitconfig</code> (on Windows: <code class="inline">C:\Users\&lt;you&gt;\.gitconfig</code>).</p>
+  <div class="card-block c1">
+    <pre><span class="anno">[user]</span>
+    name  = Your Name
+    email = you@example.com
 
---------------------------------------------------------
-********* Local PC Config ***************************
-[user]
-    name = mamun7025
-    email = mamun7025@gmail.com
-
-[diff]
+<span class="anno">[diff]</span>
+    tool    = meld
     guitool = meld
-[difftool "meld"]
-    path=D:/installed_tools/meld/Meld.exe
-[difftool]
+<span class="anno">[difftool "meld"]</span>
+    path = D:/installed_tools/meld/Meld.exe
+<span class="anno">[difftool]</span>
     prompt = false
 
-[merge]
+<span class="anno">[merge]</span>
     tool = meld
-[mergetool "meld"]
+<span class="anno">[mergetool "meld"]</span>
     path = D:/installed_tools/meld/Meld.exe
-[mergetool]
-    keepBackup = false
-*********************************************************
+<span class="anno">[mergetool]</span>
+    keepBackup = false</pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt">Check which settings are actually in effect, and which file each comes from, with <code class="inline">git config --global --list --show-origin</code>.</span></div>
+  </div>
 
+  <!-- MERGE -->
+  <h2 class="section" id="resolve-conflicts">3 · Resolve a merge conflict</h2>
+  <p class="section-intro">When <code class="inline">git merge</code> or <code class="inline">git pull</code> reports conflicts, open each conflicted file in Meld.</p>
+  <div class="card-block c2">
+    <pre>git mergetool                             <span class="com"># opens Meld for each conflicted file</span>
+                                          <span class="com"># (left: yours · middle: result · right: theirs)</span>
+                                          <span class="com"># pick changes, save, close Meld</span>
 
+git status                                <span class="com"># all files should now be staged</span>
+git commit -m <span class="str">"Resolve merge conflict"</span></pre>
+    <div class="warn"><b>Changed your mind?</b> Run <code class="inline">git merge --abort</code> to return to the state before the merge started.</div>
+  </div>
 
-==========================================================
-git mergetool
----- do merge through tools, then run below cmds
-git status
-git commit -m "Resolve merge conflict"
+  <!-- DIFF -->
+  <h2 class="section" id="compare-branches">4 · Compare branches</h2>
+  <p class="section-intro"><code class="inline">git diff</code> prints the changes in the terminal. <code class="inline">git difftool</code> shows the same changes in Meld.</p>
+  <div class="card-block c3">
+    <h4 style="margin-top:0">In the terminal</h4>
+    <pre>git diff main..feature/my-work
+git diff main..feature/my-work -- articles/most-used-git-cmds.html</pre>
 
+    <h4>In Meld</h4>
+    <pre>git difftool main..feature/my-work                    <span class="com"># one file at a time</span>
+git difftool main..feature/my-work -- articles/most-used-git-cmds.html
+git difftool -d main..feature/my-work                 <span class="com"># whole folder tree in one window</span></pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b><code class="inline">-d</code> (directory diff)</b> opens every changed file in one Meld window instead of launching Meld once per file. Much faster for reviewing a whole branch.</span></div>
+  </div>
 
+  <div class="refs">
+    <h4>References</h4>
+    <ul>
+      <li><a href="https://meldmerge.org/" target="_blank">Meld — official site</a></li>
+      <li><a href="https://git-scm.com/docs/git-mergetool" target="_blank">git-mergetool documentation</a></li>
+      <li><a href="https://git-scm.com/docs/git-difftool" target="_blank">git-difftool documentation</a></li>
+    </ul>
+  </div>
 
-git diff main..dev-mamun
-git diff main..dev-mamun articles/most-used-git-cmds.html
-git difftool main..dev-mamun
-git difftool main..dev-mamun articles/most-used-git-cmds.html
+  <hr class="div">
+  <div class="credits">Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a></div>
 
-
-</p>
-
-<hr>
-<div class="credits">
-Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a>
 </div>
-
 </body>
 </html>

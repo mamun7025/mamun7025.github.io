@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
@@ -7,182 +7,151 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-QF8LYW219D');
   </script>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Most Used Angular Cmds</title>
-	<meta name="description" content="Java/SpringBoot/Microservice professionals | 7+ years experienced in SpringBoot, Angular Full-Stack development | Developing business solutions, worked as a core developer and led a team | Lives in Dubai, UAE">
-	<meta name="keywords" content="Java, Spring Boot, Spring Framework, Microservice, Grails Framework, JPA, Hibernate, MySQL, Oracle, PostgreSQL, JasperReports, JasperSoft Studio, JavaScript, jQuery, HTML, CSS, mamun7025, al-mamun-sa">
-	<meta name="author" content="Al Mamun">
-  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Most Used Angular CLI Commands</title>
+  <meta name="description" content="Most used Angular CLI commands — create and serve a project, generate components, services, classes and routed feature modules, install libraries and build for production.">
+  <meta name="keywords" content="Angular, Angular CLI, ng generate, ng serve, ng build, base-href, Angular Module, Angular Component, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+  <link rel="stylesheet" href="assets/notes.css">
 </head>
 <body>
+<div class="wrap">
 
-<h1 style="margin-bottom: 10px;">Most used Angular commands</h1>
-<hr>	
+  <a class="back" href="index.html">&larr; All Tech Notes</a>
 
-<p style="white-space: pre-wrap;">
+  <header class="hero">
+    <div class="eyebrow">Frontend · Angular</div>
+    <h1>Most Used Angular CLI Commands</h1>
+    <p class="sub">Angular CLI commands I use while building enterprise apps such as HRMS and payroll modules: serving, scaffolding code, adding libraries and building for production.</p>
+    <div class="legend">
+      <span class="chip"><span class="dot c1"></span> Run &amp; serve</span>
+      <span class="chip"><span class="dot c2"></span> Generate code</span>
+      <span class="chip"><span class="dot c3"></span> Build &amp; deploy</span>
+    </div>
+  </header>
 
+  <!-- QUICK REFERENCE -->
+  <h2 class="section" id="quick-reference">Quick reference — <code class="inline">ng generate</code> shortcuts</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Short form</th><th>Long form</th><th>Creates</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">ng g c</code></td><td><code class="inline">ng generate component</code></td><td>Component (ts, html, css, spec)</td></tr>
+        <tr><td><code class="inline">ng g s</code></td><td><code class="inline">ng generate service</code></td><td>Injectable service</td></tr>
+        <tr><td><code class="inline">ng g cl</code></td><td><code class="inline">ng generate class</code></td><td>Plain TypeScript class / model</td></tr>
+        <tr><td><code class="inline">ng g m</code></td><td><code class="inline">ng generate module</code></td><td>NgModule (optionally with routing)</td></tr>
+        <tr><td><code class="inline">ng g i</code></td><td><code class="inline">ng generate interface</code></td><td>TypeScript interface</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-npm install
-ng serve
-ng serve --open
-ng serve ---port 9000
+  <!-- RUN -->
+  <h2 class="section" id="run">1 · Create &amp; run a project</h2>
+  <div class="card-block c1">
+    <pre>ng new my-crud-app --routing          <span class="com"># new project with a routing module</span>
+npm install                           <span class="com"># install dependencies (after cloning)</span>
 
+ng serve                              <span class="com"># dev server on http://localhost:4200</span>
+ng serve --open                       <span class="com"># ...and open the browser</span>
+ng serve --port 9000                  <span class="com"># use a different port</span></pre>
+  </div>
 
+  <!-- GENERATE -->
+  <h2 class="section" id="generate">2 · Generate components, services &amp; classes</h2>
+  <p class="section-intro">Paths are relative to <code class="inline">src/app</code>. The CLI creates any missing folders.</p>
+  <div class="card-block c2">
+    <h4 style="margin-top:0">Components</h4>
+    <pre>ng g c employee-create                           <span class="com"># src/app/employee-create/*</span>
+ng g c employee/employee-list                    <span class="com"># src/app/employee/employee-list/*</span>
+ng g c emp-profile/components/employee-create    <span class="com"># deeper feature structure</span>
 
-production deploy
--------------------------------------------------------
-ng build
-ng build --base-href .
-ng build --base-href http://www.yourwebsitehere.com/.
-ng build --prod --base-href="/hrms/" --deploy-url="/hrms/"
-ng build --prod --base-href=/myApp/
-ng build --prod --base-href=/hrms/
+ng g c plainsight/some-name --flat               <span class="com"># src/app/plainsight/some-name.component.ts</span>
+                                                 <span class="com"># --flat = no extra folder for the component</span></pre>
 
+    <h4>Services</h4>
+    <pre>ng generate service data                         <span class="com"># src/app/data.service.ts</span>
+ng g s emp-profile/services/employee             <span class="com"># emp-profile/services/employee.service.ts</span></pre>
 
+    <h4>Classes &amp; models</h4>
+    <pre>ng g cl emp-profile/models/employee              <span class="com"># employee.ts</span>
+ng g class models/tutorial --type=model          <span class="com"># tutorial.model.ts</span></pre>
+  </div>
 
-ng g c employee-create
+  <!-- MODULES -->
+  <h2 class="section" id="modules">3 · Feature modules with routing</h2>
+  <p class="section-intro">Group a feature (e.g. <i>Post</i>, <i>Payroll</i>) into its own module with its own routes, then add CRUD pages inside it.</p>
+  <div class="card-block c2">
+    <h4 style="margin-top:0">App routing module</h4>
+    <pre>ng generate module app-routing --flat --module=app
+  <span class="com"># --flat          put the file in src/app instead of its own folder</span>
+  <span class="com"># --module=app    register it in the imports array of AppModule</span></pre>
 
-
-plainsight/some-name/some-name.component.ts
-ng g component plainsight/some-name --flat
-
-
-ng g c component-name
-ng g c specific-folder/component-name
-
-
-ng generate module app-routing --flat --module=app
-			--flat puts the file in src/app instead of its own folder.
-			--module=app tells the CLI to register it in the imports array of the AppModule.
-
-
-ng generate service services/product
-
------------- Applied -------------
-ng g c employee-create
-ng g c employee/employee-create
-ng g c employee/employee-list
-ng g cl Employee
-
-ng generate service data
-
-
-ng g cl emp-profile/models/Employee
-ng g s emp-profile/services/Employee
-ng g c emp-profile/components/employee-create
-
-ng g class models/tutorial --type=model
-
-
-
-ng serve --open
-ng serve ---port 9000
-
-
-
--------- Install
-npm install jquery --save
-npm install datatables.net --save
-npm install datatables.net-dt --save
-npm install angular-datatables --save
-npm install @types/jquery --save-dev
-npm install @types/datatables.net --save-dev
-npm install bootstrap --save
-
-
-npm install font-awesome --save
-
-
-npm uninstall ngx-spinner
-
-
-
-====================================================================================================
-====================================================================================================
-
-plainsight/some-name/some-name.component.ts
-ng g component plainsight/some-name --flat
-
-
-ng g c component-name
-ng g c specific-folder/component-name
-
-
-ng new my-crud-app --routing
-
-
-ng generate module post --routing
-			run successfully command, it will create files as like bellow path:
-			src/app/post/post.module.ts
-			src/app/post/post-routing.module.ts
-
+    <h4>A CRUD feature module</h4>
+    <pre>ng generate module post --routing
 ng generate component post/index
 ng generate component post/view
 ng generate component post/create
-ng generate component post/edit
-			run successfully command, it will create folder with files as like bellow path:
-			src/app/post/index/*
-			src/app/post/view/*
-			src/app/post/create/*
-			src/app/post/edit/*
+ng generate component post/edit</pre>
+    <div class="code-label">Result</div>
+    <pre class="ascii">src/app/post/
+├── post.module.ts
+├── post-routing.module.ts
+├── index/     (list page)
+├── view/      (details page)
+├── create/    (create form)
+└── edit/      (edit form)</pre>
 
-https://www.itsolutionstuff.com/post/angular-11-crud-application-exampleexample.html
-https://jasonwatmore.com/post/2020/12/15/angular-11-crud-example-with-reactive-forms
-https://stackblitz.com/edit/angular-11-crud-example?embed=1&view=preview
+    <h4>Real-world example — a payroll batch job</h4>
+    <pre>ng generate module all-modules/payroll --routing
 
+ng g c all-modules/payroll/salary-process/batch-job/list/salary-process-job-list     --flat
+ng g c all-modules/payroll/salary-process/batch-job/show/salary-process-job-show     --flat
+ng g c all-modules/payroll/salary-process/batch-job/create/salary-process-job-create --flat
+ng g c all-modules/payroll/salary-process/batch-job/edit/salary-process-job-edit     --flat</pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt">Use the same <b>list / show / create / edit</b> folder names in every feature module. Every screen then lives in a predictable place, which makes large apps easier to navigate.</span></div>
+    <div class="note"><b>Angular 17+:</b> new projects use <b>standalone components</b> by default, so NgModules are optional. The module commands above are still the standard for existing module-based apps.</div>
+  </div>
 
-================== Apply ========================
+  <!-- LIBRARIES -->
+  <h2 class="section" id="libraries">4 · Add third-party libraries</h2>
+  <div class="card-block c1">
+    <pre>npm install bootstrap
+npm install font-awesome
 
-======== Generate Module
-ng generate module all-modules/i-recruitment --routing
+<span class="com"># jQuery DataTables with Angular wrapper + type definitions</span>
+npm install jquery datatables.net datatables.net-dt angular-datatables
+npm install --save-dev @types/jquery @types/datatables.net
 
-======== Component
+npm uninstall ngx-spinner              <span class="com"># remove a package</span></pre>
+    <div class="note"><b>Note:</b> since npm 5, <code class="inline">npm install</code> saves to <code class="inline">package.json</code> by default, so <code class="inline">--save</code> is no longer needed. Use <code class="inline">--save-dev</code> for build-time-only packages such as type definitions.</div>
+  </div>
 
-ng g c specific-folder/component-name
-ng g c payroll/specific-folder/component-name --flat
+  <!-- BUILD -->
+  <h2 class="section" id="build">5 · Build for production</h2>
+  <p class="section-intro">Output goes to <code class="inline">dist/</code>. Set <code class="inline">--base-href</code> when the app is served from a sub-path instead of the domain root.</p>
+  <div class="card-block c3">
+    <pre>ng build                                          <span class="com"># production build (default in Angular 12+)</span>
+ng build --base-href .                            <span class="com"># relative paths — open from any folder</span>
+ng build --base-href /hrms/                       <span class="com"># app served at https://example.com/hrms/</span>
+ng build --base-href https://www.example.com/     <span class="com"># absolute base URL</span></pre>
+    <div class="warn"><b>Older Angular (≤ 11):</b> use <code class="inline">ng build --prod --base-href=/hrms/ --deploy-url=/hrms/</code>. <code class="inline">--prod</code> was removed in newer versions, use <code class="inline">--configuration production</code> instead. <code class="inline">--deploy-url</code> is deprecated.</div>
+  </div>
 
-ng generate component post/list
-ng generate component all-modules/payroll/salary-process/batch-job/list/salary-process-job-list --flat
+  <div class="refs">
+    <h4>References</h4>
+    <ul>
+      <li><a href="https://angular.dev/cli" target="_blank">Angular CLI reference</a></li>
+      <li><a href="https://jasonwatmore.com/post/2020/12/15/angular-11-crud-example-with-reactive-forms" target="_blank">Angular 11 CRUD example with reactive forms — Jason Watmore</a></li>
+      <li><a href="https://www.itsolutionstuff.com/post/angular-11-crud-application-exampleexample.html" target="_blank">Angular 11 CRUD application example — ItSolutionStuff</a></li>
+    </ul>
+  </div>
 
-ng generate component post/view or show
-ng generate component all-modules/payroll/salary-process/batch-job/show/salary-process-job-show --flat
+  <hr class="div">
+  <div class="credits">Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a></div>
 
-ng generate component post/create
-ng generate component all-modules/payroll/salary-process/batch-job/create/salary-process-job-create --flat
-
-ng generate component post/edit
-ng generate component all-modules/payroll/salary-process/batch-job/edit/salary-process-job-edit --flat
-
-
-ng generate component all-modules/payroll/element-value/list/payroll-element-value-list --flat
-ng generate component all-modules/payroll/element-value/show/payroll-element-value-show --flat
-ng generate component all-modules/payroll/element-value/create/payroll-element-value-create --flat
-ng generate component all-modules/payroll/element-value/edit/payroll-element-value-edit --flat
-=============================================================================================================
-=============================================================================================================
-
-
-*** Applied *** 
------------------------
-ng generate module all-modules/xyzyourmodule --routing
-ng generate component all-modules/xyzyourmodule
-ng generate component all-modules/xyzyourmodule/components/xyzyourmodule-page1
-
-
-ng generate module all-modules/broadcastx --routing
-ng generate component all-modules/broadcastx
-ng generate component all-modules/broadcastx/components/attendance-mailx
-
-		<p>
-
-<hr>
-<div class="credits">
-Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a>
 </div>
-
 </body>
 </html>
