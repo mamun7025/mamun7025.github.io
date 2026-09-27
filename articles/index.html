@@ -29,6 +29,7 @@
       --java: #6ab7ff;
       --system: #7ee787;
       --misc: #f0a868;
+      --sec: #ff7b72;
     }
     @media (prefers-color-scheme: light) {
       :root {
@@ -43,6 +44,7 @@
         --java: #1a6fd4;
         --system: #1f8a4c;
         --misc: #c0730f;
+        --sec: #cf222e;
       }
     }
 
@@ -98,6 +100,7 @@
     .label.java   { color: var(--java);   background: color-mix(in srgb, var(--java) 14%, transparent); }
     .label.system { color: var(--system); background: color-mix(in srgb, var(--system) 14%, transparent); }
     .label.misc   { color: var(--misc);   background: color-mix(in srgb, var(--misc) 14%, transparent); }
+    .label.sec    { color: var(--sec);    background: color-mix(in srgb, var(--sec) 14%, transparent); }
 
     /* Card grid */
     .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 14px; }
@@ -120,6 +123,7 @@
     a.card.java .ico   { color: var(--java);   background: color-mix(in srgb, var(--java) 15%, transparent); }
     a.card.system .ico { color: var(--system); background: color-mix(in srgb, var(--system) 15%, transparent); }
     a.card.misc .ico   { color: var(--misc);   background: color-mix(in srgb, var(--misc) 15%, transparent); }
+    a.card.sec .ico    { color: var(--sec);    background: color-mix(in srgb, var(--sec) 15%, transparent); }
     a.card .meta { min-width: 0; }
     a.card .title { color: var(--heading); font-weight: 600; font-size: .98rem; line-height: 1.3; }
     a.card .desc { color: var(--text-dim); font-size: .84rem; margin-top: 2px; }
@@ -223,6 +227,24 @@
         <span class="meta">
           <span class="title">UML Diagram</span>
           <span class="desc">Modelling classes &amp; relationships</span>
+        </span>
+        <span class="arrow">&rarr;</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== SECURITY & SERVERS ===================== -->
+  <section class="cat" data-cat="sec">
+    <div class="cat-head">
+      <span class="label sec">Security &amp; Servers</span>
+      <span class="count"></span>
+    </div>
+    <div class="grid">
+      <a class="card sec" href="security/vps-security-and-traffic-monitor.html">
+        <span class="ico">&#128737;</span>
+        <span class="meta">
+          <span class="title">VPS Security &amp; Traffic Monitor</span>
+          <span class="desc">Investigate SSH attacks, exposure &amp; traffic spikes</span>
         </span>
         <span class="arrow">&rarr;</span>
       </a>
