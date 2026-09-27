@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VPS Security &amp; Traffic Monitor — Step-by-Step Investigation</title>
+  <meta name="description" content="Step-by-step guide to investigate a Linux VPS: SSH brute-force, suspicious logins, Fail2Ban, firewall, exposed Tomcat/MySQL ports, persistence, traffic spikes in Nginx logs, and hardening.">
+  <meta name="keywords" content="VPS Security, Linux Server Security, SSH Brute Force, Fail2Ban, UFW, Nginx Logs, Tomcat, MySQL, Traffic Monitoring, Incident Response, Server Hardening, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+  <link rel="stylesheet" href="../assets/notes.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../index.html">&larr; All Tech Notes</a>
+
+  <header class="hero">
+    <div class="eyebrow">Security · Linux VPS</div>
+    <h1>VPS Security &amp; Traffic Monitor</h1>
+    <p class="sub">A practical, step-by-step runbook to find out what is <b>actually</b> happening on a VPS that is being hammered by SSH scans or traffic spikes: who got in, what changed, what is exposed, where the traffic comes from — and only then how to harden it.</p>
+    <div class="legend">
+      <span class="chip"><span class="dot c1"></span> Investigate (read-only)</span>
+      <span class="chip"><span class="dot c2"></span> Traffic &amp; spikes</span>
+      <span class="chip"><span class="dot c3"></span> Harden (makes changes)</span>
+    </div>
+  </header>
+
+  <div class="warn"><b>Golden rule:</b> collect evidence <b>before</b> you delete users, remove SSH keys, reboot or change configuration. Once you "clean up", the proof of what happened is gone. And never paste private keys, passwords or tokens into chats or tickets.</div>
+
+  <div class="note"><b>Example stack:</b> Ubuntu/Debian VPS, Nginx &rarr; Tomcat (Java/Grails app) &rarr; MySQL, ~12&nbsp;GB RAM. All IP addresses on this page are documentation placeholders (<code class="inline">203.0.113.x</code>, <code class="inline">198.51.100.x</code>) — replace them with the ones from your own logs.</div>
+
+  <!-- ===================== OVERVIEW ===================== -->
+  <h2 class="section" id="overview">The target architecture</h2>
+  <p class="section-intro">Everything you check below is measured against this picture. Anything reachable from the Internet that is not on this diagram is a finding.</p>
+  <pre class="ascii">                 INTERNET
+                    |
+      +-------------+--------------+
+      |                            |
+   SSH :22                  HTTP :80 / HTTPS :443
+  (keys only,                      |
+   Fail2Ban)                     NGINX
+      |                            |  proxy_pass
+      v                            v
+     VPS                   TOMCAT :8080   (127.0.0.1 only)
+                                   |
+                                   v
+                           MYSQL  :3306   (127.0.0.1 only)</pre>
+
+  <h2 class="section" id="phases">How to use this guide</h2>
+  <p class="section-intro">Work top to bottom. Each step has the commands to run and a <b>"Red flags"</b> list that tells you whether you found a real issue.</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Phase</th><th>Question it answers</th><th>Type</th></tr></thead>
+      <tbody>
+        <tr><td><a href="#step-0">0 · Prepare</a></td><td>How do I keep evidence safe?</td><td><span class="badge c1">read-only</span></td></tr>
+        <tr><td><a href="#step-1">1 · Who is on the box</a></td><td>Is someone logged in right now?</td><td><span class="badge c1">read-only</span></td></tr>
+        <tr><td><a href="#step-2">2–4 · SSH access</a></td><td>Who logged in, from where, with what — and did an attacker succeed?</td><td><span class="badge c1">read-only</span></td></tr>
+        <tr><td><a href="#step-5">5–6 · Defences</a></td><td>Are SSH config and Fail2Ban really doing their job?</td><td><span class="badge c1">read-only</span></td></tr>
+        <tr><td><a href="#step-7">7–10 · Exposure</a></td><td>Which ports does the Internet actually see? Are Tomcat/MySQL exposed?</td><td><span class="badge c1">read-only</span></td></tr>
+        <tr><td><a href="#step-11">11–15 · Persistence</a></td><td>Did anyone leave a backdoor (keys, users, cron, services, web shells)?</td><td><span class="badge c1">read-only</span></td></tr>
+        <tr><td><a href="#step-16">16–17 · Processes &amp; network</a></td><td>Is anything mining, beaconing or running from <code class="inline">/tmp</code>?</td><td><span class="badge c1">read-only</span></td></tr>
+        <tr><td><a href="#traffic">18–22 · Traffic monitor</a></td><td>Where do spikes come from — attack, bots, or real users?</td><td><span class="badge c2">monitor</span></td></tr>
+        <tr><td><a href="#correlate">23 · Correlate &amp; decide</a></td><td>Compromised or just noisy?</td><td><span class="badge c1">analysis</span></td></tr>
+        <tr><td><a href="#harden">24–29 · Harden</a></td><td>Close the gaps you found.</td><td><span class="badge c3">changes</span></td></tr>
+        <tr><td><a href="#report">Report</a></td><td>Final checklist &amp; verdict</td><td><span class="badge c1">summary</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===================== PHASE 0 ===================== -->
+  <span class="group-label c1">Phase 0 · Prepare</span>
+
+  <h2 class="section" id="step-0">Step 0 · Open a root shell, record the session and snapshot evidence</h2>
+  <p class="section-intro">Every command below assumes a root shell. Recording the session gives you a timestamped log of everything you ran and saw.</p>
+  <div class="card-block c1">
+    <pre>sudo -i                                          <span class="com"># all following commands run as root</span>
+
+export IR=/root/ir-$(date +%F_%H%M)              <span class="com"># incident folder, e.g. /root/ir-2026-09-27_1015</span>
+mkdir -p "$IR" &amp;&amp; cd "$IR"
+script -a "$IR/session.log"                      <span class="com"># record this terminal (type 'exit' to stop)</span></pre>
+
+    <h4>Basic server facts</h4>
+    <pre>hostname; date; timedatectl | grep -Ei "time zone|synchronized"
+uptime
+uname -a
+cat /etc/os-release | head -4
+curl -s https://ifconfig.me; echo              <span class="com"># the server's public IP</span></pre>
+
+    <h4>Snapshot volatile state and logs (before anything rotates or changes)</h4>
+    <pre>cp -a /var/log/auth.log* /var/log/fail2ban.log* /var/log/nginx "$IR"/ 2&gt;/dev/null
+journalctl --since "30 days ago" -o short-iso &gt; journal-30d.txt
+last -Fai  &gt; last.txt
+lastb -Fai &gt; lastb.txt 2&gt;/dev/null
+ps auxfww  &gt; ps.txt
+ss -tunap  &gt; ss.txt
+cp -a /root/.ssh/authorized_keys authorized_keys.root 2&gt;/dev/null
+sha256sum ./* &gt; SHA256SUMS 2&gt;/dev/null</pre>
+
+    <h4>Also note, from your own laptop</h4>
+    <pre>curl -s https://ifconfig.me; echo              <span class="com"># YOUR public IP — compare it with logins later</span></pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Timezones matter.</b> <code class="inline">journalctl</code>, <code class="inline">last</code> and Nginx logs may use different zones. Write down the server zone from <code class="inline">timedatectl</code> before correlating times.</span></div>
+  </div>
+
+  <!-- ===================== PHASE 1 ===================== -->
+  <span class="group-label c1">Phase 1 · Who is on the box</span>
+
+  <h2 class="section" id="step-1">Step 1 · Currently logged-in users and recent sessions</h2>
+  <div class="card-block c1">
+    <pre>who
+w                                                <span class="com"># also shows what each session is running</span>
+last -Fai | head -40                             <span class="com"># recent logins with full dates and IPs</span>
+lastb -Fai | head -20                            <span class="com"># recent FAILED logins</span></pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li>A session whose source IP is not yours (compare with the IP you noted in Step 0).</li>
+      <li>A root session at a time you were not working.</li>
+      <li>Unknown usernames, or a session running <code class="inline">wget</code>, <code class="inline">curl</code>, <code class="inline">python</code>, <code class="inline">nc</code> in <code class="inline">w</code>.</li>
+      <li><code class="inline">last</code> output that starts only recently (wtmp was wiped or rotated — note it).</li>
+    </ul>
+  </div>
+
+  <!-- ===================== PHASE 2 ===================== -->
+  <span class="group-label c1">Phase 2 · SSH access</span>
+
+  <h2 class="section" id="step-2">Step 2 · List every successful SSH login</h2>
+  <p class="section-intro"><code class="inline">_COMM=sshd</code> works whether the unit is called <code class="inline">ssh</code> or <code class="inline">sshd</code>, and whether <code class="inline">/var/log/auth.log</code> exists or not.</p>
+  <div class="card-block c1">
+    <pre><span class="com"># date, method, user, source IP of every accepted login</span>
+journalctl _COMM=sshd --since "30 days ago" -o short-iso \
+  | grep "Accepted" \
+  | awk '{print $1, $5, $7, $9}' \
+  | tee accepted.txt</pre>
+    <div class="code-label">Example output</div>
+    <pre class="output">2026-09-18T09:12:44+0000 publickey root 198.51.100.24
+2026-09-19T21:03:10+0000 password  root 203.0.113.50     <span class="com">&lt;-- needs explanation</span>
+2026-09-22T08:40:02+0000 publickey root 198.51.100.77</pre>
+
+    <h4>Which key was used?</h4>
+    <p>For <code class="inline">publickey</code> logins sshd logs the key fingerprint. Match it against the keys in <code class="inline">authorized_keys</code>:</p>
+    <pre>journalctl _COMM=sshd --since "30 days ago" | grep "Accepted publickey" | grep -oE "SHA256:[A-Za-z0-9+/]+" | sort | uniq -c
+ssh-keygen -lf /root/.ssh/authorized_keys        <span class="com"># fingerprint + comment of each authorised key</span></pre>
+
+    <h4>Who owns the source IP?</h4>
+    <pre>whois 203.0.113.50 | grep -Ei "netname|org-name|orgname|country|descr" | head</pre>
+
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li><b><code class="inline">Accepted password for root</code></b> from an IP you do not recognise — highest priority. A successful login does not prove a compromise, but it must be explained.</li>
+      <li>A login from a country/ISP where no admin lives or works.</li>
+      <li>A publickey login with a fingerprint that matches no key you own.</li>
+      <li>Logins by system/service accounts (<code class="inline">www-data</code>, <code class="inline">tomcat</code>, <code class="inline">mysql</code>).</li>
+    </ul>
+  </div>
+
+  <h2 class="section" id="step-3">Step 3 · Count failed attempts per IP</h2>
+  <div class="card-block c1">
+    <pre>journalctl _COMM=sshd --since "7 days ago" \
+  | grep -E "Failed password|Invalid user" \
+  | grep -oE "from [0-9]{1,3}(\.[0-9]{1,3}){3}" \
+  | awk '{print $2}' | sort | uniq -c | sort -nr | head -30</pre>
+    <div class="code-label">Example output</div>
+    <pre class="output">    800 203.0.113.94
+    484 203.0.113.176
+    450 198.51.100.209</pre>
+    <h4>Which usernames are they trying?</h4>
+    <pre>journalctl _COMM=sshd --since "7 days ago" | grep -oE "Invalid user [^ ]+" | sort | uniq -c | sort -nr | head -20</pre>
+    <div class="note"><b>Reading it:</b> hundreds of failures from a handful of IPs trying <code class="inline">root</code>, <code class="inline">admin</code>, <code class="inline">test</code>, <code class="inline">ubuntu</code> is normal Internet background noise. It only becomes an incident if one of them <b>succeeds</b> — which is exactly what the next step checks.</div>
+  </div>
+
+  <h2 class="section" id="step-4">Step 4 · Did a brute-forcing IP ever get in?</h2>
+  <p class="section-intro">This is the single most useful check on this page: intersect the "failed" IPs with the "accepted" IPs.</p>
+  <div class="card-block c1">
+    <pre>journalctl _COMM=sshd --since "30 days ago" | grep "Accepted" \
+  | grep -oE "from [0-9.]+" | awk '{print $2}' | sort -u &gt; ips-accepted.txt
+
+journalctl _COMM=sshd --since "30 days ago" | grep -E "Failed|Invalid" \
+  | grep -oE "from [0-9.]+" | awk '{print $2}' | sort -u &gt; ips-failed.txt
+
+comm -12 ips-accepted.txt ips-failed.txt         <span class="com"># IPs that failed AND later succeeded</span></pre>
+    <h4>How to read the result</h4>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Result</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>Empty</td><td><span class="badge c2">Good</span> No brute-forcer succeeded.</td></tr>
+          <tr><td>Only your own IP</td><td><span class="badge c2">Fine</span> You mistyped a password at some point.</td></tr>
+          <tr><td>An IP with many failures, then <code class="inline">Accepted password</code></td><td><span class="badge c3">Critical</span> A password was guessed. Treat the server as compromised and continue with Phase 4 carefully.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===================== PHASE 3 ===================== -->
+  <span class="group-label c1">Phase 3 · Are the defences really working?</span>
+
+  <h2 class="section" id="step-5">Step 5 · Effective SSH configuration</h2>
+  <p class="section-intro">Don't just grep <code class="inline">sshd_config</code>. Files in <code class="inline">sshd_config.d/</code> are included at the top and <b>the first value wins</b>, so a cloud-init file can silently re-enable passwords.</p>
+  <div class="card-block c1">
+    <pre><span class="com"># what sshd is ACTUALLY using</span>
+sshd -T | grep -Ei "^(port|permitrootlogin|passwordauthentication|kbdinteractiveauthentication|pubkeyauthentication|permitemptypasswords|maxauthtries|allowusers|allowgroups) "
+
+<span class="com"># where each setting comes from</span>
+grep -nEi "^\s*(Include|PermitRootLogin|PasswordAuthentication|KbdInteractiveAuthentication)" \
+  /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2&gt;/dev/null</pre>
+    <h4>Expected vs red flag</h4>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Setting</th><th>Good</th><th>Red flag</th></tr></thead>
+        <tbody>
+          <tr><td><code class="inline">permitrootlogin</code></td><td><code class="inline">no</code> / <code class="inline">prohibit-password</code></td><td><code class="inline">yes</code> — root password logins possible</td></tr>
+          <tr><td><code class="inline">passwordauthentication</code></td><td><code class="inline">no</code></td><td><code class="inline">yes</code> — brute force can succeed</td></tr>
+          <tr><td><code class="inline">kbdinteractiveauthentication</code></td><td><code class="inline">no</code></td><td><code class="inline">yes</code> — password prompt via PAM</td></tr>
+          <tr><td><code class="inline">permitemptypasswords</code></td><td><code class="inline">no</code></td><td><code class="inline">yes</code></td></tr>
+          <tr><td><code class="inline">pubkeyauthentication</code></td><td><code class="inline">yes</code></td><td><code class="inline">no</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn"><b>If Step 2 showed <code class="inline">Accepted password for root</code></b>, then <code class="inline">permitrootlogin yes</code> + <code class="inline">passwordauthentication yes</code> is the root cause of the exposure, regardless of whether that particular login was you.</div>
+  </div>
+
+  <h2 class="section" id="step-6">Step 6 · Fail2Ban: running is not the same as working</h2>
+  <div class="card-block c1">
+    <pre>systemctl is-active fail2ban
+fail2ban-client status                           <span class="com"># list of jails</span>
+fail2ban-client status sshd                      <span class="com"># failed/banned counters + banned IP list</span>
+fail2ban-client get sshd maxretry
+fail2ban-client get sshd findtime
+fail2ban-client get sshd bantime
+fail2ban-client banned                           <span class="com"># all bans (fail2ban 0.11+)</span>
+
+<span class="com"># where does the jail read its log from?</span>
+fail2ban-client get sshd logpath
+fail2ban-client get sshd journalmatch            <span class="com"># used when backend = systemd</span>
+
+<span class="com"># how many bans in total (including rotated logs)</span>
+zgrep -h " Ban " /var/log/fail2ban.log* | wc -l</pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li>No <code class="inline">sshd</code> jail in the list — Fail2Ban is running but protecting nothing.</li>
+      <li><b><code class="inline">Total failed: 0</code> while Step 3 shows hundreds of failures</b> — the jail is reading the wrong log. Typical on newer Ubuntu/Debian with no <code class="inline">/var/log/auth.log</code>: the jail needs <code class="inline">backend = systemd</code> (fix in <a href="#step-26">Step 26</a>).</li>
+      <li>The top IPs from Step 3 are still not banned.</li>
+      <li><code class="inline">bantime</code> of a few minutes — attackers simply come back.</li>
+      <li>Your own IP in the banned list (add it to <code class="inline">ignoreip</code>).</li>
+    </ul>
+  </div>
+
+  <!-- ===================== PHASE 4 — EXPOSURE ===================== -->
+  <span class="group-label c1">Phase 4 · Exposure</span>
+
+  <h2 class="section" id="step-7">Step 7 · What is listening, and on which address</h2>
+  <div class="card-block c1">
+    <pre>ss -lntup</pre>
+    <div class="code-label">How to read the Local Address column</div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Local address</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code class="inline">127.0.0.1:8080</code> / <code class="inline">[::1]:3306</code></td><td><span class="badge c2">Private</span> Only reachable from the server itself</td></tr>
+          <tr><td><code class="inline">0.0.0.0:8080</code> / <code class="inline">*:8080</code> / <code class="inline">[::]:3306</code></td><td><span class="badge c3">Public</span> Reachable from the Internet unless the firewall blocks it</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h4>Expected ports for this stack</h4>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Port</th><th>Service</th><th>Should bind to</th></tr></thead>
+        <tbody>
+          <tr><td>22</td><td>SSH</td><td>public</td></tr>
+          <tr><td>80 / 443</td><td>Nginx</td><td>public</td></tr>
+          <tr><td>8080</td><td>Tomcat HTTP connector</td><td>127.0.0.1</td></tr>
+          <tr><td>8005</td><td>Tomcat shutdown port</td><td>127.0.0.1 (or disabled)</td></tr>
+          <tr><td>8009</td><td>Tomcat AJP</td><td>disabled (Ghostcat, CVE-2020-1938)</td></tr>
+          <tr><td>3306 / 33060</td><td>MySQL / MySQL X</td><td>127.0.0.1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Any port not on this list (e.g. a random high port owned by an unknown process) is a finding — note the PID and program name.</p>
+  </div>
+
+  <h2 class="section" id="step-8">Step 8 · Firewall rules</h2>
+  <div class="card-block c1">
+    <pre>ufw status verbose
+firewall-cmd --state 2&gt;/dev/null                 <span class="com"># only on RHEL-family servers</span>
+nft list ruleset | head -80</pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li><code class="inline">Status: inactive</code> and no other nftables/iptables rules.</li>
+      <li><code class="inline">Default: allow (incoming)</code>.</li>
+      <li>Rules like <code class="inline">8080 ALLOW Anywhere</code> or <code class="inline">3306 ALLOW Anywhere</code>.</li>
+    </ul>
+    <div class="note"><b>Don't change rules yet.</b> You're still collecting evidence; hardening comes in Phase 8.</div>
+  </div>
+
+  <h2 class="section" id="step-9">Step 9 · Verify from the outside (the only view that counts)</h2>
+  <p class="section-intro">Local config can lie; a scan from another machine can't. Run this from your laptop — only against your own server.</p>
+  <div class="card-block c1">
+    <pre>nmap -Pn -p 22,80,443,3306,8005,8009,8080,8443,33060 &lt;VPS_IP&gt;
+
+curl -sI http://&lt;VPS_IP&gt;:8080/                  <span class="com"># should time out / be refused</span>
+curl -sI http://&lt;VPS_IP&gt;:8080/manager/html      <span class="com"># Tomcat manager must never be public</span>
+curl -sI https://your-domain.com/manager/html    <span class="com"># …also not through Nginx</span></pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li>Anything besides 22, 80, 443 shows as <code class="inline">open</code>.</li>
+      <li><code class="inline">/manager/html</code> answers with <code class="inline">401</code> or <code class="inline">200</code> from the Internet — it's exposed to password guessing and, once in, allows deploying a WAR (= remote code execution).</li>
+    </ul>
+  </div>
+
+  <h2 class="section" id="step-10">Step 10 · Tomcat and MySQL specifics</h2>
+  <div class="card-block c1">
+    <h4 style="margin-top:0">Tomcat</h4>
+    <pre>systemctl list-units --type=service | grep -i tomcat
+ps -o user,pid,rss,cmd -C java                   <span class="com"># which user runs Tomcat? (should NOT be root)</span>
+
+<span class="com"># Tomcat base dir, taken from the running process (-Dcatalina.base=...)</span>
+TC=$(ps -o args= -C java | grep -oE 'catalina\.base=[^ ]+' | head -1 | cut -d= -f2)
+echo "${TC:-not found — set TC manually, e.g. /opt/tomcat or /var/lib/tomcat9}"
+grep -nE "&lt;Connector|&lt;Server port" "$TC"/conf/server.xml
+grep -nE "&lt;user " "$TC"/conf/tomcat-users.xml    <span class="com"># manager users &amp; roles</span>
+ls "$TC"/webapps/</pre>
+    <h4>MySQL</h4>
+    <pre>ss -lntp | grep -E ":3306|:33060"
+grep -R "bind-address" /etc/mysql/ 2&gt;/dev/null
+mysql -e "SELECT user, host, plugin FROM mysql.user;"</pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li>Tomcat running as <code class="inline">root</code> — any app bug becomes full server takeover.</li>
+      <li>Connector without <code class="inline">address="127.0.0.1"</code>, AJP connector enabled, shutdown port not on localhost.</li>
+      <li><code class="inline">manager</code>/<code class="inline">host-manager</code> webapps deployed with weak or default passwords.</li>
+      <li>MySQL <code class="inline">bind-address = 0.0.0.0</code>, or users with <code class="inline">host = '%'</code> (especially <code class="inline">root@'%'</code>).</li>
+    </ul>
+  </div>
+
+  <!-- ===================== PHASE 5 — PERSISTENCE ===================== -->
+  <span class="group-label c1">Phase 5 · Persistence — did anyone leave a backdoor?</span>
+
+  <h2 class="section" id="step-11">Step 11 · SSH keys for every user</h2>
+  <div class="card-block c1">
+    <pre>find / -xdev \( -name authorized_keys -o -name authorized_keys2 \) 2&gt;/dev/null \
+  | while read f; do echo "== $f"; stat -c "modified: %y" "$f"; ssh-keygen -lf "$f"; done</pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li>A key whose comment/fingerprint you can't attribute to a real person or deploy system.</li>
+      <li>A modification time close to a suspicious login from Step 2.</li>
+      <li><code class="inline">authorized_keys</code> in service-account homes (<code class="inline">/var/www</code>, <code class="inline">/opt/tomcat</code>, <code class="inline">/var/lib/mysql</code>).</li>
+      <li>Keys prefixed with <code class="inline">command="…"</code> you didn't add.</li>
+    </ul>
+    <div class="warn"><b>Record before removing.</b> You already copied root's file in Step 0 — copy any other suspicious file into <code class="inline">$IR</code> too.</div>
+  </div>
+
+  <h2 class="section" id="step-12">Step 12 · Users, UID 0 and sudo rights</h2>
+  <div class="card-block c1">
+    <pre>awk -F: '$3 == 0 {print "UID0:", $1}' /etc/passwd                 <span class="com"># only 'root' is allowed here</span>
+awk -F: '$7 !~ /(nologin|false|sync)$/ {print $1, $3, $6, $7}' /etc/passwd   <span class="com"># users with a real shell</span>
+awk -F: '$2 == "" {print "EMPTY PASSWORD:", $1}' /etc/shadow
+ls -l --time-style=long-iso /etc/passwd /etc/shadow /etc/group /etc/sudoers
+getent group sudo wheel admin
+grep -RvE "^\s*(#|$)" /etc/sudoers /etc/sudoers.d/ 2&gt;/dev/null</pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li>Any UID 0 account other than <code class="inline">root</code>.</li>
+      <li>New users you didn't create, or service accounts given <code class="inline">/bin/bash</code>.</li>
+      <li>An account with an empty password.</li>
+      <li><code class="inline">NOPASSWD: ALL</code> entries you don't recognise; recent mtime on <code class="inline">/etc/passwd</code> or <code class="inline">/etc/shadow</code>.</li>
+    </ul>
+  </div>
+
+  <h2 class="section" id="step-13">Step 13 · Cron jobs and systemd timers/services</h2>
+  <div class="card-block c1">
+    <pre><span class="com"># cron — system-wide and per user</span>
+cat /etc/crontab
+ls -la /etc/cron.d/ /etc/cron.hourly/ /etc/cron.daily/ /etc/cron.weekly/ /etc/cron.monthly/
+grep -RvE "^\s*(#|$)" /etc/cron.d/ 2&gt;/dev/null
+ls -la /var/spool/cron/crontabs/ 2&gt;/dev/null      <span class="com"># one file per user that has a crontab</span>
+for u in $(cut -d: -f1 /etc/passwd); do c=$(crontab -l -u "$u" 2&gt;/dev/null | grep -vE "^\s*(#|$)"); [ -n "$c" ] &amp;&amp; echo "== $u" &amp;&amp; echo "$c"; done
+
+<span class="com"># systemd — enabled services, timers, recently changed unit files</span>
+systemctl list-unit-files --type=service --state=enabled
+systemctl list-timers --all
+find /etc/systemd /usr/lib/systemd/system /lib/systemd/system -type f -mtime -30 \
+  -printf '%TY-%Tm-%Td %TH:%TM %p\n' 2&gt;/dev/null | sort -r | head -30</pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li>Entries that <code class="inline">curl</code>/<code class="inline">wget</code> something and pipe it to <code class="inline">sh</code>, or contain base64 blobs.</li>
+      <li>Jobs running binaries from <code class="inline">/tmp</code>, <code class="inline">/var/tmp</code>, <code class="inline">/dev/shm</code> or hidden dirs (<code class="inline">/.x</code>, <code class="inline">~/.cache/.sys</code>).</li>
+      <li>Services with generic names (<code class="inline">system-update.service</code>, <code class="inline">dbus-helper</code>) that no package owns — check with <code class="inline">dpkg -S /path/to/file</code>.</li>
+    </ul>
+  </div>
+
+  <h2 class="section" id="step-14">Step 14 · Other classic hiding spots</h2>
+  <div class="card-block c1">
+    <pre>cat /etc/ld.so.preload 2&gt;/dev/null              <span class="com"># should NOT exist — used by userland rootkits</span>
+cat /etc/rc.local 2&gt;/dev/null
+ls -la /etc/profile.d/
+grep -nE "curl|wget|nc |/dev/tcp|base64" /root/.bashrc /root/.profile /home/*/.bashrc 2&gt;/dev/null
+
+<span class="com"># executables in temp dirs</span>
+find /tmp /var/tmp /dev/shm -type f -perm -u+x -ls 2&gt;/dev/null
+
+<span class="com"># files changed in the last 7 days in key places</span>
+find /etc /root /opt /var/www /usr/local/bin /usr/bin -xdev -type f -mtime -7 \
+  -printf '%TY-%Tm-%Td %TH:%TM %p\n' 2&gt;/dev/null | sort -r | head -100
+
+<span class="com"># modified package-owned files (Debian/Ubuntu); '5' in column 3 = content changed</span>
+dpkg --verify 2&gt;/dev/null | grep -v " c /" | head -50</pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li><code class="inline">/etc/ld.so.preload</code> exists.</li>
+      <li>Executables in <code class="inline">/tmp</code> or <code class="inline">/dev/shm</code>.</li>
+      <li>Changed files in <code class="inline">/usr/bin</code> or <code class="inline">/usr/sbin</code> that no update explains (compare with Step 15's package log).</li>
+      <li><code class="inline">dpkg --verify</code> reporting modified binaries like <code class="inline">/usr/bin/ps</code>, <code class="inline">/usr/bin/ss</code>, <code class="inline">/usr/sbin/sshd</code>.</li>
+    </ul>
+  </div>
+
+  <h2 class="section" id="step-15">Step 15 · Shell history, sudo activity, packages and web shells</h2>
+  <div class="card-block c1">
+    <pre><span class="com"># shell history (not a complete record — missing history proves nothing)</span>
+ls -la /root/.bash_history /home/*/.bash_history 2&gt;/dev/null
+tail -100 /root/.bash_history
+
+<span class="com"># sudo commands</span>
+journalctl _COMM=sudo --since "30 days ago" -o short-iso | grep "COMMAND=" | tail -50
+
+<span class="com"># package installs/upgrades</span>
+grep -hE " install | upgrade " /var/log/dpkg.log* 2&gt;/dev/null | sort | tail -50
+zgrep -h -A1 "^Commandline" /var/log/apt/history.log* 2&gt;/dev/null | tail -40
+
+<span class="com"># JSP web shells dropped into Tomcat</span>
+find "$TC"/webapps /var/lib/tomcat*/webapps -name "*.jsp" -mtime -30 -ls 2&gt;/dev/null</pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li><code class="inline">.bash_history</code> is a symlink to <code class="inline">/dev/null</code>, empty, or was truncated recently.</li>
+      <li>Packages like <code class="inline">masscan</code>, <code class="inline">nmap</code>, <code class="inline">tor</code>, <code class="inline">proxychains</code> installed without your knowledge.</li>
+      <li>New <code class="inline">.jsp</code> files inside a deployed Grails WAR (Grails apps normally don't ship loose JSPs).</li>
+    </ul>
+  </div>
+
+  <!-- ===================== PHASE 6 — PROCESSES & NETWORK ===================== -->
+  <span class="group-label c1">Phase 6 · Processes &amp; network</span>
+
+  <h2 class="section" id="step-16">Step 16 · Suspicious processes</h2>
+  <div class="card-block c1">
+    <pre>ps aux --sort=-%cpu | head -15
+ps aux --sort=-%mem | head -15
+
+<span class="com"># binaries that were deleted after starting (a common malware trick)</span>
+ls -l /proc/*/exe 2&gt;/dev/null | grep deleted
+
+<span class="com"># processes whose executable lives in a temp or hidden dir</span>
+ls -l /proc/*/exe 2&gt;/dev/null | grep -E "/tmp/|/var/tmp/|/dev/shm/|/\."</pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li>A process pinned at ~100% CPU per core that isn't Java/MySQL — typical crypto-miners: <code class="inline">xmrig</code>, <code class="inline">kdevtmpfsi</code>, <code class="inline">kinsing</code>, or random names like <code class="inline">.x</code>, <code class="inline">[kworker]</code> running as a normal user.</li>
+      <li>Kernel-looking names in square brackets owned by a non-root user.</li>
+      <li>Children of Tomcat's <code class="inline">java</code> process running <code class="inline">sh</code>, <code class="inline">bash</code>, <code class="inline">curl</code> — check with <code class="inline">ps auxf</code>. That means code execution through the web app.</li>
+    </ul>
+  </div>
+
+  <h2 class="section" id="step-17">Step 17 · Outbound connections</h2>
+  <div class="card-block c1">
+    <pre><span class="com"># established connections with owning process</span>
+ss -tnp state established
+
+<span class="com"># outbound only: skip connections to our own public ports and to localhost</span>
+ss -Htnp state established | awk '$3 !~ /:(22|80|443)$/ &amp;&amp; $4 !~ /^(127\.|\[::1\])/' | sort -k4
+
+<span class="com"># everything with a network socket</span>
+lsof -i -n -P | grep -v "127.0.0.1"</pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li>Connections to ports <code class="inline">3333</code>, <code class="inline">4444</code>, <code class="inline">5555</code>, <code class="inline">7777</code>, <code class="inline">14444</code> (mining pools), <code class="inline">6667</code> (IRC botnets).</li>
+      <li>Your server connecting to many different IPs on port 22 — it's being used to brute-force others.</li>
+      <li>Outbound connections from <code class="inline">www-data</code>/<code class="inline">tomcat</code> processes to unknown hosts.</li>
+    </ul>
+  </div>
+
+  <!-- ===================== TRAFFIC ===================== -->
+  <span class="group-label c2">Phase 7 · Traffic monitor &amp; spikes</span>
+
+  <h2 class="section" id="traffic">Step 18 · Live bandwidth and connection overview</h2>
+  <p class="section-intro">First find out <b>whether</b> there is a spike and on which interface, then drill into <b>who</b> causes it.</p>
+  <div class="card-block c2">
+    <pre>ip -br addr                                      <span class="com"># find the interface name, e.g. eth0</span>
+ip -s link show eth0                             <span class="com"># RX/TX byte counters since boot</span>
+ss -s                                            <span class="com"># socket summary: established, time-wait…</span>
+
+apt install -y vnstat iftop nethogs              <span class="com"># once</span>
+vnstat -h                                        <span class="com"># traffic per hour (history kept by the vnstat daemon)</span>
+vnstat -d                                        <span class="com"># per day</span>
+iftop -i eth0 -nNP                               <span class="com"># live: which remote IP uses the bandwidth</span>
+nethogs eth0                                     <span class="com"># live: which PROCESS uses the bandwidth</span></pre>
+    <div class="note"><b>Tip:</b> <code class="inline">vnstat</code> only starts collecting after it's installed. Install it now, even if the spike is over, so next time you have history.</div>
+  </div>
+
+  <h2 class="section" id="step-19">Step 19 · Connections per client IP</h2>
+  <div class="card-block c2">
+    <pre><span class="com"># who holds the most open connections to Nginx right now</span>
+ss -Htn state established '( sport = :80 or sport = :443 )' \
+  | awk '{print $4}' | sed -E 's/:[0-9]+$//; s/^\[?(::ffff:)?//; s/\]$//' \
+  | sort | uniq -c | sort -nr | head -20
+
+<span class="com"># SYN flood indicator: many half-open connections</span>
+ss -Htn state syn-recv | wc -l</pre>
+    <h4>Red flags</h4>
+    <ul class="clean">
+      <li>A single IP holding hundreds of connections (normal browsers use ~6–10).</li>
+      <li>Hundreds or thousands of <code class="inline">syn-recv</code> sockets.</li>
+    </ul>
+  </div>
+
+  <h2 class="section" id="step-20">Step 20 · Find the spike in the Nginx access log</h2>
+  <p class="section-intro">The default "combined" log format: <code class="inline">$1</code> = client IP, <code class="inline">$4</code> = time, <code class="inline">$7</code> = URL, <code class="inline">$9</code> = status. <code class="inline">zcat -f</code> also reads rotated <code class="inline">.gz</code> files.</p>
+  <div class="card-block c2">
+    <pre>LOG="/var/log/nginx/access.log*"
+
+<span class="com"># busiest minutes — the spike window</span>
+zcat -f $LOG | awk '{print substr($4, 2, 17)}' | sort | uniq -c | sort -nr | head -15
+
+<span class="com"># requests per hour, chronological (to see the shape of the day)</span>
+zcat -f /var/log/nginx/access.log | awk '{print substr($4, 2, 14)}' | uniq -c
+
+<span class="com"># status code distribution</span>
+zcat -f $LOG | awk '{print $9}' | sort | uniq -c | sort -nr
+
+<span class="com"># top client IPs, top URLs, top user agents</span>
+zcat -f $LOG | awk '{print $1}' | sort | uniq -c | sort -nr | head -20
+zcat -f $LOG | awk '{print $7}' | sort | uniq -c | sort -nr | head -20
+zcat -f $LOG | awk -F'"' '{print $6}' | sort | uniq -c | sort -nr | head -15</pre>
+
+    <h4>Drill into one spike window</h4>
+    <pre>W="27/Sep/2026:14:3"                             <span class="com"># 14:30–14:39 on that day</span>
+zcat -f $LOG | grep "$W" | awk '{print $1}'  | sort | uniq -c | sort -nr | head -10   <span class="com"># who</span>
+zcat -f $LOG | grep "$W" | awk '{print $7}'  | sort | uniq -c | sort -nr | head -10   <span class="com"># what</span>
+zcat -f $LOG | grep "$W" | awk '{print $9}'  | sort | uniq -c | sort -nr              <span class="com"># result</span>
+
+<span class="com"># everything one suspicious IP did</span>
+zcat -f $LOG | grep "^203.0.113.94 " | tail -50</pre>
+
+    <h4>Attack scans and errors</h4>
+    <pre>zcat -f $LOG | grep -Ei "wp-admin|wp-login|xmlrpc|\.env|\.git/|phpmyadmin|cgi-bin|/manager/html|etc/passwd|\.\./|cmd=|union.*select|jndi:" | tail -50
+
+<span class="com"># IPs producing the most 4xx/5xx</span>
+zcat -f $LOG | awk '$9 ~ /^[45]/ {print $1, $9}' | sort | uniq -c | sort -nr | head -20
+
+tail -100 /var/log/nginx/error.log</pre>
+    <div class="note"><b>Scanner noise is normal.</b> Requests for <code class="inline">/wp-login.php</code> on a Grails app just return 404 and don't prove anything. What matters: did any scan request get a <b><code class="inline">200</code></b>, and did anything hit <code class="inline">/manager/html</code> or a Log4Shell-style <code class="inline">${jndi:…}</code> payload successfully?</div>
+  </div>
+
+  <h2 class="section" id="step-21">Step 21 · Is the server itself struggling?</h2>
+  <p class="section-intro">A "spike" users feel as slowness may be CPU, memory, disk, or the JVM — not network.</p>
+  <div class="card-block c2">
+    <pre>uptime                                           <span class="com"># load average vs. number of cores (nproc)</span>
+nproc
+vmstat 1 5                                       <span class="com"># r = run queue, si/so = swapping, wa = IO wait</span>
+free -h
+df -h; df -ih                                    <span class="com"># full disk or inodes breaks logging and MySQL</span>
+du -xhd1 /var/log | sort -h
+
+<span class="com"># out-of-memory kills (often Tomcat or MySQL on a 12 GB box)</span>
+journalctl -k --since "7 days ago" | grep -iE "out of memory|oom-kill|killed process"
+
+<span class="com"># JVM heap limit vs. actual usage</span>
+ps -o pid,rss -C java                            <span class="com"># RSS in KB</span>
+ps -o args= -C java | grep -oE -- "-Xm[sx][^ ]+"
+
+<span class="com"># warnings and errors across the system</span>
+journalctl -p warning..alert --since "7 days ago" | tail -50
+last -x reboot shutdown | head</pre>
+    <h4>What kind of spike is it?</h4>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Symptom</th><th>Likely cause</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>One or few IPs, same URL, high req/min</td><td>Scraper / flood</td><td>Ban IP, Nginx <code class="inline">limit_req</code> (<a href="#step-28">Step 28</a>)</td></tr>
+          <tr><td>Many IPs, random URLs like <code class="inline">.env</code>, <code class="inline">wp-*</code>, mostly 404</td><td>Vulnerability scanners</td><td>Rate limit, return 444 for known junk paths</td></tr>
+          <tr><td>Many IPs, real app URLs, 200s, normal user agents</td><td>Real users (campaign, traffic peak)</td><td>Tune Tomcat/JVM/MySQL, cache, scale</td></tr>
+          <tr><td>No request spike but CPU at 100%</td><td>Miner or runaway app thread</td><td>Back to <a href="#step-16">Step 16</a>; <code class="inline">jstack</code> the JVM</td></tr>
+          <tr><td>High outbound traffic, few inbound requests</td><td>Server is attacking others / data exfiltration</td><td>Treat as compromise, <a href="#step-17">Step 17</a></td></tr>
+          <tr><td>OOM kills in kernel log</td><td>Heap/buffer sizes exceed RAM</td><td>Right-size <code class="inline">-Xmx</code> and <code class="inline">innodb_buffer_pool_size</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2 class="section" id="step-22">Step 22 · Log request time for better spike analysis (optional)</h2>
+  <p class="section-intro">The default Nginx format doesn't include how long a request took. Add it so slow endpoints show up in the log.</p>
+  <div class="card-block c2">
+    <div class="code-label">/etc/nginx/conf.d/log-format.conf</div>
+    <pre>log_format timed '$remote_addr - $remote_user [$time_local] "$request" '
+                 '$status $body_bytes_sent "$http_referer" "$http_user_agent" '
+                 'rt=$request_time urt=$upstream_response_time';</pre>
+    <div class="code-label">In your server block</div>
+    <pre>access_log /var/log/nginx/access.log timed;</pre>
+    <pre>nginx -t &amp;&amp; systemctl reload nginx
+
+<span class="com"># slowest requests: seconds + URL</span>
+awk '{for (i = NF; i &gt; 7; i--) if ($i ~ /^rt=/) { sub("rt=", "", $i); print $i, $7 }}' \
+  /var/log/nginx/access.log | sort -nr | head -20</pre>
+    <div class="note">The column positions in Step 20 stay the same, because the new fields are appended at the end.</div>
+  </div>
+
+  <!-- ===================== CORRELATE ===================== -->
+  <span class="group-label c1">Phase 8 · Correlate &amp; decide</span>
+
+  <h2 class="section" id="correlate">Step 23 · Build the timeline around each suspicious login</h2>
+  <p class="section-intro">One login line means little on its own. What happened in the ±30 minutes around it tells you whether it was you or an intruder.</p>
+  <div class="card-block c1">
+    <pre class="ascii">Accepted password for root from 203.0.113.50 at 2026-09-19 21:03
+        |
+        +--&gt; Is 203.0.113.50 you / a colleague / your office VPN?   (Step 0, 2)
+        +--&gt; Did this IP brute-force before?                       (Step 4)
+        +--&gt; Commands &amp; sudo around 21:03                          (Step 15)
+        +--&gt; Files modified 20:30 – 23:00                          (below)
+        +--&gt; authorized_keys / users / cron / systemd changed?     (Step 11–13)
+        +--&gt; New processes or outbound connections?                (Step 16–17)</pre>
+    <pre><span class="com"># everything the system logged in the window</span>
+journalctl --since "2026-09-19 20:30" --until "2026-09-19 23:00" -o short-iso | less
+
+<span class="com"># files created/modified in the window</span>
+find / -xdev -type f -newermt "2026-09-19 20:30" ! -newermt "2026-09-19 23:00" 2&gt;/dev/null \
+  | grep -vE "^/(proc|sys|run)|/var/log/journal" | head -200
+
+<span class="com"># how long that session lasted</span>
+journalctl _COMM=sshd --since "2026-09-19 20:30" --until "2026-09-20 06:00" | grep -E "session (opened|closed)|Disconnected"</pre>
+  </div>
+
+  <h2 class="section" id="verdict">Verdict matrix</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Evidence</th><th>Verdict</th><th>Next step</th></tr></thead>
+      <tbody>
+        <tr><td>All successful logins are attributable to you/your team, Steps 11–17 clean</td><td><span class="badge c2">Noisy, not compromised</span></td><td>Harden (Phase 9) to stop the noise and close the door.</td></tr>
+        <tr><td>An unexplained successful login, but nothing changed afterwards</td><td><span class="badge c3">Suspicious</span></td><td>Rotate root password and all keys, harden, keep monitoring closely.</td></tr>
+        <tr><td>Brute-forcer succeeded (Step 4), or unknown keys/users/cron/services, miners, deleted binaries, <code class="inline">ld.so.preload</code>, web shells</td><td><span class="badge c3">Compromised</span></td><td>See the box below.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><b>If the server is compromised:</b> a box where an attacker had root can't be trusted again, even after cleaning — rootkits can hide from the very tools you'd use to check. Keep the evidence folder, build a <b>fresh</b> VPS, deploy the app from source/CI (not from files copied off the old box), restore data from a backup taken before the intrusion, and <b>rotate every secret</b>: root and user passwords, SSH keys, MySQL passwords, the app's <code class="inline">application.yml</code>/datasource credentials, API tokens and TLS keys.</div>
+
+  <!-- ===================== HARDEN ===================== -->
+  <span class="group-label c3">Phase 9 · Harden — only after evidence is collected</span>
+
+  <h2 class="section" id="harden">Step 24 · Create a sudo user with an SSH key (before touching root)</h2>
+  <div class="card-block c3">
+    <div class="code-label">On your laptop</div>
+    <pre>ssh-keygen -t ed25519 -C "mamun@laptop"          <span class="com"># skip if you already have a key</span>
+ssh-copy-id -i ~/.ssh/id_ed25519.pub root@&lt;VPS_IP&gt;</pre>
+    <div class="code-label">On the server (optional but recommended — a named admin instead of root)</div>
+    <pre>adduser deploy
+usermod -aG sudo deploy
+install -d -m 700 -o deploy -g deploy /home/deploy/.ssh
+cp /root/.ssh/authorized_keys /home/deploy/.ssh/ &amp;&amp; chown deploy:deploy /home/deploy/.ssh/authorized_keys
+chmod 600 /home/deploy/.ssh/authorized_keys
+
+passwd root                                      <span class="com"># new, long, unique root password</span></pre>
+    <div class="code-label">From a second terminal — must work before you continue</div>
+    <pre>ssh deploy@&lt;VPS_IP&gt; 'sudo whoami'                <span class="com"># expect: root</span></pre>
+  </div>
+
+  <h2 class="section" id="step-25">Step 25 · Disable password and root password logins</h2>
+  <p class="section-intro">Use a drop-in file named <code class="inline">00-…</code> so it's read <b>first</b> and wins over files like <code class="inline">50-cloud-init.conf</code>.</p>
+  <div class="card-block c3">
+    <div class="code-label">/etc/ssh/sshd_config.d/00-hardening.conf</div>
+    <pre>PermitRootLogin prohibit-password      <span class="com"># or 'no' if you log in as 'deploy'</span>
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitEmptyPasswords no
+PubkeyAuthentication yes
+MaxAuthTries 3
+LoginGraceTime 30
+X11Forwarding no</pre>
+    <pre>sshd -t                                          <span class="com"># syntax check — must print nothing</span>
+systemctl reload ssh                             <span class="com"># 'sshd' on RHEL-family</span>
+sshd -T | grep -Ei "^(permitrootlogin|passwordauthentication|kbdinteractiveauthentication) "</pre>
+    <div class="warn"><b>Keep your current session open.</b> Open a <b>new</b> terminal and log in again. Only close the old session once the new login works. Verify passwords are refused: <code class="inline">ssh -o PubkeyAuthentication=no root@&lt;VPS_IP&gt;</code> must fail with <code class="inline">Permission denied (publickey)</code>.</div>
+  </div>
+
+  <h2 class="section" id="step-26">Step 26 · Make Fail2Ban actually ban</h2>
+  <div class="card-block c3">
+    <div class="code-label">/etc/fail2ban/jail.local</div>
+    <pre>[DEFAULT]
+ignoreip = 127.0.0.1/8 ::1 &lt;YOUR_IP&gt;
+bantime  = 1h
+findtime = 10m
+maxretry = 5
+backend  = systemd              <span class="com"># reads the journal — works without /var/log/auth.log</span>
+
+[sshd]
+enabled = true
+
+[recidive]                      <span class="com"># repeat offenders: banned for a week</span>
+enabled  = true
+logpath  = /var/log/fail2ban.log
+backend  = auto
+bantime  = 1w
+findtime = 1d
+maxretry = 3</pre>
+    <pre>fail2ban-client -t                               <span class="com"># test configuration</span>
+systemctl enable --now fail2ban
+systemctl restart fail2ban
+fail2ban-client status sshd                      <span class="com"># "Currently failed" should start climbing within minutes</span></pre>
+  </div>
+
+  <h2 class="section" id="step-27">Step 27 · Firewall: deny by default, allow 22/80/443</h2>
+  <div class="card-block c3">
+    <pre>ufw default deny incoming
+ufw default allow outgoing
+ufw allow OpenSSH                                <span class="com"># FIRST — or you lock yourself out</span>
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw limit OpenSSH                                <span class="com"># extra: max 6 new SSH connections / 30 s per IP</span>
+ufw enable
+ufw status verbose</pre>
+    <div class="note">Repeat the external <code class="inline">nmap</code> scan from <a href="#step-9">Step 9</a>. Only 22, 80 and 443 should be open. Many VPS providers also offer a cloud firewall in their panel — use it as a second layer.</div>
+  </div>
+
+  <h2 class="section" id="step-28">Step 28 · Lock Tomcat and MySQL to localhost, rate-limit Nginx</h2>
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Tomcat — conf/server.xml</h4>
+    <pre><span class="com">&lt;!-- shutdown port: localhost only (or port="-1" to disable) --&gt;</span>
+&lt;Server port="8005" address="127.0.0.1" shutdown="<span class="str">CHANGE-ME-random-string</span>"&gt;
+
+<span class="com">&lt;!-- HTTP connector reachable only by Nginx --&gt;</span>
+&lt;Connector port="8080" address="127.0.0.1" protocol="HTTP/1.1"
+           connectionTimeout="20000" /&gt;
+
+<span class="com">&lt;!-- AJP: remove or keep commented out --&gt;</span>
+<span class="com">&lt;!-- &lt;Connector protocol="AJP/1.3" port="8009" ... /&gt; --&gt;</span></pre>
+    <p>Also delete <code class="inline">webapps/manager</code>, <code class="inline">host-manager</code>, <code class="inline">docs</code> and <code class="inline">examples</code> if you deploy by copying the WAR, and run Tomcat as its own non-root user.</p>
+
+    <h4>MySQL — /etc/mysql/mysql.conf.d/mysqld.cnf</h4>
+    <pre>[mysqld]
+bind-address       = 127.0.0.1
+mysqlx-bind-address = 127.0.0.1   <span class="com"># MySQL 8 only — remove this line on MariaDB</span></pre>
+    <pre>systemctl restart mysql
+mysql -e "SELECT user, host FROM mysql.user WHERE host = '%';"   <span class="com"># should be empty</span></pre>
+
+    <h4>Nginx — basic rate limiting</h4>
+    <div class="code-label">http { } block, e.g. /etc/nginx/conf.d/limits.conf</div>
+    <pre>limit_req_zone  $binary_remote_addr zone=perip:10m rate=10r/s;
+limit_conn_zone $binary_remote_addr zone=conns:10m;</pre>
+    <div class="code-label">server { } block</div>
+    <pre>limit_req  zone=perip burst=40 nodelay;
+limit_conn conns 30;
+limit_req_status 429;
+
+<span class="com"># never proxy these to the app</span>
+location ~ ^/(manager|host-manager)(/|$) { return 404; }
+location ~ /\.(env|git|svn|ht)           { return 404; }</pre>
+    <pre>nginx -t &amp;&amp; systemctl reload nginx</pre>
+    <div class="note">Tune <code class="inline">rate</code> and <code class="inline">burst</code> to your real traffic from Step 20 — a single page load of a Grails app can request 20+ assets.</div>
+  </div>
+
+  <h2 class="section" id="step-29">Step 29 · Automatic security updates and a daily check</h2>
+  <div class="card-block c3">
+    <pre>apt install -y unattended-upgrades
+dpkg-reconfigure -plow unattended-upgrades       <span class="com"># answer "Yes"</span></pre>
+    <div class="code-label">/usr/local/bin/vps-daily-check.sh</div>
+    <pre>#!/usr/bin/env bash
+<span class="com"># Daily one-page security &amp; traffic summary</span>
+echo "== $(hostname) — $(date -Is)"
+echo "-- SSH logins accepted (24h)";  journalctl _COMM=sshd --since "24 hours ago" | grep Accepted | awk '{print $1,$2,$3,$7,$9,$11}'
+echo "-- SSH failures (24h)";         journalctl _COMM=sshd --since "24 hours ago" | grep -cE "Failed|Invalid"
+echo "-- Fail2Ban";                   fail2ban-client status sshd | grep -E "Currently|Total"
+echo "-- Public listeners";           ss -Hlnt | awk '$4 !~ /^(127\.0\.0\.1|\[::1\])/ {print $4}' | sort -u
+echo "-- Top IPs in Nginx today";     grep "$(date +%d/%b/%Y)" /var/log/nginx/access.log | awk '{print $1}' | sort | uniq -c | sort -nr | head -5
+echo "-- Load / memory / disk";       uptime; free -h | sed -n 2p; df -h / | tail -1
+echo "-- Top CPU";                    ps aux --sort=-%cpu | sed -n 2,4p</pre>
+    <pre>chmod 700 /usr/local/bin/vps-daily-check.sh
+echo '15 7 * * * root /usr/local/bin/vps-daily-check.sh &gt; /var/log/vps-daily-check.log 2&gt;&amp;1' \
+  &gt; /etc/cron.d/vps-daily-check</pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt">The script prints "Public listeners". If port <code class="inline">8080</code> or <code class="inline">3306</code> ever shows up there again, someone changed a config — you'll see it the next morning instead of months later.</span></div>
+  </div>
+
+  <!-- ===================== RULES ===================== -->
+  <h2 class="section" id="rules">Safe investigation rules</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Do</th><th>Don't</th></tr></thead>
+      <tbody>
+        <tr><td>Record timestamps and the server timezone</td><td>Delete suspicious files immediately</td></tr>
+        <tr><td>Copy logs and keys into the evidence folder first</td><td>Remove unknown users or keys before recording them</td></tr>
+        <tr><td>Compare every login IP with your known IPs</td><td>Reboot before collecting evidence (you lose processes &amp; connections)</td></tr>
+        <tr><td>Verify from outside with <code class="inline">nmap</code></td><td>Trust local config alone</td></tr>
+        <tr><td>Test a second SSH session before closing the first</td><td>Disable SSH access without a tested alternative</td></tr>
+        <tr><td>Keep Fail2Ban and the firewall enabled</td><td>Paste private keys, passwords or tokens into chat</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===================== REPORT ===================== -->
+  <h2 class="section" id="report">Final checklist &amp; report</h2>
+  <p class="section-intro">Fill in the Result column as you go. Any row that isn't "OK" is an issue to fix or explain.</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>#</th><th>Check</th><th>Expected</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Active sessions</td><td>Only known users/IPs</td><td></td></tr>
+        <tr><td>2</td><td>Successful SSH logins (30 d)</td><td>Every one attributed to a person</td><td></td></tr>
+        <tr><td>3</td><td>Brute-forcer succeeded (<code class="inline">comm -12</code>)</td><td>Empty</td><td></td></tr>
+        <tr><td>4</td><td>Root / password SSH login</td><td>Disabled</td><td></td></tr>
+        <tr><td>5</td><td>Fail2Ban sshd jail</td><td>Enabled, counters rising, top IPs banned</td><td></td></tr>
+        <tr><td>6</td><td>External port scan</td><td>Only 22, 80, 443 open</td><td></td></tr>
+        <tr><td>7</td><td>Tomcat 8080 / 8005 / 8009</td><td>Localhost only / AJP off</td><td></td></tr>
+        <tr><td>8</td><td>Tomcat manager</td><td>Not reachable from Internet</td><td></td></tr>
+        <tr><td>9</td><td>MySQL 3306</td><td>Localhost, no <code class="inline">'%'</code> users</td><td></td></tr>
+        <tr><td>10</td><td>authorized_keys (all users)</td><td>Only known keys</td><td></td></tr>
+        <tr><td>11</td><td>Users / UID 0 / sudoers</td><td>Only expected accounts</td><td></td></tr>
+        <tr><td>12</td><td>Cron / systemd / timers</td><td>Nothing unknown</td><td></td></tr>
+        <tr><td>13</td><td><code class="inline">ld.so.preload</code>, <code class="inline">/tmp</code> executables, <code class="inline">dpkg --verify</code></td><td>Clean</td><td></td></tr>
+        <tr><td>14</td><td>Processes &amp; outbound connections</td><td>No miners, no deleted binaries, no unknown peers</td><td></td></tr>
+        <tr><td>15</td><td>Nginx spike analysis</td><td>Spike explained (users / bots / attack)</td><td></td></tr>
+        <tr><td>16</td><td>Resources (load, RAM, OOM, disk)</td><td>Within limits</td><td></td></tr>
+        <tr><td>17</td><td>Unattended upgrades + daily check</td><td>Enabled</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-block c1">
+    <h4 style="margin-top:0">Verdict</h4>
+    <ul class="clean">
+      <li><b>Status:</b> Noisy, not compromised / Suspicious / Compromised</li>
+      <li><b>Root cause:</b> e.g. "root password login enabled + Tomcat 8080 bound to 0.0.0.0"</li>
+      <li><b>Actions taken:</b> …</li>
+      <li><b>Secrets rotated:</b> …</li>
+      <li><b>Evidence folder:</b> <code class="inline">/root/ir-YYYY-MM-DD_HHMM</code> (copied off-server: yes/no)</li>
+    </ul>
+  </div>
+
+  <div class="refs">
+    <h4>References</h4>
+    <ul>
+      <li><a href="https://man.openbsd.org/sshd_config">sshd_config(5) manual</a></li>
+      <li><a href="https://github.com/fail2ban/fail2ban/wiki">Fail2Ban wiki</a></li>
+      <li><a href="https://nginx.org/en/docs/http/ngx_http_limit_req_module.html">Nginx limit_req module</a></li>
+      <li><a href="https://tomcat.apache.org/tomcat-9.0-doc/security-howto.html">Apache Tomcat security considerations</a></li>
+      <li><a href="https://help.ubuntu.com/community/UFW">Ubuntu UFW guide</a></li>
+    </ul>
+  </div>
+
+  <p class="credits">Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a></p>
+
+</div>
+</body>
+</html>
