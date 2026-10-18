@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QF8LYW219D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QF8LYW219D');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>System Design — A 100 AED Card Payment, End to End</title>
+  <meta name="description" content="How a 100 AED Visa card payment flows from a POS terminal to the issuing bank and back when the acquirer and issuer use different card processors — authorization, clearing, settlement, fees and ledger entries.">
+  <meta name="keywords" content="System Design, Card Payment, Acquirer, Issuer, Card Processor, Visa, ISO 8583, Authorization, Clearing, Settlement, Interchange, UAE, AED, mamun7025, al-mamun-sa">
+  <meta name="author" content="Al Mamun">
+  <link rel="stylesheet" href="../../assets/notes.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="../../index.html">&larr; All Tech Notes</a>
+
+  <header class="hero">
+    <div class="eyebrow">System Design · Payments</div>
+    <h1>A 100 AED Card Payment, End to End</h1>
+    <p class="sub">You pay with your Mashreq Visa card at Safari Mall for <b>100 AED</b>. In under two seconds the terminal says <em>Approved</em>, but the money only moves the next day. This note follows that one transaction through two banks, <b>two different card processors</b> and one card network.</p>
+    <div class="legend">
+      <span class="chip"><span class="dot c1"></span> Acquirer side (merchant's bank)</span>
+      <span class="chip"><span class="dot c2"></span> Issuer side (cardholder's bank)</span>
+      <span class="chip"><span class="dot c3"></span> Money movement</span>
+    </div>
+  </header>
+
+  <div class="note"><b>Note:</b> the banks and processors reflect a realistic UAE setup. Fee percentages and timings are typical values, not the actual commercial terms of any of these companies.</div>
+
+  <!-- PARTIES -->
+  <h2 class="section" id="parties">The parties</h2>
+  <p class="section-intro">Seven parties take part in one payment. The two processors are separate companies, one on each side of the network.</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Role</th><th>Party</th><th>What it does in this transaction</th></tr></thead>
+      <tbody>
+        <tr><td>Cardholder</td><td>Al Mamun</td><td>Pays 100 AED with a Mashreq Visa debit card</td></tr>
+        <tr><td>Merchant</td><td>Safari Mall</td><td>Uses the POS terminal (rented from the acquirer) and receives the money</td></tr>
+        <tr><td><span class="badge c1">acquirer</span> Acquiring bank</td><td>Emirates NBD</td><td>Holds Safari Mall's merchant account and takes the settlement risk for the merchant</td></tr>
+        <tr><td><span class="badge c1">acquirer</span> Acquirer processor</td><td>Network International</td><td>Runs the terminals, the payment switch and the Visa connection for Emirates NBD</td></tr>
+        <tr><td>Card network</td><td>Visa (VisaNet)</td><td>Routes messages by card number (BIN), runs clearing and settlement, sets the rules</td></tr>
+        <tr><td><span class="badge c2">issuer</span> Issuer processor</td><td>NEOPAY</td><td>Hosts Mashreq's card system: card checks, EMV cryptograms, PIN, authorization logic</td></tr>
+        <tr><td><span class="badge c2">issuer</span> Issuing bank</td><td>Mashreq</td><td>Owns the cardholder's account, gives the final yes/no and carries the credit risk</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card-block c1">
+    <h4 style="margin-top:0">Why the processors are different companies</h4>
+    <p>Running a PCI&nbsp;DSS-certified switch, HSMs and a 24/7 network connection is expensive, so each bank uses a dedicated processing company:</p>
+    <ul class="clean">
+      <li>The <b>acquirer</b> chose Network International to handle merchants and terminals.</li>
+      <li>The <b>issuer</b> uses NEOPAY, Mashreq's payments company, to handle its cards.</li>
+      <li>The two processors <b>never talk to each other directly</b>. Visa sits between them. Each processor is connected to VisaNet as an agent of its bank, so Visa is the only common point.</li>
+    </ul>
+    <p style="margin-bottom:0">This is the main difference from an "on-us" transaction, where card and terminal belong to the same bank and processor and the request may never leave that processor's switch.</p>
+  </div>
+
+  <!-- BIG PICTURE -->
+  <h2 class="section" id="overview">The big picture: three phases</h2>
+  <p class="section-intro">A card payment is not one event. It happens in three separate phases at three different times.</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Phase</th><th>When</th><th>What moves</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td><a href="#auth">1 · Authorization</a></td><td>At the till, ~1–2 s</td><td>Messages only</td><td>Issuer approves and puts a <b>100 AED hold</b> on the account</td></tr>
+        <tr><td><a href="#clearing">2 · Clearing</a></td><td>File sent end of day (T+0), posted T+1</td><td>Transaction records (files)</td><td>Issuer turns the hold into a <b>posted debit</b></td></tr>
+        <tr><td><a href="#settlement">3 · Settlement</a></td><td>T+1 (next business day)</td><td><span class="badge c3">real money</span></td><td>Issuer pays Visa, Visa pays acquirer, acquirer pays merchant</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <pre class="ascii">
+  ACQUIRER SIDE                       NETWORK                       ISSUER SIDE
+ ┌──────────┐  ┌──────────────┐  ┌───────────────────┐  ┌──────────┐  ┌──────────┐
+ │ Safari   │→ │ Network Intl │→ │                   │→ │ NEOPAY   │→ │ Mashreq  │
+ │ Mall POS │  │ (acq. proc.) │  │   Visa (VisaNet)  │  │ (iss.    │  │ (issuing │
+ │          │← │ for Emirates │← │                   │← │  proc.)  │← │  bank)   │
+ └──────────┘  │ NBD          │  └───────────────────┘  └──────────┘  └──────────┘
+               └──────────────┘
+   Authorization:  request →→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→  approve ←←←←
+   Clearing:       Network Intl sends the record to Visa, Visa sends it to NEOPAY
+   Settlement:     Mashreq ──AED──▶ Visa settlement account ──AED──▶ Emirates NBD ──▶ Safari Mall</pre>
+
+  <h2 class="section" id="sequence">Sequence diagram: the whole 100 AED journey</h2>
+  <p class="section-intro">All three phases on one timeline. Solid arrows are requests, green dashed arrows are responses, orange dashed arrows are real money.</p>
+  <figure class="table-scroll">
+    <svg class="seq" style="min-width:760px" viewBox="0 0 890 1028" role="img" aria-label="Sequence diagram of a 100 AED card payment: authorization, clearing and settlement between Safari Mall, Emirates NBD, Network International, Visa, NEOPAY and Mashreq">
+    <style>
+.seq{font-family:inherit}
+.seq .sq-box{fill:var(--surface-2);stroke:var(--border)}
+.seq .sq-box.acq{stroke:var(--c1)}
+.seq .sq-box.iss{stroke:var(--c2)}
+.seq .sq-bt{fill:var(--heading);font-size:12.5px;font-weight:600}
+.seq .sq-bs{fill:var(--text-dim);font-size:11px}
+.seq .sq-life{stroke:var(--border);stroke-dasharray:4 4}
+.seq .sq-req{stroke:var(--text-dim);stroke-width:1.4}
+.seq .sq-resp{stroke:var(--c2);stroke-width:1.4;stroke-dasharray:5 4}
+.seq .sq-money{stroke:var(--c3);stroke-width:1.6;stroke-dasharray:7 4}
+.seq .sq-a-req{fill:var(--text-dim)} .seq .sq-a-resp{fill:var(--c2)} .seq .sq-a-money{fill:var(--c3)}
+.seq .sq-lbl{fill:var(--text);font-size:11.5px}
+.seq .sq-note{fill:var(--surface);stroke:var(--border)}
+.seq .sq-nt{fill:var(--text-dim);font-size:11px}
+.seq .sq-phase{fill:color-mix(in srgb,var(--accent) 10%,transparent)}
+.seq .sq-ph{fill:var(--accent);font-size:11.5px;font-weight:700;letter-spacing:.5px}
+</style>
+    <defs><marker id="sq-a-req" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="sq-a-req" d="M0,0 L10,5 L0,10 z"/></marker><marker id="sq-a-resp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="sq-a-resp" d="M0,0 L10,5 L0,10 z"/></marker><marker id="sq-a-money" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="sq-a-money" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+    <line class="sq-life" x1="70" y1="60" x2="70" y2="968"/>
+    <line class="sq-life" x1="195" y1="60" x2="195" y2="968"/>
+    <line class="sq-life" x1="320" y1="60" x2="320" y2="968"/>
+    <line class="sq-life" x1="445" y1="60" x2="445" y2="968"/>
+    <line class="sq-life" x1="570" y1="60" x2="570" y2="968"/>
+    <line class="sq-life" x1="695" y1="60" x2="695" y2="968"/>
+    <line class="sq-life" x1="820" y1="60" x2="820" y2="968"/>
+    <rect class="sq-box" x="14.0" y="14" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="70" y="34" text-anchor="middle">Cardholder</text><text class="sq-bs" x="70" y="50" text-anchor="middle">(You)</text>
+    <rect class="sq-box acq" x="139.0" y="14" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="195" y="34" text-anchor="middle">Merchant</text><text class="sq-bs" x="195" y="50" text-anchor="middle">(Safari Mall)</text>
+    <rect class="sq-box acq" x="264.0" y="14" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="320" y="34" text-anchor="middle">Acquirer</text><text class="sq-bs" x="320" y="50" text-anchor="middle">(Emirates NBD)</text>
+    <rect class="sq-box acq" x="389.0" y="14" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="445" y="34" text-anchor="middle">Processor</text><text class="sq-bs" x="445" y="50" text-anchor="middle">(Network Intl)</text>
+    <rect class="sq-box" x="514.0" y="14" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="570" y="34" text-anchor="middle">Card Network</text><text class="sq-bs" x="570" y="50" text-anchor="middle">(Visa)</text>
+    <rect class="sq-box iss" x="639.0" y="14" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="695" y="34" text-anchor="middle">Processor</text><text class="sq-bs" x="695" y="50" text-anchor="middle">(NEOPAY)</text>
+    <rect class="sq-box iss" x="764.0" y="14" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="820" y="34" text-anchor="middle">Issuer</text><text class="sq-bs" x="820" y="50" text-anchor="middle">(Mashreq)</text>
+    <rect class="sq-phase" x="8" y="82" width="874" height="24" rx="6"/>
+    <text class="sq-ph" x="18" y="98">1 · Authorization — real time, ~1–2 s</text>
+    <text class="sq-lbl" x="132.5" y="126" text-anchor="middle">Insert card + PIN (100 AED)</text>
+    <line class="sq-req" x1="73" y1="132" x2="191" y2="132" marker-end="url(#sq-a-req)"/>
+    <text class="sq-lbl" x="320.0" y="160" text-anchor="middle">Auth request (Emirates NBD terminal)</text>
+    <line class="sq-req" x1="198" y1="166" x2="441" y2="166" marker-end="url(#sq-a-req)"/>
+    <rect class="sq-note" x="301" y="184" width="289" height="24" rx="5"/>
+    <text class="sq-nt" x="445" y="200" text-anchor="middle">Check TID/MID · BIN → Visa · PIN translate</text>
+    <text class="sq-lbl" x="507.5" y="228" text-anchor="middle">0100 auth request</text>
+    <line class="sq-req" x1="448" y1="234" x2="566" y2="234" marker-end="url(#sq-a-req)"/>
+    <rect class="sq-note" x="442" y="252" width="257" height="24" rx="5"/>
+    <text class="sq-nt" x="570" y="268" text-anchor="middle">BIN → Mashreq via NEOPAY · risk score</text>
+    <text class="sq-lbl" x="632.5" y="296" text-anchor="middle">0100 auth request</text>
+    <line class="sq-req" x1="573" y1="302" x2="691" y2="302" marker-end="url(#sq-a-req)"/>
+    <rect class="sq-note" x="589" y="320" width="212" height="24" rx="5"/>
+    <text class="sq-nt" x="695" y="336" text-anchor="middle">Card status · ARQC · PIN check</text>
+    <text class="sq-lbl" x="757.5" y="364" text-anchor="middle">Debit 100 AED?</text>
+    <line class="sq-req" x1="698" y1="370" x2="816" y2="370" marker-end="url(#sq-a-req)"/>
+    <rect class="sq-note" x="666" y="388" width="218" height="24" rx="5"/>
+    <text class="sq-nt" x="774.8" y="404" text-anchor="middle">Balance OK · place 100 AED hold</text>
+    <text class="sq-lbl" x="757.5" y="432" text-anchor="middle">Approved (00 · 7Q2K9B)</text>
+    <line class="sq-resp" x1="817" y1="438" x2="699" y2="438" marker-end="url(#sq-a-resp)"/>
+    <text class="sq-lbl" x="632.5" y="466" text-anchor="middle">0110 approved + ARPC</text>
+    <line class="sq-resp" x1="692" y1="472" x2="574" y2="472" marker-end="url(#sq-a-resp)"/>
+    <text class="sq-lbl" x="507.5" y="500" text-anchor="middle">0110 approved</text>
+    <line class="sq-resp" x1="567" y1="506" x2="449" y2="506" marker-end="url(#sq-a-resp)"/>
+    <text class="sq-lbl" x="320.0" y="534" text-anchor="middle">Approved</text>
+    <line class="sq-resp" x1="442" y1="540" x2="199" y2="540" marker-end="url(#sq-a-resp)"/>
+    <text class="sq-lbl" x="132.5" y="568" text-anchor="middle">Receipt</text>
+    <line class="sq-resp" x1="192" y1="574" x2="74" y2="574" marker-end="url(#sq-a-resp)"/>
+    <rect class="sq-phase" x="8" y="600" width="874" height="24" rx="6"/>
+    <text class="sq-ph" x="18" y="616">2 · Clearing — end of day (batch)</text>
+    <text class="sq-lbl" x="320.0" y="644" text-anchor="middle">Batch close</text>
+    <line class="sq-req" x1="198" y1="650" x2="441" y2="650" marker-end="url(#sq-a-req)"/>
+    <text class="sq-lbl" x="507.5" y="678" text-anchor="middle">BASE II clearing record (TC05)</text>
+    <line class="sq-req" x1="448" y1="684" x2="566" y2="684" marker-end="url(#sq-a-req)"/>
+    <text class="sq-lbl" x="632.5" y="712" text-anchor="middle">Clearing record + interchange</text>
+    <line class="sq-req" x1="573" y1="718" x2="691" y2="718" marker-end="url(#sq-a-req)"/>
+    <text class="sq-lbl" x="757.5" y="746" text-anchor="middle">Match auth → post</text>
+    <line class="sq-req" x1="698" y1="752" x2="816" y2="752" marker-end="url(#sq-a-req)"/>
+    <rect class="sq-note" x="691" y="770" width="193" height="24" rx="5"/>
+    <text class="sq-nt" x="787.6" y="786" text-anchor="middle">Hold → posted debit 100 AED</text>
+    <rect class="sq-phase" x="8" y="812" width="874" height="24" rx="6"/>
+    <text class="sq-ph" x="18" y="828">3 · Settlement — T+1 (money moves)</text>
+    <text class="sq-lbl" x="695.0" y="856" text-anchor="middle">Pay net 98.50 AED</text>
+    <line class="sq-money" x1="817" y1="862" x2="574" y2="862" marker-end="url(#sq-a-money)"/>
+    <text class="sq-lbl" x="445.0" y="890" text-anchor="middle">Pay 98.50 AED</text>
+    <line class="sq-money" x1="567" y1="896" x2="324" y2="896" marker-end="url(#sq-a-money)"/>
+    <text class="sq-lbl" x="257.5" y="924" text-anchor="middle">Credit 98.00 AED (minus MDR)</text>
+    <line class="sq-money" x1="317" y1="930" x2="199" y2="930" marker-end="url(#sq-a-money)"/>
+    <rect class="sq-box" x="14.0" y="968" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="70" y="988" text-anchor="middle">Cardholder</text><text class="sq-bs" x="70" y="1004" text-anchor="middle">(You)</text>
+    <rect class="sq-box acq" x="139.0" y="968" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="195" y="988" text-anchor="middle">Merchant</text><text class="sq-bs" x="195" y="1004" text-anchor="middle">(Safari Mall)</text>
+    <rect class="sq-box acq" x="264.0" y="968" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="320" y="988" text-anchor="middle">Acquirer</text><text class="sq-bs" x="320" y="1004" text-anchor="middle">(Emirates NBD)</text>
+    <rect class="sq-box acq" x="389.0" y="968" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="445" y="988" text-anchor="middle">Processor</text><text class="sq-bs" x="445" y="1004" text-anchor="middle">(Network Intl)</text>
+    <rect class="sq-box" x="514.0" y="968" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="570" y="988" text-anchor="middle">Card Network</text><text class="sq-bs" x="570" y="1004" text-anchor="middle">(Visa)</text>
+    <rect class="sq-box iss" x="639.0" y="968" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="695" y="988" text-anchor="middle">Processor</text><text class="sq-bs" x="695" y="1004" text-anchor="middle">(NEOPAY)</text>
+    <rect class="sq-box iss" x="764.0" y="968" width="112" height="46" rx="7"/>
+    <text class="sq-bt" x="820" y="988" text-anchor="middle">Issuer</text><text class="sq-bs" x="820" y="1004" text-anchor="middle">(Mashreq)</text>
+    </svg>
+    <figcaption>Authorization in real time, clearing at end of day, settlement on T+1</figcaption>
+  </figure>
+
+  <!-- AUTHORIZATION -->
+  <span class="group-label c1">Phase 1 · Authorization (real time)</span>
+  <h2 class="section" id="auth">Step by step: the 100 AED authorization</h2>
+  <p class="section-intro">Every hop speaks a dialect of <b>ISO&nbsp;8583</b>. The request is an <code class="inline">0100</code> (or <code class="inline">0200</code> for single-message debit) and the response is an <code class="inline">0110</code>.</p>
+
+  <div class="card-block c1">
+    <h3>1 · Card at the terminal <span class="tag">Safari Mall</span></h3>
+    <p>The cardholder inserts the card and enters the PIN. The chip and the terminal run the EMV transaction:</p>
+    <ul class="clean">
+      <li>The terminal reads the card number (PAN), expiry and the card's application data.</li>
+      <li>The chip generates an <b>ARQC</b> cryptogram, a one-time signature over the amount (100.00), currency (784 = AED), date and a random number. Only the issuer side can verify it.</li>
+      <li>The <b>PIN</b> is encrypted inside the PIN pad as a <b>PIN block</b> and never leaves it in clear text. (A contactless tap under the UAE limit of 500 AED would skip the PIN; the rest of the flow is the same.)</li>
+    </ul>
+  </div>
+
+  <div class="card-block c1">
+    <h3>2 · Terminal → acquirer processor <span class="tag">Network International</span></h3>
+    <p>The terminal is registered to Emirates NBD but physically connects to <b>Network International's</b> switch. Network International:</p>
+    <ul class="clean">
+      <li>Checks the terminal ID and merchant ID (MID) against Emirates NBD's merchant records, and checks that Safari Mall is active and allowed to accept Visa.</li>
+      <li>Runs the acquirer's fraud and velocity rules (for example, too many declines on this terminal).</li>
+      <li>Reads the BIN (first 6–8 digits). It is a Visa card and it is <b>not on-us</b> because Mashreq is not an Emirates NBD BIN, so the request has to go to Visa.</li>
+      <li><b>Translates the PIN block</b> in its HSM, from the terminal key to the key shared with Visa (the acquirer working key).</li>
+      <li>Builds the Visa-format <code class="inline">0100</code> message.</li>
+    </ul>
+    <div class="code-label">Key fields in the 0100 request (simplified)</div>
+    <pre><span class="com"># ISO 8583 authorization request — sent by Network International to Visa</span>
+MTI   <span class="num">0100</span>                    <span class="com"># authorization request</span>
+DE 2  <span class="str">4xxxxx******1234</span>        <span class="com"># PAN (masked here)</span>
+DE 3  <span class="num">000000</span>                  <span class="com"># processing code: purchase from default account</span>
+DE 4  <span class="num">000000010000</span>            <span class="com"># amount 100.00 (minor units, 2 decimals)</span>
+DE 7  <span class="num">1018143205</span>              <span class="com"># transmission date/time (MMDDhhmmss, GMT)</span>
+DE 11 <span class="num">482913</span>                  <span class="com"># STAN — system trace audit number</span>
+DE 22 <span class="num">051</span>                     <span class="com"># POS entry mode: chip read, PIN entered</span>
+DE 32 <span class="num">4xxxxx</span>                  <span class="com"># acquiring institution ID (Emirates NBD)</span>
+DE 37 <span class="str">629114482913</span>            <span class="com"># RRN — retrieval reference number</span>
+DE 41 <span class="str">SFM00017</span>                <span class="com"># terminal ID</span>
+DE 42 <span class="str">SAFARIMALL0001 </span>         <span class="com"># merchant ID</span>
+DE 43 <span class="str">SAFARI MALL SHARJAH AE</span>  <span class="com"># merchant name / location</span>
+DE 49 <span class="num">784</span>                     <span class="com"># transaction currency: AED</span>
+DE 52 <span class="str">[encrypted PIN block]</span>
+DE 55 <span class="str">[EMV data incl. ARQC]</span></pre>
+  </div>
+
+  <div class="card-block">
+    <h3>3 · Visa routes the request <span class="tag">VisaNet</span></h3>
+    <ul class="clean">
+      <li>Looks up the BIN in its routing tables and finds that the BIN belongs to Mashreq, whose processing endpoint is <b>NEOPAY</b>.</li>
+      <li>Translates the PIN block again, from the acquirer zone key to the <b>issuer processor's</b> zone key.</li>
+      <li>Runs network-level risk scoring (Visa Advanced Authorization) and adds a risk score to the message.</li>
+      <li>Forwards the <code class="inline">0100</code> to NEOPAY's VisaNet endpoint.</li>
+    </ul>
+    <div class="trick"><span class="ico">🔐</span><span class="txt"><b>Why the PIN is re-encrypted at every hop:</b> each pair of parties shares its own key, so no single key opens the PIN block end to end. With two different processors this gives three key zones: terminal ↔ Network Intl, Network Intl ↔ Visa, Visa ↔ NEOPAY. Only NEOPAY's HSM can check the PIN against Mashreq's PIN keys.</span></div>
+  </div>
+
+  <div class="card-block c2">
+    <h3>4 · Issuer processor checks the card <span class="tag">NEOPAY</span></h3>
+    <p>NEOPAY acts for Mashreq and runs the card-level checks in its HSMs and authorization engine:</p>
+    <ul class="clean">
+      <li><b>Card status</b>: active, not expired, not reported lost or stolen.</li>
+      <li><b>ARQC verification</b>: confirms the chip is genuine and the amount was not changed on the way. NEOPAY then creates an <b>ARPC</b> for the response.</li>
+      <li><b>PIN verification</b>: checks the PIN block against the PIN offset or PVV, and counts wrong PIN tries.</li>
+      <li><b>Card limits and controls</b>: daily POS limit, e-commerce or country blocks, merchant category (MCC) rules.</li>
+    </ul>
+    <p>What happens next depends on how Mashreq set up the integration:</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Model</th><th>Who checks the balance</th><th>Typical for</th></tr></thead>
+        <tbody>
+          <tr><td><b>Online to core banking</b></td><td>NEOPAY calls Mashreq's core banking or card management API, and Mashreq checks the account and places the hold</td><td>Debit cards (money sits in a current account)</td></tr>
+          <tr><td><b>Processor-hosted balance</b></td><td>NEOPAY keeps the open-to-buy or credit limit and decides alone; Mashreq gets the result in a file or feed</td><td>Credit and prepaid cards</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card-block c2">
+    <h3>5 · Issuing bank decides <span class="tag">Mashreq</span></h3>
+    <ul class="clean">
+      <li>Checks the available balance: is it at least 100 AED?</li>
+      <li>Runs the bank's own fraud model (unusual location, amount, time of day).</li>
+      <li>Approves and places a <b>100 AED authorization hold</b>. The available balance goes down, but the ledger (book) balance does not change yet.</li>
+      <li>Returns approval code <code class="inline">DE&nbsp;38 = 7Q2K9B</code> and response code <code class="inline">DE&nbsp;39 = 00</code> (approved).</li>
+    </ul>
+    <div class="code-label">Mashreq account right after authorization</div>
+    <pre class="output">Ledger balance      5,000.00 AED   <span class="com"># unchanged</span>
+Holds                 100.00 AED   <span class="com"># SAFARI MALL — pending — auth 7Q2K9B</span>
+Available balance   4,900.00 AED   <span class="com"># what the mobile app shows as "available"</span></pre>
+  </div>
+
+  <div class="card-block">
+    <h3>6 · The response travels back <span class="tag">0110</span></h3>
+    <p>The <code class="inline">0110</code> goes back the same way: Mashreq → NEOPAY (adds ARPC) → Visa → Network International → terminal. Network International stores the approved transaction in its <b>transaction log</b>, because it will need it for clearing tonight. The terminal shows <em>Approved</em> and prints the receipt.</p>
+    <div class="code-label">Typical timing budget</div>
+    <pre class="output">Terminal → Network Intl            ~150 ms   <span class="com"># 4G/broadband from the mall</span>
+Network Intl processing             ~30 ms
+Network Intl → Visa → NEOPAY        ~80 ms
+NEOPAY checks + HSM                 ~40 ms
+NEOPAY → Mashreq core → NEOPAY     ~150 ms
+Return path to terminal            ~250 ms
+──────────────────────────────────────────
+Total                         ~0.7 – 1.5 s</pre>
+  </div>
+
+  <!-- CLEARING -->
+  <span class="group-label c2">Phase 2 · Clearing (batch, end of day)</span>
+  <h2 class="section" id="clearing">Clearing: turning the hold into a debit</h2>
+  <p class="section-intro">Authorization only reserved the money. Clearing is when the acquirer says: "this sale really happened, here is the final amount."</p>
+  <div class="card-block c2">
+    <ol>
+      <li><b>Terminal batch close.</b> At end of day Safari Mall's terminal (or Network International automatically) closes the batch. Our 100 AED sale goes in with all of the day's other approved sales.</li>
+      <li><b>Acquirer processor builds the clearing file.</b> Network International creates a Visa <b>BASE&nbsp;II</b> clearing record (TC05 sales draft) for each sale. Each record keeps the RRN, approval code 7Q2K9B, amount 100.00 AED and MCC.</li>
+      <li><b>Visa clears.</b> Visa receives files from every acquirer, works out the <b>interchange</b> for each record, sorts records by issuer and sends NEOPAY the records for Mashreq's cards.</li>
+      <li><b>Issuer processor matches.</b> NEOPAY matches each record to its authorization using the approval code, PAN and amount, then passes the posting to Mashreq.</li>
+      <li><b>Issuer posts.</b> Mashreq releases the hold and posts the actual 100 AED debit.</li>
+    </ol>
+    <div class="code-label">Mashreq account after clearing (T+1)</div>
+    <pre class="output">Ledger balance      4,900.00 AED   <span class="com"># now debited</span>
+Holds                   0.00 AED   <span class="com"># hold 7Q2K9B released</span>
+Available balance   4,900.00 AED   <span class="com"># unchanged for the customer</span></pre>
+    <div class="trick"><span class="ico">🧠</span><span class="txt"><b>Why the app shows "pending" for a day:</b> between authorization and clearing the transaction exists only as a hold. Holds that are never cleared (for example, a hotel pre-authorization that was never completed) expire after a set number of days and the money comes back on its own.</span></div>
+  </div>
+
+  <!-- SETTLEMENT -->
+  <span class="group-label c3">Phase 3 · Settlement (the money moves)</span>
+  <h2 class="section" id="settlement">Settlement: who pays whom</h2>
+  <p class="section-intro">Visa does not move 100 AED by itself. It <b>nets</b> every bank's position for the day and moves one amount per bank through settlement accounts. Processors only provide data and reports; they never hold the funds.</p>
+  <div class="card-block c3">
+    <ol>
+      <li>Visa calculates Mashreq's net amount owed for the day (all its cardholders' purchases minus interchange earned) and Emirates NBD's net amount due (all its merchants' sales minus interchange paid).</li>
+      <li>Mashreq's settlement bank pays its net amount in AED into Visa's settlement account.</li>
+      <li>Visa pays Emirates NBD's settlement account.</li>
+      <li>Emirates NBD credits Safari Mall's merchant account, minus the Merchant Discount Rate (MDR). Depending on the merchant agreement this is T+1 or T+2.</li>
+    </ol>
+  </div>
+
+  <h2 class="section" id="money">Where the 100 AED goes</h2>
+  <p class="section-intro">Illustrative split, assuming a 2.0% MDR and 1.5% interchange. Real rates depend on card type, MCC and contract; debit card interchange is usually lower than this example.</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Party</th><th>Amount</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Cardholder</td><td><b>−100.00 AED</b></td><td>Pays the full purchase price</td></tr>
+        <tr><td><span class="badge c2">issuer</span> Mashreq</td><td>+1.50 AED</td><td><b>Interchange</b>: Mashreq sends Visa 98.50 and keeps 1.50 for carrying the risk and funding the cardholder</td></tr>
+        <tr><td><span class="badge c2">issuer</span> NEOPAY</td><td>~0.05–0.15 AED</td><td>Per-transaction processing fee, <b>invoiced to Mashreq</b> monthly, not taken from the flow</td></tr>
+        <tr><td>Visa</td><td>~0.05–0.15 AED</td><td>Scheme and network fees, billed separately to both banks</td></tr>
+        <tr><td><span class="badge c1">acquirer</span> Emirates NBD</td><td>+0.50 AED</td><td>Receives 98.50 from Visa, pays the merchant 98.00, keeps the difference (before its own costs)</td></tr>
+        <tr><td><span class="badge c1">acquirer</span> Network International</td><td>~0.05–0.15 AED</td><td>Per-transaction and terminal fees, <b>invoiced to Emirates NBD</b></td></tr>
+        <tr><td>Merchant</td><td><b>+98.00 AED</b></td><td>100.00 minus 2.0% MDR</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <pre class="ascii">
+ Cardholder ──100.00──▶ Mashreq ──98.50──▶ Visa ──98.50──▶ Emirates NBD ──98.00──▶ Safari Mall
+                          │                                     │
+                          └─ keeps 1.50 interchange              └─ keeps 0.50 (MDR − interchange)
+
+ Off the flow (monthly invoices):  NEOPAY ──bills──▶ Mashreq      Network Intl ──bills──▶ Emirates NBD
+                                   Visa ──scheme fees──▶ both banks</pre>
+
+  <!-- LEDGER -->
+  <h2 class="section" id="ledger">Ledger entries on both sides</h2>
+  <p class="section-intro">The same 100 AED, recorded as double-entry bookkeeping at each bank.</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>When</th><th>Bank</th><th>Debit</th><th>Credit</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr><td>Auth</td><td>Mashreq</td><td colspan="2">Hold only (memo entry, no GL posting)</td><td>100.00</td></tr>
+        <tr><td>Clearing</td><td>Mashreq</td><td>Cardholder account</td><td>Visa settlement payable</td><td>100.00</td></tr>
+        <tr><td>Clearing</td><td>Mashreq</td><td>Visa settlement payable</td><td>Interchange income</td><td>1.50</td></tr>
+        <tr><td>Settlement</td><td>Mashreq</td><td>Visa settlement payable</td><td>Settlement account (at UAE Central Bank)</td><td>98.50</td></tr>
+        <tr><td>Clearing</td><td>Emirates NBD</td><td>Visa settlement receivable</td><td>Merchant payable</td><td>98.50</td></tr>
+        <tr><td>Settlement</td><td>Emirates NBD</td><td>Settlement account (at UAE Central Bank)</td><td>Visa settlement receivable</td><td>98.50</td></tr>
+        <tr><td>Payout</td><td>Emirates NBD</td><td>Merchant payable</td><td>Safari Mall account</td><td>98.00</td></tr>
+        <tr><td>Payout</td><td>Emirates NBD</td><td>Merchant payable</td><td>MDR income</td><td>0.50</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FAILURES -->
+  <h2 class="section" id="failures">When things go wrong</h2>
+  <p class="section-intro">Having two processors means two more places where a message can get lost. The system is designed so that the cardholder is never charged for a sale that did not happen.</p>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Timeout: the response never reaches the terminal</h4>
+    <p>Mashreq approved and placed the hold, but the <code class="inline">0110</code> was lost between Visa and Network International. The terminal shows <em>Declined / No response</em>.</p>
+    <ul class="clean">
+      <li>Network International sends an automatic <b>reversal</b> (<code class="inline">0400</code>) with the same STAN and RRN.</li>
+      <li>Visa forwards it to NEOPAY, and Mashreq <b>releases the 100 AED hold</b>.</li>
+      <li>If the reversal is lost too, the hold has no clearing record and <b>expires</b> by itself.</li>
+    </ul>
+  </div>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Issuer processor unavailable: Visa stand-in (STIP)</h4>
+    <p>If NEOPAY or Mashreq's core banking does not reply in time, Visa can decide for Mashreq using <b>Stand-In Processing</b> limits that Mashreq set in advance (for example, approve up to 500 AED if the card is not blocked). Visa then sends the stand-in decision to NEOPAY as an <b>advice</b> (<code class="inline">0120</code>) when the connection comes back, so Mashreq can place the hold afterwards.</p>
+  </div>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Decline</h4>
+    <p>Wrong PIN (<code class="inline">55</code>), insufficient funds (<code class="inline">51</code>), expired card (<code class="inline">54</code>) or suspected fraud (<code class="inline">59</code>). No hold, no clearing, no money moves. Only a decline record is kept for fraud analytics.</p>
+  </div>
+
+  <div class="card-block c3">
+    <h4 style="margin-top:0">Refund or chargeback later</h4>
+    <ul class="clean">
+      <li><b>Refund</b>: Safari Mall starts a refund, Network International clears a credit record (TC06), and the money runs the same path in reverse.</li>
+      <li><b>Chargeback</b>: the cardholder disputes the charge with Mashreq. NEOPAY raises it through Visa Resolve Online, Network International passes it to Emirates NBD, and Emirates NBD asks Safari Mall for proof (the receipt with approval code 7Q2K9B).</li>
+    </ul>
+  </div>
+
+  <!-- KEY POINTS -->
+  <h2 class="section" id="summary">Key points</h2>
+  <div class="card-block c1">
+    <ul class="clean">
+      <li><b>Processors work for banks, not for each other.</b> Network International and NEOPAY only meet inside VisaNet. Each is the technical agent of its bank on Visa.</li>
+      <li><b>Authorization is real time and moves no money.</b> It creates a hold. The available balance drops right away; the ledger balance drops after clearing.</li>
+      <li><b>Clearing and settlement are batch jobs.</b> Records are matched to authorizations by approval code, RRN and PAN, and banks settle one netted amount per day.</li>
+      <li><b>Security is split by zones.</b> PIN blocks are re-encrypted at each hop, and only the issuer processor can verify the PIN and the EMV cryptogram.</li>
+      <li><b>Processors are paid by invoice.</b> Interchange and MDR come out of the 100 AED; processor and scheme fees are billed to the banks separately.</li>
+      <li><b>Failures resolve to "no charge".</b> Reversals, stand-in advices and hold expiry make sure a lost message does not leave a wrong debit.</li>
+    </ul>
+  </div>
+
+  <div class="refs">
+    <h4>References</h4>
+    <ul>
+      <li><a href="https://www.iso.org/standard/31628.html">ISO 8583-1:2003 — Financial transaction card originated messages</a></li>
+      <li><a href="https://usa.visa.com/support/small-business/regulations-fees.html">Visa — Rules and interchange reimbursement fees</a></li>
+      <li><a href="https://www.emvco.com/specifications/">EMVCo — EMV specifications</a></li>
+      <li><a href="https://www.pcisecuritystandards.org/">PCI Security Standards Council</a></li>
+    </ul>
+  </div>
+
+  <p class="credits">Author: <a href="https://www.linkedin.com/in/al-mamun-sa/">Al Mamun</a></p>
+
+</div>
+</body>
+</html>
