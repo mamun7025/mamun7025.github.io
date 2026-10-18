@@ -9,7 +9,7 @@
 | Acquiring bank | Emirates NBD |
 | Acquirer's processor | Network International |
 | Card network | Visa |
-| Issuer's processor | Euronet |
+| Issuer's processor | NEOPAY |
 | Issuing bank | Mashreq |
 
 ## Flow Diagram (batch of 180 transactions)
@@ -20,7 +20,7 @@ flowchart LR
     B -->|Sends all 180 auth requests| C[Acquiring Bank - Emirates NBD]
     C --> D[Acquirer Processor - Network International]
     D --> E[Card Network - Visa]
-    E --> F[Issuer Processor - Euronet]
+    E --> F[Issuer Processor - NEOPAY]
     F --> G[Issuing Bank - Mashreq]
     G -->|Approves each of the 180 individually| F
     F --> E --> D --> C
@@ -42,7 +42,7 @@ sequenceDiagram
     participant Acquirer as Emirates NBD
     participant AcqProc as Network International
     participant Network as Visa
-    participant IssProc as Euronet
+    participant IssProc as NEOPAY
     participant Issuer as Mashreq
 
     loop For each of the 180 transactions
